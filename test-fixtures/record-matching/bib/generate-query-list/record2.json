@@ -1,0 +1,311 @@
+{
+  "leader": "00984cms a22003134i 4500",
+  "fields": [
+    {
+      "tag": "001",
+      "value": "006194285"
+    },
+    {
+      "tag": "003",
+      "value": "FCC"
+    },
+    {
+      "tag": "005",
+      "value": "20130419232342.0"
+    },
+    {
+      "tag": "006",
+      "value": "s|||||||||||||||||"
+    },
+    {
+      "tag": "007",
+      "value": "c|||||||||||||"
+    },
+    {
+      "tag": "008",
+      "value": "010123c19979999fi     a|  j |      fin||"
+    },
+    {
+      "tag": "FMT",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "F",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "tag": "022",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "0038-1640"
+        }
+      ]
+    },
+    {
+      "tag": "041",
+      "ind1": "0",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "fin"
+        }
+      ]
+    },
+    {
+      "tag": "245",
+      "ind1": "0",
+      "ind2": "0",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Sosiologia :"
+        },
+        {
+          "code": "b",
+          "value": "Westermarck-seuran julkaisu."
+        }
+      ]
+    },
+    {
+      "tag": "256",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Verkkolehti."
+        }
+      ]
+    },
+    {
+      "tag": "260",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Tampere :"
+        },
+        {
+          "code": "b",
+          "value": "Westermarck-seura,"
+        },
+        {
+          "code": "c",
+          "value": "1997-"
+        }
+      ]
+    },
+    {
+      "tag": "336",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "useita sisältötyyppejä"
+        },
+        {
+          "code": "b",
+          "value": "zzz"
+        },
+        {
+          "code": "2",
+          "value": "rdacontent"
+        }
+      ]
+    },
+    {
+      "tag": "337",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "tietokonekäyttöinen"
+        },
+        {
+          "code": "b",
+          "value": "c"
+        },
+        {
+          "code": "2",
+          "value": "rdamedia"
+        }
+      ]
+    },
+    {
+      "tag": "338",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "verkkoaineisto"
+        },
+        {
+          "code": "b",
+          "value": "cr"
+        },
+        {
+          "code": "2",
+          "value": "rdacarrier"
+        }
+      ]
+    },
+    {
+      "tag": "506",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Tampereen ammattikorkeakoulun asiakkaille. - For the customers of TAMK library."
+        },
+        {
+          "code": "5",
+          "value": "TAMK"
+        }
+      ]
+    },
+    {
+      "tag": "530",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Myös painettuna."
+        }
+      ]
+    },
+    {
+      "tag": "538",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Internet-yhteys, www-selain, Adobe Reader."
+        }
+      ]
+    },
+    {
+      "tag": "710",
+      "ind1": "2",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "Westermarck-seura."
+        }
+      ]
+    },
+    {
+      "tag": "SID",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "c",
+          "value": "121946"
+        },
+        {
+          "code": "b",
+          "value": "tamk"
+        }
+      ]
+    },
+    {
+      "tag": "CAT",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "LOAD-LAMK"
+        },
+        {
+          "code": "b",
+          "value": ""
+        },
+        {
+          "code": "c",
+          "value": "20130419"
+        },
+        {
+          "code": "l",
+          "value": "FIN01"
+        },
+        {
+          "code": "h",
+          "value": "2323"
+        }
+      ]
+    },
+    {
+      "tag": "CAT",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "CONV-RDA"
+        },
+        {
+          "code": "b",
+          "value": ""
+        },
+        {
+          "code": "c",
+          "value": "20160319"
+        },
+        {
+          "code": "l",
+          "value": "FIN01"
+        },
+        {
+          "code": "h",
+          "value": "0825"
+        }
+      ]
+    },
+    {
+      "tag": "CAT",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "c",
+          "value": "20160330"
+        },
+        {
+          "code": "l",
+          "value": "FIN01"
+        },
+        {
+          "code": "h",
+          "value": "0931"
+        }
+      ]
+    },
+    {
+      "tag": "LOW",
+      "ind1": " ",
+      "ind2": " ",
+      "subfields": [
+        {
+          "code": "a",
+          "value": "TAMK"
+        }
+      ]
+    }
+  ]
+}
