@@ -63,6 +63,8 @@ export function createBibService({sruURL}) {
 				return processCandidates();
 			}
 
+			return [];
+
 			function findCandidates() {
 				SruClient.searchRetrieve(query)
 					.on('record', handleRecord)
@@ -93,13 +95,12 @@ export function createBibService({sruURL}) {
 
 				if (candidate) {
 					debug('Checking a candidate for similarity');
-
 					const {preferredRecord, otherRecord} = PreferenceService.find(record, candidate);
 					const results = SimilarityService.check(preferredRecord, otherRecord);
 
 					if (!results.hasNegativeFeatures && results.type !== 'NOT_DUPLICATE') {
 						const id = candidate.get(/^001$/).shift().value;
-						return id;
+						return [id];
 					}
 				} else if (done) {
 					return find(queryList);
