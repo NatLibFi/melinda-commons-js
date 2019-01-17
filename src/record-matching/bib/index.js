@@ -26,6 +26,7 @@
 *
 */
 
+import createDebugLogger from 'debug';
 import {promisify} from 'util';
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
@@ -34,6 +35,8 @@ import generateQueryList from './generate-query-list';
 import {isDeletedRecord} from '../../utils';
 
 export function createBibService({sruURL}) {
+	const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
+
 	const setTimeoutPromise = promisify(setTimeout);
 	const {BibDefault: extractorSet} = Preference.ExtractorPresets;
 
@@ -75,6 +78,7 @@ export function createBibService({sruURL}) {
 					const id = record.get(/^001$/).shift().value;
 
 					if (!isDeletedRecord(record) && !foundIdList.includes(id)) {
+						foundIdList.push(id);
 						candidates.push(record);
 					}
 				}
@@ -88,6 +92,8 @@ export function createBibService({sruURL}) {
 				}
 
 				if (candidate) {
+					debug('Checking a candidate for similarity');
+
 					const {preferredRecord, otherRecord} = PreferenceService.find(record, candidate);
 					const results = SimilarityService.check(preferredRecord, otherRecord);
 
