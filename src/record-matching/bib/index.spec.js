@@ -44,7 +44,7 @@ const sruResponse3 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse3.xml'
 const record1 = fs.readFileSync(path.join(FIXTURES_PATH, 'record1.json'), 'utf8');
 const record2 = fs.readFileSync(path.join(FIXTURES_PATH, 'record2.json'), 'utf8');
 const record3 = fs.readFileSync(path.join(FIXTURES_PATH, 'record3.json'), 'utf8');
-const matchingId1 = fs.readFileSync(path.join(FIXTURES_PATH, 'matchingId1.txt'), 'utf8');
+const matchingIds1 = fs.readFileSync(path.join(FIXTURES_PATH, 'matchingIds1.json'), 'utf8');
 
 describe('record-matching/bib', () => {
 	afterEach(() => {
@@ -59,9 +59,9 @@ describe('record-matching/bib', () => {
 		nock('https://sru')
 			.get(/.*/).reply(200, sruResponse1);
 
-		const matchingId = await Service.find(record);
+		const matchingIds = await Service.find(record);
 
-		expect(matchingId).to.equal(matchingId1);
+		expect(matchingIds).to.eql(JSON.parse(matchingIds1));
 	});
 
 	it('Should not find a match (No candidates)', async () => {
@@ -72,7 +72,7 @@ describe('record-matching/bib', () => {
 		nock('https://sru')
 			.get(/.*/).reply(200, sruResponse2);
 
-		expect(await Service.find(record)).to.equal(undefined);
+		expect(await Service.find(record)).to.have.lengthOf(0);
 	});
 
 	it('Should not find a match (Candidates don\'t match', async () => {
@@ -83,6 +83,6 @@ describe('record-matching/bib', () => {
 		nock('https://sru')
 			.get(/.*/).reply(200, sruResponse3);
 
-		expect(await Service.find(record)).to.equal(undefined);
+		expect(await Service.find(record)).to.have.lengthOf(0);
 	});
 });
