@@ -26,6 +26,11 @@
 *
 */
 
+import expressWinston from 'express-winston';
+import winston from 'winston';
+import moment from 'moment';
+import {createCipher, createDecipher, randomBytes} from 'crypto';
+
 // Needed for Rewire to work
 import console from 'console';
 
@@ -51,4 +56,52 @@ export function readEnvironmentVariable(name, defaultValue, opts = {}) {
 	}
 
 	return process.env[name] || defaultValue;
+}
+
+export function createLogger() {
+	return winston.createLogger(createLoggerOptions());
+}
+
+export function createExpressLogger() {
+	return expressWinston.logger(Object.assign({
+		meta: true,
+		msg: '{{req.ip}} HTTP {{req.method}} {{req.path}} - {{res.statusCode}} {{res.responseTime}}ms',
+		ignoreRoute: () => false
+	}, createLoggerOptions()));
+}
+
+function createLoggerOptions() {
+	const timestamp = winston.format(info => {
+		info.timestamp = moment().format();
+		return info;
+	});
+
+	return {
+		format: winston.format.combine(timestamp(), winston.format.printf(formatMessage)),
+		transports: [
+			new winston.transports.Console({
+				level: process.env.DEBUG ? 'debug' : 'info',
+				silent: process.env.NODE_ENV === 'test'
+			})
+		]
+	};
+
+	function formatMessage(i) {
+		return `${i.timestamp} - ${i.level}: ${i.message}`;
+	}
+}
+
+export function generateEncryptionKey() {
+	return randomBytes(32).toString('base64');
+}
+
+// Do not use for very sensitive data (Implement IV-based encryption)
+export function encryptString({key, value, algorithm, encoding = 'base64'}) {
+	const Cipher = createCipher(algorithm, key);
+	return Cipher.update(value, 'utf8', encoding) + Cipher.final(encoding);
+}
+
+export function decryptString({key, value, algorithm, encoding = 'base64'}) {
+	const Decipher = createDecipher(algorithm, key);
+	return Decipher.update(value, encoding, 'utf8') + Decipher.final('utf8');
 }

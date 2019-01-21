@@ -66,14 +66,14 @@ describe('datastore', () => {
 
 		describe('#read', () => {
 			it('Should fetch a record', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse1);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				const record = await service.read('1234');
@@ -81,14 +81,14 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because the record does not exist', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse2);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				try {
@@ -101,14 +101,14 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because of an unexpected error', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(500);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				try {
@@ -126,10 +126,10 @@ describe('datastore', () => {
 					.post(/.*/).reply(200, ['1234']);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				const record = new MarcRecord(JSON.parse(incomingRecord1));
@@ -143,10 +143,10 @@ describe('datastore', () => {
 					.post(/.*/).reply(500);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				try {
@@ -161,16 +161,16 @@ describe('datastore', () => {
 
 		describe('#update', () => {
 			it('Should update a record', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse3);
 				nock('https://api')
 					.post(/.*/).reply(200, ['1234']);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				const record = new MarcRecord(JSON.parse(incomingRecord2));
@@ -178,14 +178,14 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because the record does not exist', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse4);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				try {
@@ -199,14 +199,14 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because target record has changed in datastore', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse5);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				try {
@@ -220,14 +220,14 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because of an unexpected error', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(500);
 
 				const service = testContext.createService({
-					sruURL: 'https://sru',
+					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
 				});
 
 				try {
