@@ -32,6 +32,7 @@ import fetch from 'node-fetch';
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML, AlephSequential} from '@natlibfi/marc-record-serializers';
 import {createAuthorizationHeader} from './utils';
+import deepEqual from 'deep-eql';
 
 const FIX_ROUTINE = 'GEN01';
 const UPDATE_ACTION = 'REP';
@@ -45,8 +46,7 @@ export class DatastoreError extends Error {
 	}
 }
 
-export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}) {
-	const sruClient = createSruClient({serverUrl: sruURL, version: SRU_VERSION, maximumRecords: 1});
+export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLoadLibrary}) {
 	const requestOptions = {
 		headers: {
 			Accept: 'application/json',
@@ -74,6 +74,8 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}
 	async function fetchRecord(id) {
 		return new Promise((resolve, reject) => {
 			try {
+				const sruClient = createSruClient({serverUrl: sruURL, version: SRU_VERSION, maximumRecords: 1});
+
 				sruClient.searchRetrieve(`rec.id=${id}`)
 					.on('record', record => {
 						try {
@@ -98,7 +100,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}
 		const url = new URL(recordLoadURL);
 		const formattedRecord = AlephSequential.to(record);
 
-		url.searchParams.set('library', library);
+		url.searchParams.set('library', recordLoadLibrary);
 		url.searchParams.set('method', id === undefined ? 'NEW' : 'OLD');
 		url.searchParams.set('fixRoutine', FIX_ROUTINE);
 		url.searchParams.set('updateAction', UPDATE_ACTION);
@@ -117,7 +119,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}
 		throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
 
 		function formatRecordId(id) {
-			const pattern = new RegExp(`${library.toUpperCase()}$`);
+			const pattern = new RegExp(`${recordLoadApiKey.toUpperCase()}$`);
 			return id.replace(pattern, '');
 		}
 	}
@@ -127,7 +129,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}
 		const incomingModificationHistory = incomingRecord.get(/^CAT$/);
 		const existingModificationHistory = existingRecord.get(/^CAT$/);
 
-		if (JSON.stringify(incomingModificationHistory) !== JSON.stringify(existingModificationHistory)) {
+		if (!deepEqual(incomingModificationHistory, existingModificationHistory)) {
 			throw new DatastoreError(HttpStatus.CONFLICT);
 		}
 	}

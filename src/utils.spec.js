@@ -32,14 +32,15 @@ import fs from 'fs';
 import path from 'path';
 import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
-import {createAuthorizationHeader, isDeletedRecord, readEnvironmentVariable, __RewireAPI__ as RewireAPI} from './utils';
+import {
+	createAuthorizationHeader, isDeletedRecord, readEnvironmentVariable,
+	generateEncryptionKey, encryptString, decryptString,
+	__RewireAPI__ as RewireAPI
+} from './utils';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
 
 const FIXTURES_PATH = path.join(__dirname, '../test-fixtures/utils');
-
-const isDeletedRecord_record1 = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record1.json'), 'utf8');
-const isDeletedRecord_record2 = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record2.json'), 'utf8');
 
 describe('utils', () => {
 	describe('createAuthorizationHeader', () => {
@@ -51,12 +52,14 @@ describe('utils', () => {
 
 	describe('isDeletedRecord', () => {
 		it('Should find the record deleted', () => {
-			const record = new MarcRecord(JSON.parse(isDeletedRecord_record1));
+			const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record1.json'), 'utf8');
+			const record = new MarcRecord(JSON.parse(data));
 			expect(isDeletedRecord(record)).to.equal(true);
 		});
 
 		it('Should find the record not deleted', () => {
-			const record = new MarcRecord(JSON.parse(isDeletedRecord_record2));
+			const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record2.json'), 'utf8');
+			const record = new MarcRecord(JSON.parse(data));
 			expect(isDeletedRecord(record)).to.equal(false);
 		});
 	});
@@ -92,6 +95,41 @@ describe('utils', () => {
 			expect(() => {
 				readEnvironmentVariable('FOO');
 			}).to.throw(Error, /^Mandatory environment variable missing: FOO$/);
+		});
+	});
+
+	describe('generateEncryptionKey', () => {
+		afterEach(() => {
+			RewireAPI.__ResetDependency__('randomBytes');
+		});
+
+		it('Should generate the expected key', () => {
+			const bytes = fs.readFileSync(path.join(FIXTURES_PATH, 'generateEncryptionKey/bytes.txt'), 'utf8');
+			const expectedKey = fs.readFileSync(path.join(FIXTURES_PATH, 'generateEncryptionKey/expectedKey.txt'), 'utf8');
+
+			RewireAPI.__Rewire__('randomBytes', () => bytes);
+
+			expect(generateEncryptionKey()).to.equal(expectedKey);
+		});
+	});
+
+	describe('encryptString', () => {
+		it('Should encrypt the string', () => {
+			const key = fs.readFileSync(path.join(FIXTURES_PATH, 'encryptString/key1.txt'), 'utf8');
+			const value = fs.readFileSync(path.join(FIXTURES_PATH, 'encryptString/string1.txt'), 'utf8');
+			const expectedValue = fs.readFileSync(path.join(FIXTURES_PATH, 'encryptString/expectedValue1.txt'), 'utf8');
+
+			expect(encryptString({key, value, algorithm: 'aes128'})).to.equal(expectedValue);
+		});
+	});
+
+	describe('descryptString', () => {
+		it('Should decrypt the string', () => {
+			const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
+			const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
+			const expectedValue = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/expectedValue1.txt'), 'utf8');
+
+			expect(decryptString({key, value, algorithm: 'aes128'})).to.equal(expectedValue);
 		});
 	});
 });
