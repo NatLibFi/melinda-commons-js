@@ -6,4 +6,4 @@ Shared modules for Melinda's applications
 
 Copyright (c) 2018-2019 **University Of Helsinki (The National Library Of Finland)**
 
-This project's source code is licensed under the terms of **GNU Affero General Public License Version 3** or any later version.
+This project's source code is licensed under the terms of **GNU Lesser General Public License Version 3** or any later version.
