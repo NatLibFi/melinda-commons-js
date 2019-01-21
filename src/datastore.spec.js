@@ -66,33 +66,31 @@ describe('datastore', () => {
 
 		describe('#read', () => {
 			it('Should fetch a record', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse1);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
-				const record = await service.read('1234');
+				const record = await service.read({id: '1234', library: 'bib'});
 				expect(record.toObject()).to.eql(JSON.parse(expectedRecord1));
 			});
 
 			it('Should fail because the record does not exist', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse2);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				try {
-					await service.read('foobar');
+					await service.read({id: 'foobar', library: 'bib'});
 					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an.instanceof(testContext.DatastoreError);
@@ -101,18 +99,17 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because of an unexpected error', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(500);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				try {
-					await service.read('1234');
+					await service.read({id: '1234', library: 'bib'});
 					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an('error');
@@ -128,12 +125,11 @@ describe('datastore', () => {
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				const record = new MarcRecord(JSON.parse(incomingRecord1));
-				const id = await service.create({record});
+				const id = await service.create({library: 'bib', record});
 
 				expect(id).to.equal('1234');
 			});
@@ -145,13 +141,12 @@ describe('datastore', () => {
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord1));
-					await service.create({record});
+					await service.create({library: 'bib', record});
 					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an('error');
@@ -161,7 +156,7 @@ describe('datastore', () => {
 
 		describe('#update', () => {
 			it('Should update a record', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse3);
 				nock('https://api')
 					.post(/.*/).reply(200, ['1234']);
@@ -169,28 +164,26 @@ describe('datastore', () => {
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				const record = new MarcRecord(JSON.parse(incomingRecord2));
-				await service.update({record, id: '1234'});
+				await service.update({record, id: '1234', library: 'bib'});
 			});
 
 			it('Should fail because the record does not exist', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse4);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord2));
-					await service.update({record, id: '1234'});
+					await service.update({record, id: '1234', library: 'bib'});
 					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an.instanceof(testContext.DatastoreError);
@@ -199,19 +192,18 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because target record has changed in datastore', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(200, sruResponse5);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord3));
-					await service.update({record, id: '1234'});
+					await service.update({record, id: '1234', library: 'bib'});
 					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an.instanceof(testContext.DatastoreError);
@@ -220,19 +212,18 @@ describe('datastore', () => {
 			});
 
 			it('Should fail because of an unexpected error', async () => {
-				nock('https://sru')
+				nock('https://sru/bib')
 					.get(/.*/).reply(500);
 
 				const service = testContext.createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
-					recordApiKey: 'foobar',
-					library: 'foo'
+					recordApiKey: 'foobar'
 				});
 
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord3));
-					await service.update({record, id: '1234'});
+					await service.update({record, id: '1234', library: 'bib'});
 				} catch (err) {
 					expect(err).to.be.an('error');
 				}

@@ -45,8 +45,7 @@ export class DatastoreError extends Error {
 	}
 }
 
-export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}) {
-	const sruClient = createSruClient({serverUrl: sruURL, version: SRU_VERSION, maximumRecords: 1});
+export function createService({sruURL, recordLoadURL, recordLoadApiKey}) {
 	const requestOptions = {
 		headers: {
 			Accept: 'application/json',
@@ -56,24 +55,26 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}
 
 	return {create, read, update};
 
-	async function read(id) {
-		return fetchRecord(id);
+	async function read({library, id}) {
+		return fetchRecord({library, id});
 	}
 
-	async function create({record, cataloger = DEFAULT_CATALOGER_ID}) {
-		return loadRecord({record, cataloger});
+	async function create({library, record, cataloger = DEFAULT_CATALOGER_ID}) {
+		return loadRecord({library, record, cataloger});
 	}
 
-	async function update({record, id, cataloger = DEFAULT_CATALOGER_ID}) {
-		const existingRecord = await fetchRecord(id);
+	async function update({library, record, id, cataloger = DEFAULT_CATALOGER_ID}) {
+		const existingRecord = await fetchRecord(library, id);
 
 		await validateRecordState(record, existingRecord);
-		await loadRecord({record, id, cataloger});
+		await loadRecord({library, record, id, cataloger});
 	}
 
-	async function fetchRecord(id) {
+	async function fetchRecord({library, id}) {
 		return new Promise((resolve, reject) => {
 			try {
+				const sruClient = createSruClient({serverUrl: `${sruURL}/${library}`, version: SRU_VERSION, maximumRecords: 1});
+
 				sruClient.searchRetrieve(`rec.id=${id}`)
 					.on('record', record => {
 						try {
@@ -94,7 +95,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, library}
 		});
 	}
 
-	async function loadRecord({record, id, cataloger}) {
+	async function loadRecord({library, record, id, cataloger}) {
 		const url = new URL(recordLoadURL);
 		const formattedRecord = AlephSequential.to(record);
 
