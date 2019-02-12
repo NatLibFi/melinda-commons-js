@@ -34,7 +34,7 @@ import {MARCXML, AlephSequential} from '@natlibfi/marc-record-serializers';
 import {createAuthorizationHeader} from './utils';
 import deepEqual from 'deep-eql';
 
-const FIX_ROUTINE = 'GEN01';
+const FIX_ROUTINE = 'API';
 const UPDATE_ACTION = 'REP';
 const SRU_VERSION = '2.0';
 const DEFAULT_CATALOGER_ID = 'API';
@@ -119,7 +119,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 		throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
 
 		function formatRecordId(id) {
-			const pattern = new RegExp(`${recordLoadApiKey.toUpperCase()}$`);
+			const pattern = new RegExp(`${recordLoadLibrary.toUpperCase()}$`);
 			return id.replace(pattern, '');
 		}
 	}
