@@ -27,17 +27,29 @@
 */
 
 import {URL} from 'url';
+import {promisify} from 'util';
+import createDebugLogger from 'debug';
 import HttpStatus from 'http-status';
 import fetch from 'node-fetch';
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML, AlephSequential} from '@natlibfi/marc-record-serializers';
 import {createAuthorizationHeader} from './utils';
 import deepEqual from 'deep-eql';
+import moment from 'moment';
+
+const setTimeoutPromise = promisify(setTimeout);
 
 const FIX_ROUTINE = 'API';
 const UPDATE_ACTION = 'REP';
 const SRU_VERSION = '2.0';
 const DEFAULT_CATALOGER_ID = 'API';
+const MAX_RETRIES_ON_CONFLICT = 6;
+const RETRY_WAIT_TIME_ON_CONFLICT = 500;
+
+export const INDEXING_PRIORITY = {
+	HIGH: 1,
+	LOW: 2
+};
 
 export class DatastoreError extends Error {
 	constructor(status, ...params) {
@@ -47,6 +59,7 @@ export class DatastoreError extends Error {
 }
 
 export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLoadLibrary}) {
+	const debug = createDebugLogger('@natlibfi/melinda-commons:datastore');
 	const requestOptions = {
 		headers: {
 			Accept: 'application/json',
@@ -60,15 +73,15 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 		return fetchRecord(id);
 	}
 
-	async function create({record, cataloger = DEFAULT_CATALOGER_ID}) {
-		return loadRecord({record, cataloger});
+	async function create({record, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
+		return loadRecord({record, cataloger, indexingPriority});
 	}
 
-	async function update({record, id, cataloger = DEFAULT_CATALOGER_ID}) {
+	async function update({record, id, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
 		const existingRecord = await fetchRecord(id);
 
 		await validateRecordState(record, existingRecord);
-		await loadRecord({record, id, cataloger});
+		await loadRecord({record, id, cataloger, indexingPriority});
 	}
 
 	async function fetchRecord(id) {
@@ -96,7 +109,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 		});
 	}
 
-	async function loadRecord({record, id, cataloger}) {
+	async function loadRecord({record, id, cataloger, indexingPriority, retriesCount = 0}) {
 		const url = new URL(recordLoadURL);
 		const formattedRecord = AlephSequential.to(record);
 
@@ -105,6 +118,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 		url.searchParams.set('fixRoutine', FIX_ROUTINE);
 		url.searchParams.set('updateAction', UPDATE_ACTION);
 		url.searchParams.set('cataloger', cataloger);
+		url.searchParams.set('indexingPriority', generateIndexingPriority(indexingPriority, id === undefined));
 
 		const response = await fetch(url, Object.assign({
 			method: 'POST',
@@ -116,11 +130,34 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 			return formatRecordId(idList.shift());
 		}
 
+		if (response.status === HttpStatus.SERVICE_UNAVAILABLE) {
+			throw new DatastoreError(HttpStatus.SERVICE_UNAVAILABLE);
+		}
+
+		if (response.status === HttpStatus.CONFLICT) {
+			if (retriesCount === MAX_RETRIES_ON_CONFLICT) {
+				throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
+			}
+
+			debug('Got conflict response. Retrying...');
+			await setTimeoutPromise(RETRY_WAIT_TIME_ON_CONFLICT);
+			return loadRecord({record, id, cataloger, indexingPriority, retriesCount: retriesCount + 1});
+		}
+
 		throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
 
 		function formatRecordId(id) {
 			const pattern = new RegExp(`${recordLoadLibrary.toUpperCase()}$`);
 			return id.replace(pattern, '');
+		}
+
+		function generateIndexingPriority(priority, forCreated) {
+			if (priority === INDEXING_PRIORITY.HIGH) {
+				// These are values Aleph assigns for records modified in the cataloging GUI
+				return forCreated ? '1990' : '1998';
+			}
+
+			return moment().add(1000, 'years').year();
 		}
 	}
 
