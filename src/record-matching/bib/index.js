@@ -34,6 +34,9 @@ import {Preference, Similarity, Models} from '@natlibfi/melinda-ai-commons';
 import generateQueryList from './generate-query-list';
 import {isDeletedRecord} from '../../utils';
 
+const MAX_DUPLICATES = 5;
+const MAX_CANDIDATES_PER_QUERY = 10;
+
 export function createBibService({sruURL}) {
 	const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
 
@@ -50,9 +53,9 @@ export function createBibService({sruURL}) {
 		const foundIdList = [];
 		const queryList = generateQueryList(record);
 
-		return find(queryList);
+		return findDuplicates(queryList);
 
-		async function find(queryList) {
+		async function findDuplicates(queryList, foundList = []) {
 			let done;
 			let findCandidateError;
 			const candidates = [];
@@ -63,9 +66,11 @@ export function createBibService({sruURL}) {
 				return processCandidates();
 			}
 
-			return [];
+			return foundList;
 
 			function findCandidates() {
+				let candidatesForQuery = 0;
+
 				SruClient.searchRetrieve(query)
 					.on('record', handleRecord)
 					.on('end', () => {
@@ -76,12 +81,18 @@ export function createBibService({sruURL}) {
 					});
 
 				function handleRecord(xml) {
-					const record = MARCXML.from(xml);
-					const id = record.get(/^001$/).shift().value;
+					if (candidatesForQuery < MAX_CANDIDATES_PER_QUERY) {
+						const record = MARCXML.from(xml);
+						const id = record.get(/^001$/).shift().value;
 
-					if (!isDeletedRecord(record) && !foundIdList.includes(id)) {
-						foundIdList.push(id);
-						candidates.push(record);
+						if (!isDeletedRecord(record) && !foundIdList.includes(id)) {
+							foundIdList.push(id);
+							candidates.push(record);
+
+							if (++candidatesForQuery === MAX_CANDIDATES_PER_QUERY) {
+								done = true;
+							}
+						}
 					}
 				}
 			}
@@ -98,16 +109,35 @@ export function createBibService({sruURL}) {
 					const {preferredRecord, otherRecord} = PreferenceService.find(record, candidate);
 					const results = SimilarityService.check(preferredRecord, otherRecord);
 
-					if (!results.hasNegativeFeatures && results.type !== 'NOT_DUPLICATE') {
+					if (!results.hasNegativeFeatures && results.type !== 'NOT_DUPLICATE' && postFilter()) {
 						const id = candidate.get(/^001$/).shift().value;
-						return [id];
+						foundList.push(id);
+
+						if (foundList.length === MAX_DUPLICATES) {
+							return foundList;
+						}
 					}
 				} else if (done) {
-					return find(queryList);
+					return findDuplicates(queryList, foundList);
 				}
 
 				await setTimeoutPromise(100);
 				return processCandidates();
+
+				// Checks that both records are either hosts or components
+				function postFilter() {
+					return isComponent(record) === isComponent(candidate);
+
+					function isComponent(rec) {
+						if (rec.get(/^773$/).length > 0) {
+							return true;
+						}
+
+						if (['a', 'b', 'd'].includes(rec.leader[7])) {
+							return true;
+						}
+					}
+				}
 			}
 		}
 	}

@@ -26,7 +26,8 @@
 *
 */
 
-/* eslint-disable camelcase */
+// Disable import/named because eslint doesn't get __RewireAPI__
+/* eslint-disable camelcase, max-nested-callbacks, import/named */
 
 import fs from 'fs';
 import path from 'path';
@@ -34,7 +35,10 @@ import HttpStatus from 'http-status';
 import nock from 'nock';
 import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
-import * as testContext from './datastore';
+import {
+	createService, DatastoreError, INDEXING_PRIORITY,
+	__RewireAPI__ as RewireAPI
+} from './datastore';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
 
@@ -45,6 +49,8 @@ const sruResponse2 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse2.xml'
 const sruResponse3 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse3.xml'), 'utf8');
 const sruResponse4 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse4.xml'), 'utf8');
 const sruResponse5 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse5.xml'), 'utf8');
+const sruResponse6 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse6.xml'), 'utf8');
+const sruResponse7 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse7.xml'), 'utf8');
 const expectedRecord1 = fs.readFileSync(path.join(FIXTURES_PATH, 'expectedRecord1.json'), 'utf8');
 const incomingRecord1 = fs.readFileSync(path.join(FIXTURES_PATH, 'incomingRecord1.json'), 'utf8');
 const incomingRecord2 = fs.readFileSync(path.join(FIXTURES_PATH, 'incomingRecord2.json'), 'utf8');
@@ -57,7 +63,7 @@ describe('datastore', () => {
 
 	describe('factory', () => {
 		it('Should create the expected object', () => {
-			const service = testContext.createService({});
+			const service = createService({});
 			expect(service).to.be.an('object')
 				.and.respondTo('read')
 				.and.respondTo('create')
@@ -67,9 +73,9 @@ describe('datastore', () => {
 		describe('#read', () => {
 			it('Should fetch a record', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(200, sruResponse1);
+					.get(/.*/).reply(HttpStatus.OK, sruResponse1);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -82,9 +88,9 @@ describe('datastore', () => {
 
 			it('Should fail because the record does not exist', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(200, sruResponse2);
+					.get(/.*/).reply(HttpStatus.OK, sruResponse2);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -93,18 +99,20 @@ describe('datastore', () => {
 
 				try {
 					await service.read('foobar');
-					throw new Error('Should throw');
 				} catch (err) {
-					expect(err).to.be.an.instanceof(testContext.DatastoreError);
+					expect(err).to.be.an.instanceof(DatastoreError);
 					expect(err).to.have.property('status', HttpStatus.NOT_FOUND);
+					return;
 				}
+
+				throw new Error('Should throw');
 			});
 
 			it('Should fail because of an unexpected error', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(500);
+					.get(/.*/).reply(HttpStatus.INTERNAL_SERVER_ERROR);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -113,19 +121,32 @@ describe('datastore', () => {
 
 				try {
 					await service.read('1234');
-					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an('error');
+					return;
 				}
+
+				throw new Error('Should throw');
 			});
 		});
 
 		describe('#create', () => {
+			beforeEach(() => {
+				RewireAPI.__Rewire__('MAX_RETRIES_ON_CONFLICT', 3);
+				RewireAPI.__Rewire__('RETRY_WAIT_TIME_ON_CONFLICT', 100);
+			});
+
+			afterEach(() => {
+				RewireAPI.__ResetDependency__('MAX_RETRIES_ON_CONFLICT');
+				RewireAPI.__ResetDependency__('RETRY_WAIT_TIME_ON_CONFLICT');
+				RewireAPI.__ResetDependency__('moment');
+			});
+
 			it('Should create a record', async () => {
 				nock('https://api')
-					.post(/.*/).reply(200, ['1234']);
+					.post(/.*/).reply(HttpStatus.OK, ['1234']);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -140,9 +161,9 @@ describe('datastore', () => {
 
 			it('Should fail because of an unexpected error', async () => {
 				nock('https://api')
-					.post(/.*/).reply(500);
+					.post(/.*/).reply(HttpStatus.INTERNAL_SERVER_ERROR);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -152,21 +173,121 @@ describe('datastore', () => {
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord1));
 					await service.create({record});
-					throw new Error('Should throw');
 				} catch (err) {
 					expect(err).to.be.an('error');
+					return;
 				}
+
+				throw new Error('Should throw');
+			});
+
+			it('Should succeed after retries on conflict', async () => {
+				nock('https://api')
+					.post(/.*/).reply(HttpStatus.CONFLICT)
+					.post(/.*/).reply(HttpStatus.OK, ['1234']);
+
+				const service = createService({
+					sruURL: 'https://sru/bib',
+					recordLoadURL: 'https://api',
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
+				});
+
+				const record = new MarcRecord(JSON.parse(incomingRecord1));
+				const id = await service.create({record});
+
+				expect(id).to.equal('1234');
+			});
+
+			it('Should fail after retries on conflict', async () => {
+				nock('https://api')
+					.post(/.*/).reply(HttpStatus.CONFLICT)
+					.post(/.*/).reply(HttpStatus.CONFLICT)
+					.post(/.*/).reply(HttpStatus.CONFLICT)
+					.post(/.*/).reply(HttpStatus.CONFLICT)
+					.post(/.*/).reply(HttpStatus.OK, ['foo']);
+
+				const service = createService({
+					sruURL: 'https://sru/bib',
+					recordLoadURL: 'https://api',
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
+				});
+
+				try {
+					const record = new MarcRecord(JSON.parse(incomingRecord1));
+					await service.create({record});
+				} catch (err) {
+					expect(err).to.be.an('error');
+					expect(err.message).to.match(/^Unexpected response: 409/);
+					return;
+				}
+
+				throw new Error('Should throw');
+			});
+
+			it('Should fail during service offline hours', async () => {
+				nock('https://api')
+					.post(/.*/).reply(HttpStatus.SERVICE_UNAVAILABLE);
+
+				const service = createService({
+					sruURL: 'https://sru/bib',
+					recordLoadURL: 'https://api',
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
+				});
+
+				try {
+					const record = new MarcRecord(JSON.parse(incomingRecord1));
+					await service.create({record});
+				} catch (err) {
+					expect(err).to.be.an.instanceof(DatastoreError);
+					expect(err.status).to.equal(HttpStatus.SERVICE_UNAVAILABLE);
+					return;
+				}
+
+				throw new Error('Should throw');
+			});
+
+			it('Should create a record with the specified indexing priority', async () => {
+				RewireAPI.__Rewire__('moment', () => ({
+					add: () => ({
+						year: () => '3000'
+					})
+				}));
+
+				const recordLoadLibrary = 'foo';
+				const recordLoadURL = 'https://api';
+
+				nock(recordLoadURL)
+					.post(`/?library=${recordLoadLibrary}&method=NEW&fixRoutine=API&updateAction=REP&cataloger=API&indexingPriority=3000`)
+					.reply(HttpStatus.OK, ['1234']);
+
+				const service = createService({
+					recordLoadLibrary, recordLoadURL,
+					sruURL: 'https://sru/bib',
+					recordLoadApiKey: 'foobar'
+				});
+
+				const record = new MarcRecord(JSON.parse(incomingRecord1));
+				const id = await service.create({record, indexingPriority: INDEXING_PRIORITY.LOW});
+
+				expect(id).to.equal('1234');
 			});
 		});
 
 		describe('#update', () => {
+			afterEach(() => {
+				RewireAPI.__ResetDependency__('moment');
+			});
+
 			it('Should update a record', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(200, sruResponse3);
+					.get(/.*/).reply(HttpStatus.OK, sruResponse3);
 				nock('https://api')
-					.post(/.*/).reply(200, ['1234']);
+					.post(/.*/).reply(HttpStatus.OK, ['1234']);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -179,9 +300,9 @@ describe('datastore', () => {
 
 			it('Should fail because the record does not exist', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(200, sruResponse4);
+					.get(/.*/).reply(HttpStatus.OK, sruResponse4);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -191,18 +312,20 @@ describe('datastore', () => {
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord2));
 					await service.update({record, id: '1234'});
-					throw new Error('Should throw');
 				} catch (err) {
-					expect(err).to.be.an.instanceof(testContext.DatastoreError);
+					expect(err).to.be.an.instanceof(DatastoreError);
 					expect(err).to.have.property('status', HttpStatus.NOT_FOUND);
+					return;
 				}
+
+				throw new Error('Should throw');
 			});
 
 			it('Should fail because target record has changed in datastore', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(200, sruResponse5);
+					.get(/.*/).reply(HttpStatus.OK, sruResponse5);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -212,18 +335,20 @@ describe('datastore', () => {
 				try {
 					const record = new MarcRecord(JSON.parse(incomingRecord3));
 					await service.update({record, id: '1234'});
-					throw new Error('Should throw');
 				} catch (err) {
-					expect(err).to.be.an.instanceof(testContext.DatastoreError);
+					expect(err).to.be.an.instanceof(DatastoreError);
 					expect(err).to.have.property('status', HttpStatus.CONFLICT);
+					return;
 				}
+
+				throw new Error('Should throw');
 			});
 
 			it('Should fail because of an unexpected error', async () => {
 				nock('https://sru/bib')
-					.get(/.*/).reply(500);
+					.get(/.*/).reply(HttpStatus.INTERNAL_SERVER_ERROR);
 
-				const service = testContext.createService({
+				const service = createService({
 					sruURL: 'https://sru/bib',
 					recordLoadURL: 'https://api',
 					recordLoadApiKey: 'foobar',
@@ -236,6 +361,57 @@ describe('datastore', () => {
 				} catch (err) {
 					expect(err).to.be.an('error');
 				}
+			});
+
+			it('Should fail during service offline hours', async () => {
+				nock('https://sru/bib')
+					.get(/.*/).reply(HttpStatus.OK, sruResponse6);
+				nock('https://api')
+					.post(/.*/).reply(HttpStatus.SERVICE_UNAVAILABLE);
+
+				const service = createService({
+					sruURL: 'https://sru/bib',
+					recordLoadURL: 'https://api',
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
+				});
+
+				try {
+					const record = new MarcRecord(JSON.parse(incomingRecord3));
+					await service.update({record, id: '1234'});
+				} catch (err) {
+					expect(err).to.be.an.instanceof(DatastoreError);
+					expect(err.status).to.equal(HttpStatus.SERVICE_UNAVAILABLE);
+					return;
+				}
+
+				throw new Error('Should throw');
+			});
+
+			it('Should update a record with the specified indexing priority', async () => {
+				RewireAPI.__Rewire__('moment', () => ({
+					add: () => ({
+						year: () => '3000'
+					})
+				}));
+
+				const recordLoadLibrary = 'foo';
+				const recordLoadURL = 'https://api';
+
+				nock('https://sru/bib')
+					.get(/.*/).reply(HttpStatus.OK, sruResponse7);
+				nock(recordLoadURL)
+					.post(`/?library=${recordLoadLibrary}&method=OLD&fixRoutine=API&updateAction=REP&cataloger=API&indexingPriority=3000`)
+					.reply(HttpStatus.OK, ['1234']);
+
+				const service = createService({
+					recordLoadLibrary, recordLoadURL,
+					sruURL: 'https://sru/bib',
+					recordLoadApiKey: 'foobar'
+				});
+
+				const record = new MarcRecord(JSON.parse(incomingRecord2));
+				await service.update({record, id: '1234', indexingPriority: INDEXING_PRIORITY.LOW});
 			});
 		});
 	});
