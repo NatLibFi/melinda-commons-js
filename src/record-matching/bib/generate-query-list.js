@@ -33,43 +33,34 @@ export default function (record) {
 	return identifiers.concat(title);
 
 	function generateIdentifierQueries() {
-		const {tag, identifiers} = getStandardIdentifiers();
-		return identifiers.map(identifier => {
-			return tag === '020' ? `bath.isbn=${identifier}` : `bath.issn=${identifier}`;
-		});
+		const identifiers = getStandardIdentifiers();
+		return identifiers.map(id => `dc.identifier=${id}`);
 
 		function getStandardIdentifiers() {
-			return record.get(/^020|022$/)
+			return record.get(/^020|022|024$/)
 				.reduce((acc, field) => {
-					if (acc.tag) {
-						if (acc.tag === field.tag) {
-							acc.identifiers.push(field.subfields.find(sf => sf.code === 'a').value);
-							return acc;
-						}
-
-						return acc;
-					}
-
-					return {
-						tag: field.tag,
-						identifiers: [field.subfields.find(sf => sf.code === 'a').value]
-					};
-				}, {tag: undefined, identifiers: []});
+					const id = field.subfields.find(sf => sf.code === 'a').value;
+					return id in acc ? acc : acc.concat(id);
+				}, []);
 		}
 	}
 
 	function generateTitleQueries() {
 		const title = getTitle();
 
-		return [`dc.title=${title}`];
+		return [`dc.title="${title}"`];
 
 		function getTitle() {
+			const STRIP_PATTERN = '[\\s\\]\\[":;,.-?\'=+\\*]*';
+			const startPattern = new RegExp(`^${STRIP_PATTERN}`, 'g');
+			const endPattern = new RegExp(`${STRIP_PATTERN}$`, 'g');
 			const field = record.get(/^245$/).shift();
 
 			// Normalize
 			if (field) {
 				return field.subfields.find(sf => sf.code === 'a').value
-					.replace(/[\][":;,.-?'=+/]/g, ' ')
+					.replace(startPattern, ' ')
+					.replace(endPattern, ' ')
 					.substr(0, 20)
 					.trim();
 			}
