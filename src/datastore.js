@@ -33,7 +33,7 @@ import HttpStatus from 'http-status';
 import fetch from 'node-fetch';
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML, AlephSequential} from '@natlibfi/marc-record-serializers';
-import {createAuthorizationHeader} from './utils';
+import {generateAuthorizationHeader} from './utils';
 import deepEqual from 'deep-eql';
 import moment from 'moment';
 
@@ -43,8 +43,8 @@ const FIX_ROUTINE = 'API';
 const UPDATE_ACTION = 'REP';
 const SRU_VERSION = '2.0';
 const DEFAULT_CATALOGER_ID = 'API';
-const MAX_RETRIES_ON_CONFLICT = 6;
-const RETRY_WAIT_TIME_ON_CONFLICT = 500;
+const MAX_RETRIES_ON_CONFLICT = 10;
+const RETRY_WAIT_TIME_ON_CONFLICT = 1000;
 
 export const INDEXING_PRIORITY = {
 	HIGH: 1,
@@ -63,7 +63,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 	const requestOptions = {
 		headers: {
 			Accept: 'application/json',
-			Authorization: createAuthorizationHeader(recordLoadApiKey)
+			Authorization: generateAuthorizationHeader(recordLoadApiKey)
 		}
 	};
 

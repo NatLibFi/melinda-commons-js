@@ -30,7 +30,7 @@ import HttpStatus from 'http-status';
 import fetch from 'node-fetch';
 import {URL} from 'url';
 import {DOMParser} from 'xmldom';
-import {createAuthorizationHeader} from '../utils';
+import {generateAuthorizationHeader} from '../utils';
 
 export class AuthenticationError extends Error {}
 
@@ -125,7 +125,7 @@ export function createService({xServiceURL, userLibrary, ownAuthzURL, ownAuthzAp
 			url.searchParams.set('username', username);
 
 			const response = await fetch(url, {headers: {
-				Authorization: createAuthorizationHeader(ownAuthzApiKey)
+				Authorization: generateAuthorizationHeader(ownAuthzApiKey)
 			}});
 
 			if (response.status === HttpStatus.OK) {

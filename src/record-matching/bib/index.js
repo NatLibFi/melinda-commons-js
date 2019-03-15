@@ -34,10 +34,7 @@ import {Preference, Similarity, Models} from '@natlibfi/melinda-ai-commons';
 import generateQueryList from './generate-query-list';
 import {isDeletedRecord} from '../../utils';
 
-const MAX_DUPLICATES = 5;
-const MAX_CANDIDATES_PER_QUERY = 10;
-
-export function createBibService({sruURL}) {
+export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQuery = 10, ignoreNegativeFeatures = false}) {
 	const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
 
 	const setTimeoutPromise = promisify(setTimeout);
@@ -62,6 +59,7 @@ export function createBibService({sruURL}) {
 			const query = queryList.shift();
 
 			if (query) {
+				debug(`Executing query: ${query}`);
 				findCandidates(query);
 				return processCandidates();
 			}
@@ -81,7 +79,7 @@ export function createBibService({sruURL}) {
 					});
 
 				function handleRecord(xml) {
-					if (candidatesForQuery < MAX_CANDIDATES_PER_QUERY) {
+					if (candidatesForQuery < maxCandidatesPerQuery) {
 						const record = MARCXML.from(xml);
 						const id = record.get(/^001$/).shift().value;
 
@@ -89,7 +87,7 @@ export function createBibService({sruURL}) {
 							foundIdList.push(id);
 							candidates.push(record);
 
-							if (++candidatesForQuery === MAX_CANDIDATES_PER_QUERY) {
+							if (++candidatesForQuery === maxCandidatesPerQuery) {
 								done = true;
 							}
 						}
@@ -109,11 +107,13 @@ export function createBibService({sruURL}) {
 					const {preferredRecord, otherRecord} = PreferenceService.find(record, candidate);
 					const results = SimilarityService.check(preferredRecord, otherRecord);
 
-					if (!results.hasNegativeFeatures && results.type !== 'NOT_DUPLICATE' && postFilter()) {
+					if (isDuplicate(results)) {
+						debug('Found duplicate');
+
 						const id = candidate.get(/^001$/).shift().value;
 						foundList.push(id);
 
-						if (foundList.length === MAX_DUPLICATES) {
+						if (foundList.length === maxDuplicates) {
 							return foundList;
 						}
 					}
@@ -123,6 +123,29 @@ export function createBibService({sruURL}) {
 
 				await setTimeoutPromise(100);
 				return processCandidates();
+
+				function isDuplicate(results) {
+					if (results.hasNegativeFeatures) {
+						if (ignoreNegativeFeatures) {
+							debug('Negative features found. Continuing anyway.');
+						} else {
+							debug('Negative features found');
+							return false;
+						}
+					}
+
+					if (results.type === 'NOT_DUPLICATE') {
+						debug('Records are not similar');
+						return false;
+					}
+
+					if (!postFilter()) {
+						debug('Post filter did not pass');
+						return false;
+					}
+
+					return true;
+				}
 
 				// Checks that both records are either hosts or components
 				function postFilter() {
