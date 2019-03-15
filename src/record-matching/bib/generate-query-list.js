@@ -48,7 +48,7 @@ export default function (record) {
 	function generateTitleQueries() {
 		const title = getTitle();
 
-		return [`dc.title="${title}"`];
+		return [`dc.title="${title}*"`];
 
 		function getTitle() {
 			const STRIP_PATTERN = '[\\s\\]\\[":;,.-?\'=+\\*]*';

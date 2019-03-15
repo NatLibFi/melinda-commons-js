@@ -33,9 +33,10 @@ import path from 'path';
 import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
 import {
-	createAuthorizationHeader, isDeletedRecord, readEnvironmentVariable,
-	generateEncryptionKey, encryptString, decryptString,
-	__RewireAPI__ as RewireAPI
+	generateAuthorizationHeader, isDeletedRecord, readEnvironmentVariable,
+	generateEncryptionKey, encryptString, decryptString, parseBoolean,
+	__RewireAPI__ as RewireAPI,
+	getRecordTag
 } from './utils';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
@@ -43,9 +44,9 @@ MarcRecord.setValidationOptions({subfieldValues: false});
 const FIXTURES_PATH = path.join(__dirname, '../test-fixtures/utils');
 
 describe('utils', () => {
-	describe('createAuthorizationHeader', () => {
+	describe('generateAuthorizationHeader', () => {
 		it('Should create a proper Authorization header', () => {
-			const value = createAuthorizationHeader('foo', 'bar');
+			const value = generateAuthorizationHeader('foo', 'bar');
 			expect(value).to.equal('Basic Zm9vOmJhcg==');
 		});
 	});
@@ -80,7 +81,7 @@ describe('utils', () => {
 				expect(msg).to.equal('No environment variable set for FOO, using default value: fubar');
 			}});
 
-			expect(readEnvironmentVariable('FOO', 'fubar')).to.equal('fubar');
+			expect(readEnvironmentVariable('FOO', {defaultValue: 'fubar'})).to.equal('fubar');
 		});
 
 		it('Should not log the default value', () => {
@@ -88,13 +89,18 @@ describe('utils', () => {
 				expect(msg).to.equal('No environment variable set for FOO, using default value: [hidden]');
 			}});
 
-			expect(readEnvironmentVariable('FOO', 'fubar', {hideDefaultValue: true})).to.equal('fubar');
+			expect(readEnvironmentVariable('FOO', {defaultValue: 'fubar', hideDefault: true})).to.equal('fubar');
 		});
 
 		it('Should throw because mandatory variable is missing', () => {
 			expect(() => {
 				readEnvironmentVariable('FOO');
 			}).to.throw(Error, /^Mandatory environment variable missing: FOO$/);
+		});
+
+		it('Should format the variable', () => {
+			process.env.FOO = '1';
+			expect(readEnvironmentVariable('FOO', {format: v => Number(v)})).to.equal(1);
 		});
 	});
 
@@ -130,6 +136,41 @@ describe('utils', () => {
 			const expectedValue = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/expectedValue1.txt'), 'utf8');
 
 			expect(decryptString({key, value, algorithm: 'aes128'})).to.equal(expectedValue);
+		});
+	});
+
+	describe('parseBoolean', () => {
+		it('Should parse numericish value as true', () => {
+			expect(parseBoolean('1')).to.equal(true);
+		});
+
+		it('Should parse numericush value as false', () => {
+			expect(parseBoolean('0')).to.equal(false);
+		});
+
+		it('Should parse non-numericish value as true', () => {
+			expect(parseBoolean('true')).to.equal(true);
+		});
+
+		it('Should parse non-numericish value as false', () => {
+			expect(parseBoolean('foo')).to.equal(false);
+		});
+	});
+
+	describe('getRecordTag', () => {
+		[
+			'Should return both title and identifier',
+			'Should only a title',
+			'Should return only an id',
+			'Should return an empty string'
+		].forEach((descr, index) => {
+			it(descr, () => {
+				const tag = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordTag/tag${index}.txt`), 'utf8');
+				const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordTag/record${index}.json`), 'utf8');
+				const record = new MarcRecord(JSON.parse(recordData));
+
+				expect(getRecordTag(record)).to.equal(tag);
+			});
 		});
 	});
 });

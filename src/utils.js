@@ -34,7 +34,7 @@ import {createCipher, createDecipher, randomBytes} from 'crypto';
 // Needed for Rewire to work
 import console from 'console';
 
-export function createAuthorizationHeader(username, password = '') {
+export function generateAuthorizationHeader(username, password = '') {
 	const encoded = Buffer.from(`${username}:${password}`).toString('base64');
 	return `Basic ${encoded}`;
 }
@@ -45,32 +45,34 @@ export function isDeletedRecord(record) {
 		.some(f => f.subfields.some(sf => sf.code === 'a' && sf.value === 'DELETED'));
 }
 
-export function readEnvironmentVariable(name, defaultValue, opts = {}) {
+export function readEnvironmentVariable(name, {defaultValue = undefined, hideDefault = false, format = v => v} = {}) {
 	if (process.env[name] === undefined) {
 		if (defaultValue === undefined) {
 			throw new Error(`Mandatory environment variable missing: ${name}`);
 		}
 
-		const loggedDefaultValue = opts.hideDefaultValue ? '[hidden]' : defaultValue;
-		console.log(`No environment variable set for ${name}, using default value: ${loggedDefaultValue}`);
+		console.log(`No environment variable set for ${name}, using default value: ${hideDefault ? '[hidden]' : defaultValue}`);
 	}
 
-	return process.env[name] || defaultValue;
+	return format(process.env[name]) || defaultValue;
 }
 
-export function createLogger() {
-	return winston.createLogger(createLoggerOptions());
+export function createLogger(options = {}) {
+	return winston.createLogger({...createLoggerOptions(), ...options});
 }
 
-export function createExpressLogger() {
-	return expressWinston.logger(Object.assign({
+export function createExpressLogger(options = {}) {
+	return expressWinston.logger({
 		meta: true,
 		msg: '{{req.ip}} HTTP {{req.method}} {{req.path}} - {{res.statusCode}} {{res.responseTime}}ms',
-		ignoreRoute: () => false
-	}, createLoggerOptions()));
+		ignoreRoute: () => false,
+		...createLoggerOptions(),
+		...options
+	});
 }
 
 function createLoggerOptions() {
+	const debuggingEnabled = parseBoolean(process.env.DEBUG);
 	const timestamp = winston.format(info => {
 		info.timestamp = moment().format();
 		return info;
@@ -80,8 +82,8 @@ function createLoggerOptions() {
 		format: winston.format.combine(timestamp(), winston.format.printf(formatMessage)),
 		transports: [
 			new winston.transports.Console({
-				level: process.env.DEBUG ? 'debug' : 'info',
-				silent: process.env.NODE_ENV === 'test'
+				level: debuggingEnabled ? 'debug' : 'info',
+				silent: process.env.NODE_ENV === 'test' && !debuggingEnabled
 			})
 		]
 	};
@@ -104,4 +106,61 @@ export function encryptString({key, value, algorithm, encoding = 'base64'}) {
 export function decryptString({key, value, algorithm, encoding = 'base64'}) {
 	const Decipher = createDecipher(algorithm, key);
 	return Decipher.update(value, encoding, 'utf8') + Decipher.final('utf8');
+}
+
+export function handleInterrupt(arg) {
+	if (arg instanceof Error) {
+		console.error(`Uncaught Exception: ${arg.stack}`);
+	// Signal
+	} else {
+		console.log(`Received ${arg}`);
+	}
+
+	process.exit(1);
+}
+
+export function parseBoolean(value) {
+	if (Number.isNaN(Number(value))) {
+		return value === 'true';
+	}
+
+	return Boolean(Number(value));
+}
+
+export function getRecordTag(record) {
+	const id = getId();
+	const title = getTitle();
+
+	if (id && title) {
+		return `${title} (${id})`;
+	}
+
+	return id ? id : title;
+
+	function getId() {
+		const field = record
+			.get(/^(020|022|024)$/)
+			.find(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)));
+
+		if (field) {
+			return field.subfields.find(sf => ['a', 'z'].includes(sf.code)).value;
+		}
+
+		return '';
+	}
+
+	function getTitle() {
+		const TRIM_PATTERN = '[?!.,(){}:;/\\ ]*';
+		const field = record
+			.get(/^245$/)
+			.find(f => f.subfields.some(sf => sf.code === 'a'));
+
+		if (field) {
+			return field.subfields.find(sf => sf.code === 'a').value
+				.replace(new RegExp(`^${TRIM_PATTERN}`), '')
+				.replace(new RegExp(`${TRIM_PATTERN}$`), '');
+		}
+
+		return '';
+	}
 }
