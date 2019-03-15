@@ -152,8 +152,12 @@ describe('utils', () => {
 			expect(parseBoolean('true')).to.equal(true);
 		});
 
-		it('Should parse non-numericish value as false', () => {
-			expect(parseBoolean('foo')).to.equal(false);
+		it('Should parse non-numericish value as true', () => {
+			expect(parseBoolean('foo')).to.equal(true);
+		});
+
+		it('Should parse non-numericish value with length of zero as false', () => {
+			expect(parseBoolean('')).to.equal(false);
 		});
 	});
 

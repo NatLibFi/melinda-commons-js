@@ -121,7 +121,15 @@ export function handleInterrupt(arg) {
 
 export function parseBoolean(value) {
 	if (Number.isNaN(Number(value))) {
-		return value === 'true';
+		if (value === 'true') {
+			return true;
+		}
+
+		if (value === 'false') {
+			return false;
+		}
+
+		return value.length > 0;
 	}
 
 	return Boolean(Number(value));
