@@ -40,7 +40,7 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
 	const setTimeoutPromise = promisify(setTimeout);
 	const {BibDefault: extractorSet} = Preference.ExtractorPresets;
 
-	const SruClient = createSruClient({serverUrl: sruURL});
+	const SruClient = createSruClient({serverUrl: sruURL, maximumRecords: maxCandidatesPerQuery});
 	const PreferenceService = Preference.createService({model: Models.BibPreference, extractorSet});
 	const SimilarityService = Similarity.createService({model: Models.BibDuplicateDetection});
 
@@ -81,9 +81,9 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
 				function handleRecord(xml) {
 					if (candidatesForQuery < maxCandidatesPerQuery) {
 						const record = MARCXML.from(xml);
-						const id = record.get(/^001$/).shift().value;
+						const id = getId(record);
 
-						if (!isDeletedRecord(record) && !foundIdList.includes(id)) {
+						if (id && !isDeletedRecord(record) && !foundIdList.includes(id)) {
 							foundIdList.push(id);
 							candidates.push(record);
 
@@ -91,6 +91,11 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
 								done = true;
 							}
 						}
+					}
+
+					function getId(record) {
+						const field = record.get(/^001$/).shift();
+						return field ? field.value : undefined;
 					}
 				}
 			}

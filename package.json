@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/melinda-commons-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "4.0.3",
+	"version": "4.0.4",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=8"
@@ -34,7 +34,7 @@
 		"@natlibfi/marc-record": "^4.0.4",
 		"@natlibfi/marc-record-serializers": "^4.0.0",
 		"@natlibfi/melinda-ai-commons": "^2.0.0",
-		"@natlibfi/sru-client": "^3.1.0",
+		"@natlibfi/sru-client": "^3.1.2",
 		"debug": "^4.1.1",
 		"deep-eql": "^4.0.0",
 		"express-winston": "^3.0.1",
