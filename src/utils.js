@@ -120,16 +120,12 @@ export function handleInterrupt(arg) {
 }
 
 export function parseBoolean(value) {
+	if (value === undefined) {
+		return false;
+	}
+
 	if (Number.isNaN(Number(value))) {
-		if (value === 'true') {
-			return true;
-		}
-
-		if (value === 'false') {
-			return false;
-		}
-
-		return value.length > 0;
+		return value.length > 0 && value !== 'false';
 	}
 
 	return Boolean(Number(value));

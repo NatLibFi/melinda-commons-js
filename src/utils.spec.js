@@ -140,6 +140,14 @@ describe('utils', () => {
 	});
 
 	describe('parseBoolean', () => {
+		it('Should parse undefined as false', () => {
+			expect(parseBoolean(undefined)).to.equal(false);
+		});
+
+		it('Should parse zero-length string as false', () => {
+			expect(parseBoolean('')).to.equal(false);
+		});
+
 		it('Should parse numericish value as true', () => {
 			expect(parseBoolean('1')).to.equal(true);
 		});
@@ -148,16 +156,12 @@ describe('utils', () => {
 			expect(parseBoolean('0')).to.equal(false);
 		});
 
-		it('Should parse non-numericish value as true', () => {
-			expect(parseBoolean('true')).to.equal(true);
+		it('Should parse literal \'false\' value as false', () => {
+			expect(parseBoolean('false')).to.equal(false);
 		});
 
 		it('Should parse non-numericish value as true', () => {
 			expect(parseBoolean('foo')).to.equal(true);
-		});
-
-		it('Should parse non-numericish value with length of zero as false', () => {
-			expect(parseBoolean('')).to.equal(false);
 		});
 	});
 
