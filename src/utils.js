@@ -52,9 +52,10 @@ export function readEnvironmentVariable(name, {defaultValue = undefined, hideDef
 		}
 
 		console.log(`No environment variable set for ${name}, using default value: ${hideDefault ? '[hidden]' : defaultValue}`);
+		return defaultValue;
 	}
 
-	return format(process.env[name]) || defaultValue;
+	return format(process.env[name]);
 }
 
 export function createLogger(options = {}) {
