@@ -31,8 +31,55 @@ import {promisify} from 'util';
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
 import {Preference, Similarity, Models} from '@natlibfi/melinda-ai-commons';
-import generateQueryList from './generate-query-list';
+import {generateIdentifierQueries, generateTitleQueries} from './generate-query-list';
 import {isDeletedRecord} from '../../utils';
+
+export function createSimpleBibService({sruURL, maxCandidatesPerQuery = 10}) {
+	const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
+	const SruClient = createSruClient({serverUrl: sruURL, maximumRecords: maxCandidatesPerQuery});
+
+	return {find};
+
+	async function find(record) {
+		const queryList = generateIdentifierQueries(record);
+
+		return findDuplicates();
+
+		async function findDuplicates() {
+			const query = queryList.shift();
+
+			if (query) {
+				debug(`Executing query: ${query}`);
+				return findCandidates();
+			}
+
+			return [];
+
+			function findCandidates() {
+				return new Promise((resolve, reject) => {
+					SruClient.searchRetrieve(query)
+						.on('record', handleRecord)
+						.on('error', reject)
+						.on('end', () => resolve(findDuplicates));
+
+					function handleRecord(xml) {
+						const record = MARCXML.from(xml);
+						const id = getId(record);
+
+						if (id && !isDeletedRecord(record)) {
+							resolve([id]);
+						}
+					}
+
+					function getId(record) {
+						const field = record.get(/^001$/).shift();
+						return field ? field.value : undefined;
+					}
+				});
+			}
+		}
+	}
+}
 
 export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQuery = 10, ignoreNegativeFeatures = false}) {
 	const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
@@ -48,7 +95,8 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
 
 	async function find(record) {
 		const foundIdList = [];
-		const queryList = generateQueryList(record);
+		const queryList = generateIdentifierQueries(record)
+			.concat(generateTitleQueries(record));
 
 		return findDuplicates(queryList);
 

@@ -30,7 +30,7 @@ import fs from 'fs';
 import path from 'path';
 import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
-import * as testContext from './generate-query-list';
+import {generateIdentifierQueries, generateTitleQueries} from './generate-query-list';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
 
@@ -45,24 +45,28 @@ const queryList2 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList2.json'), 
 const queryList3 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList3.json'), 'utf8');
 
 describe('record-matching/bib/generate-query-list', () => {
-	it('Should generate a list of identifiers and titles', () => {
-		const record = new MarcRecord(JSON.parse(record1));
-		const queryList = testContext.default(record);
+	describe('#generateIdentifierQueries', () => {
+		it('Should generate a list of identifiers', () => {
+			const record = new MarcRecord(JSON.parse(record1));
+			const queryList = generateIdentifierQueries(record);
 
-		expect(queryList).to.eql(JSON.parse(queryList1));
+			expect(queryList).to.eql(JSON.parse(queryList1));
+		});
+
+		it('Should generate a list of identifiers(ISSN)', () => {
+			const record = new MarcRecord(JSON.parse(record2));
+			const queryList = generateIdentifierQueries(record);
+
+			expect(queryList).to.eql(JSON.parse(queryList2));
+		});
 	});
 
-	it('Should generate a list of identifiers and titles (ISSN)', () => {
-		const record = new MarcRecord(JSON.parse(record2));
-		const queryList = testContext.default(record);
+	describe('#generateTitleQueries', () => {
+		it('Should generate a list of titles', () => {
+			const record = new MarcRecord(JSON.parse(record3));
+			const queryList = generateTitleQueries(record);
 
-		expect(queryList).to.eql(JSON.parse(queryList2));
-	});
-
-	it('Should generate a list of titles', () => {
-		const record = new MarcRecord(JSON.parse(record3));
-		const queryList = testContext.default(record);
-
-		expect(queryList).to.eql(JSON.parse(queryList3));
+			expect(queryList).to.eql(JSON.parse(queryList3));
+		});
 	});
 });
