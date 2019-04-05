@@ -26,44 +26,37 @@
 *
 */
 
-export default function (record) {
-	const identifiers = generateIdentifierQueries();
-	const title = generateTitleQueries();
+export function generateIdentifierQueries(record) {
+	const identifiers = getStandardIdentifiers();
+	return identifiers.map(id => `dc.identifier=${id}`);
 
-	return identifiers.concat(title);
-
-	function generateIdentifierQueries() {
-		const identifiers = getStandardIdentifiers();
-		return identifiers.map(id => `dc.identifier=${id}`);
-
-		function getStandardIdentifiers() {
-			return record.get(/^020|022|024$/)
-				.reduce((acc, field) => {
-					const id = field.subfields.find(sf => sf.code === 'a').value;
-					return id in acc ? acc : acc.concat(id);
-				}, []);
-		}
+	function getStandardIdentifiers() {
+		return record.get(/^020|022|024$/)
+			.reduce((acc, field) => {
+				const id = field.subfields.find(sf => sf.code === 'a').value;
+				return id in acc ? acc : acc.concat(id);
+			}, []);
 	}
+}
 
-	function generateTitleQueries() {
-		const title = getTitle();
+export function generateTitleQueries(record) {
+	const title = getTitle();
 
-		return [`dc.title="${title}*"`];
+	return [`dc.title="${title}*"`];
 
-		function getTitle() {
-			const STRIP_PATTERN = '[\\s\\]\\[":;,.-?\'=+\\*]*';
-			const startPattern = new RegExp(`^${STRIP_PATTERN}`, 'g');
-			const endPattern = new RegExp(`${STRIP_PATTERN}$`, 'g');
-			const field = record.get(/^245$/).shift();
+	function getTitle() {
+		const STRIP_PATTERN = '[\\s\\]\\[":;,.-?\'=+\\*]*';
+		const startPattern = new RegExp(`^${STRIP_PATTERN}`, 'g');
+		const endPattern = new RegExp(`${STRIP_PATTERN}$`, 'g');
+		const field = record.get(/^245$/).shift();
 
-			// Normalize
-			if (field) {
-				return field.subfields.find(sf => sf.code === 'a').value
-					.replace(startPattern, ' ')
-					.replace(endPattern, ' ')
-					.substr(0, 20)
-					.trim();
-			}
+		// Normalize
+		if (field) {
+			return field.subfields.find(sf => sf.code === 'a').value
+				.replace(startPattern, ' ')
+				.replace(endPattern, ' ')
+				.substr(0, 20)
+				.trim();
 		}
 	}
 }
