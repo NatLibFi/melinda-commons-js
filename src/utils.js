@@ -31,9 +31,6 @@ import winston from 'winston';
 import moment from 'moment';
 import {createCipher, createDecipher, randomBytes} from 'crypto';
 
-// Needed for Rewire to work
-import console from 'console';
-
 export function generateAuthorizationHeader(username, password = '') {
 	const encoded = Buffer.from(`${username}:${password}`).toString('base64');
 	return `Basic ${encoded}`;
@@ -134,40 +131,26 @@ export function parseBoolean(value) {
 	return Boolean(Number(value));
 }
 
-export function getRecordTag(record) {
-	const id = getId();
-	const title = getTitle();
+export function getRecordTitle(record) {
+	const TRIM_PATTERN = '[?!.,(){}:;/\\ ]*';
+	const field = record
+		.get(/^245$/)
+		.find(f => f.subfields.some(sf => sf.code === 'a'));
 
-	if (id && title) {
-		return `${title} (${id})`;
+	if (field) {
+		return field.subfields.find(sf => sf.code === 'a').value
+			.replace(new RegExp(`^${TRIM_PATTERN}`), '')
+			.replace(new RegExp(`${TRIM_PATTERN}$`), '');
 	}
 
-	return id ? id : title;
+	return '';
+}
 
-	function getId() {
-		const field = record
-			.get(/^(020|022|024)$/)
-			.find(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)));
-
-		if (field) {
-			return field.subfields.find(sf => ['a', 'z'].includes(sf.code)).value;
-		}
-
-		return '';
-	}
-
-	function getTitle() {
-		const TRIM_PATTERN = '[?!.,(){}:;/\\ ]*';
-		const field = record
-			.get(/^245$/)
-			.find(f => f.subfields.some(sf => sf.code === 'a'));
-
-		if (field) {
-			return field.subfields.find(sf => sf.code === 'a').value
-				.replace(new RegExp(`^${TRIM_PATTERN}`), '')
-				.replace(new RegExp(`${TRIM_PATTERN}$`), '');
-		}
-
-		return '';
-	}
+export function getRecordStandardIdentifiers(record) {
+	return record.get(/^(020|022|024)$/)
+		.filter(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)))
+		.map(field => {
+			const subfield = field.subfields.find(sf => ['a', 'z'].includes(sf.code));
+			return subfield.value;
+		});
 }
