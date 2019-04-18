@@ -53,7 +53,7 @@ export function readEnvironmentVariable(name, {defaultValue = undefined, hideDef
 
 		const defaultValuePrintable = typeof defaultValue === 'object' ? JSON.stringify(defaultValue) : defaultValue;
 
-		console.log(`No environment variable set for ${name}, using default value: ${hideDefault ? '[hidden]' : defaultValuePrintable}`);
+		console.error(`No environment variable set for ${name}, using default value: ${hideDefault ? '[hidden]' : defaultValuePrintable}`);
 		return defaultValue;
 	}
 
