@@ -36,7 +36,7 @@ import {
 	generateAuthorizationHeader, isDeletedRecord, readEnvironmentVariable,
 	generateEncryptionKey, encryptString, decryptString, parseBoolean,
 	__RewireAPI__ as RewireAPI,
-	getRecordTag
+	getRecordTitle, getRecordStandardIdentifiers
 } from './utils';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
@@ -67,7 +67,6 @@ describe('utils', () => {
 
 	describe('readEnvironmentVariable', () => {
 		afterEach(() => {
-			RewireAPI.__ResetDependency__('console');
 			delete process.env.FOO;
 		});
 
@@ -77,18 +76,10 @@ describe('utils', () => {
 		});
 
 		it('Should use  a default value for environment', () => {
-			RewireAPI.__Rewire__('console', {log: msg => {
-				expect(msg).to.equal('No environment variable set for FOO, using default value: fubar');
-			}});
-
 			expect(readEnvironmentVariable('FOO', {defaultValue: 'fubar'})).to.equal('fubar');
 		});
 
 		it('Should not log the default value', () => {
-			RewireAPI.__Rewire__('console', {log: msg => {
-				expect(msg).to.equal('No environment variable set for FOO, using default value: [hidden]');
-			}});
-
 			expect(readEnvironmentVariable('FOO', {defaultValue: 'fubar', hideDefault: true})).to.equal('fubar');
 		});
 
@@ -165,19 +156,32 @@ describe('utils', () => {
 		});
 	});
 
-	describe('getRecordTag', () => {
+	describe('getRecordTitle', () => {
 		[
-			'Should return both title and identifier',
-			'Should only a title',
-			'Should return only an id',
-			'Should return an empty string'
+			'Should find a title',
+			'Should not find a title'
 		].forEach((descr, index) => {
 			it(descr, () => {
-				const tag = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordTag/tag${index}.txt`), 'utf8');
-				const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordTag/record${index}.json`), 'utf8');
+				const title = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordTitle/title${index}.txt`), 'utf8');
+				const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordTitle/record${index}.json`), 'utf8');
 				const record = new MarcRecord(JSON.parse(recordData));
 
-				expect(getRecordTag(record)).to.equal(tag);
+				expect(getRecordTitle(record)).to.equal(title);
+			});
+		});
+	});
+
+	describe('getRecordStandardIdentifiers', () => {
+		[
+			'Should find identifiers',
+			'Should not find an identifier'
+		].forEach((descr, index) => {
+			it(descr, () => {
+				const identifiers = JSON.parse(fs.readFileSync(path.join(FIXTURES_PATH, `getRecordStandardIdentifiers/identifiers${index}.json`), 'utf8'));
+				const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `getRecordStandardIdentifiers/record${index}.json`), 'utf8');
+				const record = new MarcRecord(JSON.parse(recordData));
+
+				expect(getRecordStandardIdentifiers(record)).to.eql(identifiers);
 			});
 		});
 	});
