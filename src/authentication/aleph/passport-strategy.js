@@ -29,7 +29,7 @@
 import {BasicStrategy} from 'passport-http';
 import {createService, AuthenticationError} from './service';
 
-export class MelindaStrategy extends BasicStrategy {
+export default class extends BasicStrategy {
 	constructor({xServiceURL, userLibrary, ownAuthzURL, ownAuthzApiKey}) {
 		const AuthenticationService = createService({xServiceURL, userLibrary, ownAuthzURL, ownAuthzApiKey});
 

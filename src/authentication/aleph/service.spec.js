@@ -36,7 +36,7 @@ import HttpStatus from 'http-status';
 import nock from 'nock';
 import * as testContext from './service';
 
-const FIXTURES_PATH = path.join(__dirname, '../../test-fixtures/authentication');
+const FIXTURES_PATH = path.join(__dirname, '../../../test-fixtures/authentication');
 const authnResponse1 = fs.readFileSync(path.resolve(FIXTURES_PATH, 'authnResponse1.xml'), 'utf8');
 const authnResponse2 = fs.readFileSync(path.resolve(FIXTURES_PATH, 'authnResponse2.xml'), 'utf8');
 const authnResponse3 = fs.readFileSync(path.resolve(FIXTURES_PATH, 'authnResponse3.xml'), 'utf8');
