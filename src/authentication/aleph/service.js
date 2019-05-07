@@ -30,7 +30,7 @@ import HttpStatus from 'http-status';
 import fetch from 'node-fetch';
 import {URL} from 'url';
 import {DOMParser} from 'xmldom';
-import {generateAuthorizationHeader} from '../utils';
+import {generateAuthorizationHeader} from '../../utils';
 
 export class AuthenticationError extends Error {}
 

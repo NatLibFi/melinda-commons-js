@@ -26,7 +26,4 @@
 *
 */
 
-import * as Aleph from './aleph';
-import * as Crowd from './crowd';
-
-export {Aleph, Crowd};
+export {default as AlephStrategy} from './passport-strategy';
