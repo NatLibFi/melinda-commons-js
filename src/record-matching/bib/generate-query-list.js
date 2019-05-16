@@ -33,8 +33,14 @@ export function generateIdentifierQueries(record) {
 	function getStandardIdentifiers() {
 		return record.get(/^020|022|024$/)
 			.reduce((acc, field) => {
-				const id = field.subfields.find(sf => sf.code === 'a').value;
-				return id in acc ? acc : acc.concat(id);
+				const subfield = field.subfields.find(sf => sf.code === 'a');
+
+				if (subfield) {
+					const id = subfield.value;
+					return id in acc ? acc : acc.concat(id);
+				}
+
+				return acc;
 			}, []);
 	}
 }
@@ -51,7 +57,7 @@ export function generateTitleQueries(record) {
 		const field = record.get(/^245$/).shift();
 
 		// Normalize
-		if (field) {
+		if (field && field.subfields.some((sf => sf.code === 'a'))) {
 			return field.subfields.find(sf => sf.code === 'a').value
 				.replace(startPattern, ' ')
 				.replace(endPattern, ' ')
