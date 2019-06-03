@@ -26,10 +26,12 @@
 *
 */
 
+import {readFileSync} from 'fs';
 import passport from 'passport';
 import uuid from 'uuid/v4';
 import {BasicStrategy} from 'passport-http';
 import {Strategy as BearerStrategy} from 'passport-http-bearer';
+import {clone} from '../utils';
 
 import {
 	BearerCredentialsStrategy as CrowdCredentialsStrategy,
@@ -39,13 +41,13 @@ import {
 import {createLogger} from '../utils';
 
 export function generatePassportMiddlewares({crowd, localUsers}) {
-	const Logger = createLogger();
+	const logger = createLogger();
 
 	if (crowd.url && crowd.appName && crowd.appPassword) {
 		return initCrowdMiddlewares();
 	}
 
-	if (Array.isArray(localUsers) && localUsers.length > 0) {
+	if (typeof localUsers === 'string') {
 		return initLocalMiddlewares();
 	}
 
@@ -58,7 +60,7 @@ export function generatePassportMiddlewares({crowd, localUsers}) {
 			useCache: crowd.useCache, fetchGroupMembership: crowd.fetchGroupMembership
 		}));
 
-		Logger.log('info', 'Enabling Crowd passport strategies');
+		logger.log('info', 'Enabling Crowd passport strategies');
 
 		return {
 			credentials: passport.authenticate('atlassian-crowd-bearer-credentials', {session: false}),
@@ -67,21 +69,39 @@ export function generatePassportMiddlewares({crowd, localUsers}) {
 	}
 
 	function initLocalMiddlewares() {
+		const users = parseUsers();
 		const localSessions = {};
 
 		passport.use(new BasicStrategy(localBasicCallback));
 		passport.use(new BearerStrategy(localBearerCallback));
 
-		Logger.log('info', 'Enabling local passport strategies');
+		logger.log('info', 'Enabling local passport strategies');
 
 		return {
 			credentials: passport.authenticate('basic', {session: false}),
 			token: passport.authenticate('bearer', {session: false})
 		};
 
+		function parseUsers() {
+			if (localUsers.startsWith('file://')) {
+				const str = readFileSync(localUsers.replace(/^file:\/\//, ''), 'utf8');
+				return parse(str);
+			}
+
+			return parse(localUsers);
+
+			function parse(str) {
+				try {
+					return JSON.parse(str);
+				} catch (err) {
+					throw new Error('Could not parse local users');
+				}
+			}
+		}
+
 		function localBasicCallback(reqUsername, reqPassword, done) {
-			const user = localUsers.find(({username, password}) => {
-				return reqUsername === username && reqPassword === password;
+			const user = users.find(({id, password}) => {
+				return reqUsername === id && reqPassword === password;
 			});
 
 			if (user) {
@@ -102,20 +122,15 @@ export function generatePassportMiddlewares({crowd, localUsers}) {
 				}
 
 				const newToken = uuid().replace(/-/g, '');
-
-				localSessions[newToken] = {
-					id: user.username,
-					name: {
-						givenName: '',
-						familyName: ''
-					},
-					displayName: user.username,
-					emails: [{value: '', type: 'work'}],
-					organization: [],
-					groups: user.groups
-				};
+				localSessions[newToken] = removePassword(user);
 
 				return newToken;
+
+				function removePassword(userData) {
+					return Object.keys(clone(userData)).filter(k => k !== 'password').reduce((acc, key) => {
+						return {...acc, [key]: userData[key]};
+					}, {});
+				}
 			}
 		}
 
