@@ -34,9 +34,9 @@ import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
 import {
 	generateAuthorizationHeader, isDeletedRecord, readEnvironmentVariable,
-	generateEncryptionKey, encryptString, decryptString, parseBoolean,
-	__RewireAPI__ as RewireAPI,
-	getRecordTitle, getRecordStandardIdentifiers
+	generateEncryptionKey, encryptString, decryptString, parseBoolean, clone,
+	getRecordTitle, getRecordStandardIdentifiers,
+	__RewireAPI__ as RewireAPI
 } from './utils';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
@@ -183,6 +183,16 @@ describe('utils', () => {
 
 				expect(getRecordStandardIdentifiers(record)).to.eql(identifiers);
 			});
+		});
+	});
+
+	describe('clone', () => {
+		it('Should clone an object', (index = '1') => {
+			const obj = JSON.parse(fs.readFileSync(path.join(FIXTURES_PATH, `clone/${index}/obj.json`), 'utf8'));
+			const cloned = clone(obj);
+
+			expect(obj).to.not.equal(cloned);
+			expect(cloned).to.eql(obj);
 		});
 	});
 });
