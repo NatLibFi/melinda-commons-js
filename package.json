@@ -14,20 +14,22 @@
 		"url": "git@github.com:natlibfi/melinda-commons-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "6.0.1",
+	"version": "7.0.0",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=8"
 	},
 	"scripts": {
-		"prepublishOnly": "npm run build",
+		"prepare": "npm run build",
 		"check-deps": "npm-check;exit 0",
-		"lint": "eslint --fix src",
+		"lint": "eslint src",
+		"lint:dev": "eslint --fix src",
 		"test:base": "cross-env NODE_ENV=test mocha --require @babel/register",
 		"test": "npm run lint && npm run test:base -- src/*.spec.js src/**/*.spec.js src/**/**/*.spec.js",
+		"test:dev": "npm run lint:dev && npm run test:base -- src/*.spec.js src/**/*.spec.js src/**/**/*.spec.js",
 		"build": "babel src --source-maps --delete-dir-on-start --out-dir=dist",
 		"build:dev": "npm run build && npm run check-deps",
-		"watch": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src --exec 'npm test'"
+		"watch": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src --exec 'npm run test:dev'"
 	},
 	"dependencies": {
 		"@babel/register": "^7.0.0",
