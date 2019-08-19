@@ -35,12 +35,10 @@ export function generateIdentifierQueries(record) {
 			.reduce((acc, field) => {
 				const codes = ['a', 'z'];
 				field.subfields
-					.filter(sub => {
+					.forEach(sub => {
 						if (codes.includes(sub.code) && !acc.includes(sub.value)) {
 							acc.push(sub.value);
 						}
-
-						return null;
 					});
 
 				return acc;
