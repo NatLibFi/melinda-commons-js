@@ -39,10 +39,12 @@ const FIXTURES_PATH = path.join(__dirname, '../../../test-fixtures/record-matchi
 const record1 = fs.readFileSync(path.join(FIXTURES_PATH, 'record1.json'), 'utf8');
 const record2 = fs.readFileSync(path.join(FIXTURES_PATH, 'record2.json'), 'utf8');
 const record3 = fs.readFileSync(path.join(FIXTURES_PATH, 'record3.json'), 'utf8');
+const record4 = fs.readFileSync(path.join(FIXTURES_PATH, 'record4.json'), 'utf8');
 
 const queryList1 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList1.json'), 'utf8');
 const queryList2 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList2.json'), 'utf8');
 const queryList3 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList3.json'), 'utf8');
+const queryList4 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList4.json'), 'utf8');
 
 describe('record-matching/bib/generate-query-list', () => {
 	describe('#generateIdentifierQueries', () => {
@@ -58,6 +60,13 @@ describe('record-matching/bib/generate-query-list', () => {
 			const queryList = generateIdentifierQueries(record);
 
 			expect(queryList).to.eql(JSON.parse(queryList2));
+		});
+
+		it('Should generate a list of multible identifiers from subfield a and z', () => {
+			const record = new MarcRecord(JSON.parse(record4));
+			const queryList = generateIdentifierQueries(record);
+
+			expect(queryList).to.eql(JSON.parse(queryList4));
 		});
 	});
 

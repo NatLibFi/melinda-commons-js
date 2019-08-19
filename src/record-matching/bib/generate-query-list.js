@@ -33,12 +33,13 @@ export function generateIdentifierQueries(record) {
 	function getStandardIdentifiers() {
 		return record.get(/^020|022|024$/)
 			.reduce((acc, field) => {
-				const subfield = field.subfields.find(sf => sf.code === 'a');
-
-				if (subfield) {
-					const id = subfield.value;
-					return id in acc ? acc : acc.concat(id);
-				}
+				const codes = ['a', 'z'];
+				field.subfields
+					.forEach(sub => {
+						if (codes.includes(sub.code) && !acc.includes(sub.value)) {
+							acc.push(sub.value);
+						}
+					});
 
 				return acc;
 			}, []);
