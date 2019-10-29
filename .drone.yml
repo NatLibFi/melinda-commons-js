@@ -9,7 +9,8 @@ steps:
   - npm run build
 - name: npm
   image: plugins/npm
-  settings:
+  settingss:
+    registry: https://registry.npmjs.org/
     token:
       from_secret: npm_token
   when:
