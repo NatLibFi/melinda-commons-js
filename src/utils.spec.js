@@ -52,14 +52,26 @@ describe('utils', () => {
 	});
 
 	describe('isDeletedRecord', () => {
-		it('Should find the record deleted', () => {
+		it('Should find the record deleted (Leader)', () => {
 			const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record1.json'), 'utf8');
 			const record = new MarcRecord(JSON.parse(data));
 			expect(isDeletedRecord(record)).to.equal(true);
 		});
 
-		it('Should find the record not deleted', () => {
+		it('Should find the record deleted (DEL)', () => {
 			const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record2.json'), 'utf8');
+			const record = new MarcRecord(JSON.parse(data));
+			expect(isDeletedRecord(record)).to.equal(true);
+		});
+
+		it('Should find the record deleted (STA)', () => {
+			const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record3.json'), 'utf8');
+			const record = new MarcRecord(JSON.parse(data));
+			expect(isDeletedRecord(record)).to.equal(true);
+		});
+
+		it('Should find the record not deleted', () => {
+			const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record4.json'), 'utf8');
 			const record = new MarcRecord(JSON.parse(data));
 			expect(isDeletedRecord(record)).to.equal(false);
 		});

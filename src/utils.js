@@ -37,9 +37,27 @@ export function generateAuthorizationHeader(username, password = '') {
 }
 
 export function isDeletedRecord(record) {
-	return record
-		.get(/^STA$/)
-		.some(f => f.subfields.some(sf => sf.code === 'a' && sf.value === 'DELETED'));
+	if (record.leader[5] === 'd') {
+		return true;
+	}
+
+	return checkDel() || checkSta();
+
+	function checkDel() {
+		return record.get(/^DEL$/).some(check);
+
+		function check({subfields}) {
+			return subfields.some(({code, value}) => code === 'a' && value === 'Y');
+		}
+	}
+
+	function checkSta() {
+		return record.get(/^STA$/).some(check);
+
+		function check({subfields}) {
+			return subfields.some(({code, value}) => code === 'a' && value === 'DELETED');
+		}
+	}
 }
 
 export function readEnvironmentVariable(name, {defaultValue = undefined, hideDefault = false, format = v => v} = {}) {

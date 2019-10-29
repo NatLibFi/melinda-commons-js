@@ -1,5 +1,5 @@
 {
-  "leader": "01864cam a2200529zi 4500",
+  "leader": "01864dam a2200529zi 4500",
   "fields": [
     {
       "tag": "001",
@@ -13,15 +13,6 @@
         {
           "code": "a",
           "value": "foobar"
-        }
-      ]
-    },
-    {
-      "tag": "STA",      
-      "subfields": [
-        {
-          "code": "a",
-          "value": "DELETED"
         }
       ]
     }
