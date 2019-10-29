@@ -17,11 +17,11 @@
       ]
     },
     {
-      "tag": "DEL",      
+      "tag": "STA",      
       "subfields": [
         {
           "code": "a",
-          "value": "Y"
+          "value": "DELETED"
         }
       ]
     }
