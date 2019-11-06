@@ -129,7 +129,7 @@ export function decryptString({key, value, algorithm, encoding = 'base64'}) {
 export function handleInterrupt(arg) {
 	if (arg instanceof Error) {
 		console.error(`Uncaught Exception: ${arg.stack}`);
-	// Signal
+		// Signal
 	} else {
 		console.log(`Received ${arg}`);
 	}
@@ -175,4 +175,26 @@ export function getRecordStandardIdentifiers(record) {
 
 export function clone(o) {
 	return JSON.parse(JSON.stringify(o));
+}
+
+export function updateField001ToParamId(id, record) {
+	let fields = record.fields.filter(field => filterFieldsByPattern(field, /^001$/));
+
+	if (fields.length === 0) {
+		return record.fields.push({tag: '001', value: id});
+	}
+
+	return record.get(/^001$/).map(field => {
+		field.value = id;
+		return field;
+	});
+}
+
+function filterFieldsByPattern(field, pattern) {
+	let match = false;
+	if (pattern.test(field.tag)) {
+		match = true;
+	}
+
+	return match;
 }
