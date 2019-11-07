@@ -177,24 +177,10 @@ export function clone(o) {
 	return JSON.parse(JSON.stringify(o));
 }
 
-export function updateField001ToParamId(id, record) {
-	let fields = record.fields.filter(field => filterFieldsByPattern(field, /^001$/));
-
-	if (fields.length === 0) {
-		return record.fields.push({tag: '001', value: id});
-	}
-
-	return record.get(/^001$/).map(field => {
-		field.value = id;
-		return field;
-	});
+export function toAlephId(id) {
+	return id.padStart(9, '0');
 }
 
-function filterFieldsByPattern(field, pattern) {
-	let match = false;
-	if (pattern.test(field.tag)) {
-		match = true;
-	}
-
-	return match;
+export function fromAlephId(id) {
+	return id.replace(/^0+/, '');
 }
