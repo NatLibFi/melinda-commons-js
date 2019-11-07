@@ -175,10 +175,11 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 		const fields = record.get(/^001$/);
 
 		if (fields.length === 0) {
+			// Return to break out of function
 			return record.insertField({tag: '001', value: toAlephId(id)});
 		}
 
-		return fields.map(field => {
+		fields.map(field => {
 			field.value = toAlephId(id);
 			return field;
 		});
