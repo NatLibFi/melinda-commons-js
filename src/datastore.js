@@ -33,7 +33,7 @@ import HttpStatus from 'http-status';
 import fetch from 'node-fetch';
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML, AlephSequential} from '@natlibfi/marc-record-serializers';
-import {generateAuthorizationHeader} from './utils';
+import {generateAuthorizationHeader, toAlephId} from './utils';
 import deepEqual from 'deep-eql';
 import moment from 'moment';
 
@@ -79,7 +79,7 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 
 	async function update({record, id, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
 		const existingRecord = await fetchRecord(id);
-
+		updateField001ToParamId(id, record);
 		await validateRecordState(record, existingRecord);
 		await loadRecord({record, id, cataloger, indexingPriority});
 	}
@@ -169,5 +169,19 @@ export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLo
 		if (!deepEqual(incomingModificationHistory, existingModificationHistory)) {
 			throw new DatastoreError(HttpStatus.CONFLICT);
 		}
+	}
+
+	function updateField001ToParamId(id, record) {
+		const fields = record.get(/^001$/);
+
+		if (fields.length === 0) {
+			// Return to break out of function
+			return record.insertField({tag: '001', value: toAlephId(id)});
+		}
+
+		fields.map(field => {
+			field.value = toAlephId(id);
+			return field;
+		});
 	}
 }

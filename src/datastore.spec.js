@@ -51,10 +51,12 @@ const sruResponse4 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse4.xml'
 const sruResponse5 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse5.xml'), 'utf8');
 const sruResponse6 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse6.xml'), 'utf8');
 const sruResponse7 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse7.xml'), 'utf8');
+const sruResponse8 = fs.readFileSync(path.join(FIXTURES_PATH, 'sruResponse8.xml'), 'utf8');
 const expectedRecord1 = fs.readFileSync(path.join(FIXTURES_PATH, 'expectedRecord1.json'), 'utf8');
 const incomingRecord1 = fs.readFileSync(path.join(FIXTURES_PATH, 'incomingRecord1.json'), 'utf8');
 const incomingRecord2 = fs.readFileSync(path.join(FIXTURES_PATH, 'incomingRecord2.json'), 'utf8');
 const incomingRecord3 = fs.readFileSync(path.join(FIXTURES_PATH, 'incomingRecord3.json'), 'utf8');
+const incomingRecord4 = fs.readFileSync(path.join(FIXTURES_PATH, 'incomingRecord4.json'), 'utf8');
 
 describe('datastore', () => {
 	afterEach(() => {
@@ -412,6 +414,23 @@ describe('datastore', () => {
 
 				const record = new MarcRecord(JSON.parse(incomingRecord2));
 				await service.update({record, id: '1234', indexingPriority: INDEXING_PRIORITY.LOW});
+			});
+
+			it('Should update a record and replace "WRONG" id to given id', async () => {
+				nock('https://sru/bib')
+					.get(/.*/).reply(HttpStatus.OK, sruResponse8);
+				nock('https://api')
+					.post(/.*/).reply(HttpStatus.OK, ['4321']);
+
+				const service = createService({
+					sruURL: 'https://sru/bib',
+					recordLoadURL: 'https://api',
+					recordLoadApiKey: 'foobar',
+					recordLoadLibrary: 'foo'
+				});
+
+				const record = new MarcRecord(JSON.parse(incomingRecord4));
+				await service.update({record, id: '4321'});
 			});
 		});
 	});

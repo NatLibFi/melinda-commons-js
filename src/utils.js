@@ -129,7 +129,7 @@ export function decryptString({key, value, algorithm, encoding = 'base64'}) {
 export function handleInterrupt(arg) {
 	if (arg instanceof Error) {
 		console.error(`Uncaught Exception: ${arg.stack}`);
-	// Signal
+		// Signal
 	} else {
 		console.log(`Received ${arg}`);
 	}
@@ -175,4 +175,12 @@ export function getRecordStandardIdentifiers(record) {
 
 export function clone(o) {
 	return JSON.parse(JSON.stringify(o));
+}
+
+export function toAlephId(id) {
+	return id.padStart(9, '0');
+}
+
+export function fromAlephId(id) {
+	return id.replace(/^0+/, '');
 }
