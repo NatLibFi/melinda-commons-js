@@ -26,13 +26,13 @@
 *
 */
 
-export class OwnAuthorizationError extends Error {}
+import OwnAuthorizationError from './error';
 
 export function validateChanges(ownTags, incomingRecord, existingRecord) {
 	const lowTags = getLowTags();
 
 	if (lowTags.some(t => !ownTags.includes(t))) {
-		throw new OwnAuthorizationError();
+		throw new OwnAuthorizationError(403);
 	}
 
 	function getLowTags() {

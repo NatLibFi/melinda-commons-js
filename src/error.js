@@ -26,28 +26,10 @@
 *
 */
 
-import {BasicStrategy} from 'passport-http';
-import {createService} from './service';
-import AuthenticationError from '../../error';
-
-export default class extends BasicStrategy {
-	constructor({xServiceURL, userLibrary, ownAuthzURL, ownAuthzApiKey}) {
-		const AuthenticationService = createService({xServiceURL, userLibrary, ownAuthzURL, ownAuthzApiKey});
-
-		super((username, password, done) => {
-			AuthenticationService.authenticate({username, password})
-				.then(user => {
-					done(null, user);
-				})
-				.catch(err => {
-					if (err instanceof AuthenticationError) {
-						done(null, false);
-					} else {
-						done(err);
-					}
-				});
-		});
-
-		this.name = 'melinda';
+export default class extends Error {
+	constructor(status, payload, ...params) {
+		super(params);
+		this.status = status;
+		this.payload = payload;
 	}
 }
