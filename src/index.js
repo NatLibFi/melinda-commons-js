@@ -36,5 +36,6 @@ import * as RecordMatching from './record-matching';
 import * as Datastore from './datastore';
 import * as OwnAuthorization from './own-authorization';
 import * as Utils from './utils';
+import * as MelindaError from './error';
 
-export {Authentication, RecordMatching, Datastore, OwnAuthorization, Utils};
+export {Authentication, RecordMatching, Datastore, OwnAuthorization, Utils, MelindaError};
