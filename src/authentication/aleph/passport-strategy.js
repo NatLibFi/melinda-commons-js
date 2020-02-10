@@ -27,7 +27,8 @@
 */
 
 import {BasicStrategy} from 'passport-http';
-import {createService, AuthenticationError} from './service';
+import {createService} from './service';
+import AuthenticationError from '../../error';
 
 export default class extends BasicStrategy {
 	constructor({xServiceURL, userLibrary, ownAuthzURL, ownAuthzApiKey}) {

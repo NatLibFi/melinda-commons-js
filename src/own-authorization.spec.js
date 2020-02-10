@@ -31,6 +31,7 @@ import path from 'path';
 import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
 import * as testContext from './own-authorization';
+import OwnAuthorizationError from './error';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
 
@@ -74,7 +75,7 @@ describe('own-authorization', () => {
 
 			expect(() => {
 				testContext.validateChanges(tags, record);
-			}).to.throw(testContext.OwnAuthorizationError);
+			}).to.throw(OwnAuthorizationError);
 		});
 
 		it('Should throw (Record comparison)', () => {
@@ -84,7 +85,7 @@ describe('own-authorization', () => {
 
 			expect(() => {
 				testContext.validateChanges(tags, recordA, recordB);
-			}).to.throw(testContext.OwnAuthorizationError);
+			}).to.throw(OwnAuthorizationError);
 		});
 	});
 });

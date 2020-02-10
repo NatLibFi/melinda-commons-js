@@ -31,8 +31,7 @@ import fetch from 'node-fetch';
 import {URL} from 'url';
 import {DOMParser} from 'xmldom';
 import {generateAuthorizationHeader} from '../../utils';
-
-export class AuthenticationError extends Error {}
+import AuthenticationError from '../../error';
 
 export function createService({xServiceURL, userLibrary, ownAuthzURL, ownAuthzApiKey}) {
 	const xBaseURL = new URL(xServiceURL);
@@ -62,11 +61,11 @@ export function createService({xServiceURL, userLibrary, ownAuthzURL, ownAuthzAp
 			return Object.assign(userInfo, {authorization: ownTags});
 		}
 
-		throw new Error(body);
+		throw new AuthenticationError(response.status, body);
 
 		function checkForErrors(doc) {
 			if (invalidReply() || hasErrors()) {
-				throw new AuthenticationError(body);
+				throw new AuthenticationError(400, body);
 			}
 
 			function invalidReply() {
@@ -124,15 +123,17 @@ export function createService({xServiceURL, userLibrary, ownAuthzURL, ownAuthzAp
 			const url = new URL(ownAuthzURL);
 			url.searchParams.set('username', username);
 
-			const response = await fetch(url, {headers: {
-				Authorization: generateAuthorizationHeader(ownAuthzApiKey)
-			}});
+			const response = await fetch(url, {
+				headers: {
+					Authorization: generateAuthorizationHeader(ownAuthzApiKey)
+				}
+			});
 
 			if (response.status === HttpStatus.OK) {
 				return response.json();
 			}
 
-			throw new Error(await response.text());
+			throw new AuthenticationError(response.status, await response.text());
 		}
 	}
 }

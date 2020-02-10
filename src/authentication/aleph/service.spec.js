@@ -35,6 +35,7 @@ import {expect} from 'chai';
 import HttpStatus from 'http-status';
 import nock from 'nock';
 import * as testContext from './service';
+import AuthenticationError from '../../error';
 
 const FIXTURES_PATH = path.join(__dirname, '../../../test-fixtures/authentication');
 const authnResponse1 = fs.readFileSync(path.resolve(FIXTURES_PATH, 'authnResponse1.xml'), 'utf8');
@@ -104,7 +105,7 @@ describe('authentication/service', () => {
 					await service.authenticate({username, password});
 					throw new Error('Should throw');
 				} catch (err) {
-					expect(err).to.be.an.instanceof(testContext.AuthenticationError);
+					expect(err).to.be.an.instanceof(AuthenticationError);
 				}
 			});
 
@@ -130,7 +131,7 @@ describe('authentication/service', () => {
 					await service.authenticate({username, password});
 					throw new Error('Should throw');
 				} catch (err) {
-					expect(err).to.be.an.instanceof(testContext.AuthenticationError);
+					expect(err).to.be.an.instanceof(AuthenticationError);
 				}
 			});
 
