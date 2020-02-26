@@ -20,7 +20,7 @@
 		"access": "public"
 	},
 	"engines": {
-		"node": ">=8"
+		"node": ">=12"
 	},
 	"scripts": {
 		"prepare": "npm run build",
@@ -94,7 +94,7 @@
 				"@babel/preset-env",
 				{
 					"targets": {
-						"node": "8"
+						"node": "12"
 					}
 				}
 			]
