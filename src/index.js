@@ -37,5 +37,5 @@ import * as Datastore from './datastore';
 import * as OwnAuthorization from './own-authorization';
 import * as Utils from './utils';
 
-export Error from './error';
+export {default as Error} from './error';
 export {Authentication, RecordMatching, Datastore, OwnAuthorization, Utils};
