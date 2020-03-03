@@ -15,6 +15,9 @@
 	},
 	"license": "LGPL-3.0+",
 	"version": "7.2.1",
+	"bin": [
+		"./dist/gen-jwt-token"
+	],
 	"main": "./dist/index.js",
 	"publishConfig": {
 		"access": "public"
@@ -41,6 +44,7 @@
 		"@natlibfi/melinda-ai-commons": "^2.0.0",
 		"@natlibfi/passport-atlassian-crowd": "^2.0.0",
 		"@natlibfi/sru-client": "^3.1.2",
+		"base64-url": "^2.3.3",
 		"debug": "^4.1.1",
 		"deep-eql": "^4.0.0",
 		"express-winston": "^3.0.1",
