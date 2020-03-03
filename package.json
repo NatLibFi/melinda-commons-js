@@ -16,7 +16,7 @@
 	"license": "LGPL-3.0+",
 	"version": "7.3.2",
 	"bin": {
-		"gen-jwt-token": "./dist/gen-jwt-token"
+		"gen-jwt-token": "./dist/gen-jwt-token.js"
 	},
 	"main": "./dist/index.js",
 	"publishConfig": {
