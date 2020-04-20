@@ -90,7 +90,7 @@ export function createExpressLogger(options = {}) {
 }
 
 function createLoggerOptions() {
-	const debuggingEnabled = parseBoolean(process.env.DEBUG);
+	const logLevel = process.env.LOG_LEVEL || 'info';
 	const timestamp = winston.format(info => {
 		info.timestamp = moment().format();
 		return info;
@@ -100,7 +100,7 @@ function createLoggerOptions() {
 		format: winston.format.combine(timestamp(), winston.format.printf(formatMessage)),
 		transports: [
 			new winston.transports.Console({
-				level: debuggingEnabled ? 'debug' : 'info',
+				level: logLevel,
 				silent: process.env.NODE_ENV === 'test' && !debuggingEnabled
 			})
 		]
