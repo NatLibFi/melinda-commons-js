@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/melinda-commons-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "7.3.3",
+	"version": "8.0.0",
 	"bin": {
 		"gen-jwt-token": "./dist/gen-jwt-token.js"
 	},
