@@ -15,4 +15,7 @@ steps:
       from_secret: npm_token
   when:
     event: tag   
-  
+---
+kind: secret
+name: npm_token
+data: JJIaxUR931XpxGWiLjo3NmpMAbV8uXQC1EDvmYMDy4d06ps4tEJwDIOanUELkWb7hzfETZBky5ALQAy6a66KRA==
