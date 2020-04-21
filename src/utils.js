@@ -91,6 +91,7 @@ export function createExpressLogger(options = {}) {
 
 function createLoggerOptions() {
 	const logLevel = process.env.LOG_LEVEL || 'info';
+	const debuggingEnabled = logLevel === 'debug' ? true : false;
 	const timestamp = winston.format(info => {
 		info.timestamp = moment().format();
 		return info;
