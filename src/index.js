@@ -38,4 +38,4 @@ import * as Utils from './utils';
 
 export {default as Error} from './error';
 export * from './api-client';
-export {Authentication, RecordMatching, Datastore, OwnAuthorization, Utils};
+export {Authentication, RecordMatching, OwnAuthorization, Utils};
