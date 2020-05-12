@@ -41,7 +41,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
         return doRequest({method: 'delete', path: 'bulk/?', params: {id}});
     }
 
-    async function doRequest({method, path, params = false, contentType = 'application/json', body = {body: ''}}) {
+    async function doRequest({method, path, params = false, contentType = 'application/json', body = null}) {
         try {
 
             const query = params ? new URLSearchParams(params) : '';
