@@ -25,7 +25,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
     }
 
     async function postBulk({params, contentType, body}) {
-        return doRequest({method: 'post', path: '?', params, contentType, body});
+        return doRequest({method: 'post', path: 'bulk/?', params, contentType, body});
     }
 
     async function getMetadata({id}) {
