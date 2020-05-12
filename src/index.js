@@ -33,9 +33,9 @@ MarcRecord.setValidationOptions({subfieldValues: false});
 
 import * as Authentication from './authentication';
 import * as RecordMatching from './record-matching';
-import * as Datastore from './datastore';
 import * as OwnAuthorization from './own-authorization';
 import * as Utils from './utils';
 
 export {default as Error} from './error';
+export * from './api-client';
 export {Authentication, RecordMatching, Datastore, OwnAuthorization, Utils};
