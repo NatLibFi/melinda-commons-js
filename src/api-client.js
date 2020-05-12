@@ -42,40 +42,45 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
     }
 
     async function doRequest({method, path, params = false, contentType = 'application/json', body = {body: ''}}) {
-        const query = params ? new URLSearchParams(params) : '';
-        const url = new URL(`${restApiUrl}${path}${query}`);
+        try {
 
-        logger.log('silly', url.toString());
+            const query = params ? new URLSearchParams(params) : '';
+            const url = new URL(`${restApiUrl}${path}${query}`);
 
-        const response = await fetch(url, {
-            method,
-            headers: {
-                'User-Agent': userAgent,
-                'content-type': contentType,
-                'Authorization': `Basic ${Buffer.from(`${restApiUsername}:${restApiPassword}`).toString('base64')}`,
-                'Accept': 'application/json'
-            },
-            body
-        });
+            logger.log('silly', url.toString());
 
-        logger.log('silly', `Response status: ${response.status}`);
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'User-Agent': userAgent,
+                    'content-type': contentType,
+                    'Authorization': `Basic ${Buffer.from(`${restApiUsername}:${restApiPassword}`).toString('base64')}`,
+                    'Accept': 'application/json'
+                },
+                body
+            });
 
-        if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
-            if (method === 'get') {
-                const [result] = await response.json();
+            logger.log('silly', `Response status: ${response.status}`);
 
-                if (result === undefined) { // eslint-disable-line functional/no-conditional-statement
-                    throw new ApiError(404, `Queue item ${correlationId} not found!`);
+            if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
+                if (method === 'get') {
+                    const [result] = await response.json();
+
+                    if (result === undefined) { // eslint-disable-line functional/no-conditional-statement
+                        throw new ApiError(404, `Queue item ${correlationId} not found!`);
+                    }
+
+                    return result;
                 }
+
+                const result = await response.json();
 
                 return result;
             }
 
-            const result = await response.json();
-
-            return result;
+            throw new ApiError(response.status, await response.text());
+        } catch (error) {
+            logger.log('error', error);
         }
-
-        throw new ApiError(response.status, await response.text());
     }
 }
