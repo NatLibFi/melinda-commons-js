@@ -14,7 +14,7 @@ steps:
     token:
       from_secret: npm_token
   when:
-    event: tag   
+    event: tag
 ---
 kind: secret
 name: npm_token
