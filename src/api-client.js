@@ -72,8 +72,8 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
                 }
 
                 const id = response.headers.get('Record-ID') || undefined;
-                const response = await response.json();
-                const data = response.value ? response.value : response;
+                const result = await response.json();
+                const data = result.value || result;
                 return {id, data};
             }
 
