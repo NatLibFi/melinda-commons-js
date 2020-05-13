@@ -18,18 +18,18 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
     async function postPrio({params, contentType, body}, id = false) {
         if (id) {
-            return doRequest({method: 'post', path: id + '?', params, contentType, body});
+            return doRequest({method: 'post', path: id, params, contentType, body});
         }
 
-        return doRequest({method: 'post', path: '?', params, contentType, body});
+        return doRequest({method: 'post', path: '', params, contentType, body});
     }
 
     async function postBulk({params, contentType, body}) {
-        return doRequest({method: 'post', path: 'bulk/?', params, contentType, body});
+        return doRequest({method: 'post', path: 'bulk/', params, contentType, body});
     }
 
     async function getMetadata({id}) {
-        return doRequest({method: 'get', path: 'bulk/?', params: {id}});
+        return doRequest({method: 'get', path: 'bulk/', params: {id}});
     }
 
     async function getStatus({id}) {
@@ -38,14 +38,13 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
     }
 
     async function deleteBulk({id}) {
-        return doRequest({method: 'delete', path: 'bulk/?', params: {id}});
+        return doRequest({method: 'delete', path: 'bulk/', params: {id}});
     }
 
     async function doRequest({method, path, params = false, contentType = 'application/json', body = null}) {
         try {
-
             const query = params ? new URLSearchParams(params) : '';
-            const url = new URL(`${restApiUrl}${path}${query}`);
+            const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
 
             logger.log('silly', url.toString());
 
@@ -64,23 +63,27 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
             if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
                 if (method === 'get') {
-                    const [result] = await response.json();
-
-                    if (result === undefined) { // eslint-disable-line functional/no-conditional-statement
+                    const [messages] = await response.json();
+                    if (messages === undefined) { // eslint-disable-line functional/no-conditional-statement
                         throw new ApiError(404, `Queue item ${correlationId} not found!`);
                     }
 
-                    return result;
+                    return {messages};
                 }
 
-                const result = await response.json();
+                const id = response.headers.get('Record-ID') || undefined;
+                const messages = await response.json();
 
-                return result;
+                return {id, messages};
             }
 
             throw new ApiError(response.status, await response.text());
         } catch (error) {
             logger.log('error', error);
+            if (error instanceof ApiError) { // eslint-disable-line functional/no-conditional-statement
+                throw error;
+            }
+            throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Unexpected internal error');
         }
     }
 }
