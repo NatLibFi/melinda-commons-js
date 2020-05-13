@@ -63,18 +63,18 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
             if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
                 if (method === 'get') {
-                    const [messages] = await response.json();
-                    if (messages === undefined) { // eslint-disable-line functional/no-conditional-statement
+                    const [data] = await response.json();
+                    if (data === undefined) { // eslint-disable-line functional/no-conditional-statement
                         throw new ApiError(404, `Queue item ${correlationId} not found!`);
                     }
 
-                    return {messages};
+                    return {data};
                 }
 
                 const id = response.headers.get('Record-ID') || undefined;
-                const messages = await response.json();
-
-                return {id, messages};
+                const response = await response.json();
+                const data = response.value ? response.value : response;
+                return {id, data};
             }
 
             throw new ApiError(response.status, await response.text());
