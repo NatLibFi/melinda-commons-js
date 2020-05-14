@@ -27,9 +27,23 @@
 */
 
 export default class extends Error {
-	constructor(status, payload, ...params) {
-		super(params);
-		this.status = status;
-		this.payload = payload;
-	}
+  constructor(status, payload, ...params) {
+    super(params);
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+export function logError(err) {
+  if (err instanceof ApiError) {
+    logger.log('error', JSON.stringify(err));
+    return;
+  }
+
+  if (err === 'SIGINT') {
+    logger.log('error', err);
+    return;
+  }
+
+  logger.log('error', err.stack === undefined ? err : err.stack);
 }
