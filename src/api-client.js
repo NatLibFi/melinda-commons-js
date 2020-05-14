@@ -69,19 +69,34 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
             logger.log('debug', `Response status: ${response.status}`);
 
             if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
-                if (method === 'get') {
-                    const [data] = await response.json();
-                    if (data === undefined) { // eslint-disable-line functional/no-conditional-statement
-                        throw new ApiError(404, `Queue item ${correlationId} not found!`);
+                if (path === 'bulk/') {
+                    if (method === 'get') {
+                        // Get Bulk
+                        const [data] = await response.json();
+                        if (data === undefined) { // eslint-disable-line functional/no-conditional-statement
+                            throw new ApiError(404, `Queue item ${correlationId} not found!`);
+                        }
+
+                        return {data};
                     }
 
-                    return {data};
+                    // Post bulk
+                    if (method === 'post') {
+                        const result = await response.json();
+                        const data = result.value || result;
+                        return data;
+                    }
                 }
 
-                const id = response.headers.get('Record-ID') || undefined;
-                const result = await response.json();
-                const data = result.value || result;
-                return {id, data};
+                if (path === '') {
+                    // Create prio
+                    const id = response.headers.get('Record-ID') || undefined;
+                    return {id};
+                }
+
+                // Validation results & default
+                const data = await response.json();
+                return data;
             }
 
             throw new ApiError(response.status, await response.text());
