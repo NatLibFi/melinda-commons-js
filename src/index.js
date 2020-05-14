@@ -36,6 +36,6 @@ import * as RecordMatching from './record-matching';
 import * as OwnAuthorization from './own-authorization';
 import * as Utils from './utils';
 
-export {default as Error, logError} from './error';
+export {default as Error} from './error';
 export * from './api-client';
 export {Authentication, RecordMatching, OwnAuthorization, Utils};
