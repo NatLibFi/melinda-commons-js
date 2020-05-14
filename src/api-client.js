@@ -86,8 +86,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
             throw new ApiError(response.status, await response.text());
         } catch (error) {
-            logger.log('error', 'Api-client Error');
-            logger.log('error', JSON.stringify(error));
+            logger.log('debug', 'Api-client Error');
             if (error instanceof ApiError) { // eslint-disable-line functional/no-conditional-statement
                 throw error;
             }
