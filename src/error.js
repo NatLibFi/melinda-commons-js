@@ -25,7 +25,7 @@
 * for the JavaScript code in this file.
 *
 */
-import {createLogger} from '.utils'
+import {createLogger} from './utils'
 const logger = createLogger();
 
 export default class extends Error {
