@@ -13,12 +13,12 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
     };
 
     async function getRecord(recordId) {
-        logger.log('info', 'Getting record');
+        logger.log('verbose', 'Getting record');
         return doRequest({method: 'get', path: recordId});
     }
 
     async function postPrio({params, contentType, body}, id = false) {
-        logger.log('info', 'Posting prio');
+        logger.log('verbose', 'Posting prio');
         if (id) {
             return doRequest({method: 'post', path: id, params, contentType, body});
         }
@@ -27,28 +27,28 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
     }
 
     async function postBulk({params, contentType, body}) {
-        logger.log('info', 'Posting bulk');
+        logger.log('verbose', 'Posting bulk');
         return doRequest({method: 'post', path: 'bulk/', params, contentType, body});
     }
 
     async function getMetadata({id}) {
-        logger.log('info', 'Getting metadata');
+        logger.log('verbose', 'Getting metadata');
         return doRequest({method: 'get', path: 'bulk/', params: {id}});
     }
 
     async function getStatus({id}) {
-        logger.log('info', 'Getting status');
+        logger.log('verbose', 'Getting status');
         const result = await getMetadata({id});
         return result.queueItemState;
     }
 
     async function deleteBulk({id}) {
-        logger.log('info', 'Deleting bulk');
+        logger.log('verbose', 'Deleting bulk');
         return doRequest({method: 'delete', path: 'bulk/', params: {id}});
     }
 
     async function doRequest({method, path, params = false, contentType = 'application/json', body = null}) {
-        logger.log('info', 'Doing request');
+        logger.log('verbose', 'Doing request');
         try {
             const query = params ? new URLSearchParams(params) : '';
             const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
@@ -66,7 +66,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
                 body
             });
 
-            logger.log('silly', `Response status: ${response.status}`);
+            logger.log('debug', `Response status: ${response.status}`);
 
             if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
                 if (method === 'get') {
