@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import httpStatus from 'http-status';
 import {URL} from 'url';
-import {createLogger} from './utils';
+import {createLogger, logError} from './utils';
 import ApiError from './error';
 
 export function createApiClient({restApiUrl, restApiUsername, restApiPassword, userAgent = 'Melinda commons API client / Javascript'}) {
@@ -90,6 +90,8 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
             if (error instanceof ApiError) { // eslint-disable-line functional/no-conditional-statement
                 throw error;
             }
+
+            logError(error);
             throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Unexpected internal error');
         }
     }
