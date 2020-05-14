@@ -48,8 +48,8 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
     }
 
     async function doRequest({method, path, params = false, contentType = 'application/json', body = null}) {
+        logger.log('verbose', 'Doing request');
         try {
-            logger.log('verbose', 'Doing request');
             const query = params ? new URLSearchParams(params) : '';
             const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
 
@@ -86,6 +86,8 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
             throw new ApiError(response.status, await response.text());
         } catch (error) {
+            logger.log('verbose', 'Api-client Error');
+            logger.log('error', 'Api-client Error');
             logger.log('error', error);
             if (error instanceof ApiError) { // eslint-disable-line functional/no-conditional-statement
                 throw error;
