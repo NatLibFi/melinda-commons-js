@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import httpStatus from 'http-status';
 import {URL} from 'url';
 import {createLogger} from './utils';
-import {Error as ApiError} from './error';
+import ApiError from './error';
 
 export function createApiClient({restApiUrl, restApiUsername, restApiPassword, userAgent = 'Melinda commons API client / Javascript'}) {
     const logger = createLogger();
