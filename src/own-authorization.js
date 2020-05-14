@@ -32,7 +32,7 @@ export function validateChanges(ownTags, incomingRecord, existingRecord) {
 	const lowTags = getLowTags();
 
 	if (lowTags.some(t => !ownTags.includes(t))) {
-		throw new OwnAuthorizationError(403);
+		throw new OwnAuthorizationError(403, 'LOW-tag authorization error');
 	}
 
 	function getLowTags() {
