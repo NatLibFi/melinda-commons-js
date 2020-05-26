@@ -6,6 +6,7 @@ import ApiError from './error';
 
 export function createApiClient({restApiUrl, restApiUsername, restApiPassword, userAgent = 'Melinda commons API client / Javascript'}) {
     const logger = createLogger();
+    logger.log('debug', `Making Auth header: ${restApiUsername}, ${restApiPassword.length}`);
     const authorization = generateAuthorizationHeader(restApiUsername, restApiPassword);
 
     return {
