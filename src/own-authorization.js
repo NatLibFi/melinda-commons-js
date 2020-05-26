@@ -29,6 +29,10 @@
 import OwnAuthorizationError from './error';
 
 export function validateChanges(ownTags, incomingRecord, existingRecord) {
+	if (ownTags.includes('KVP')) {
+		return;
+	}
+
 	const lowTags = getLowTags();
 
 	if (lowTags.some(t => !ownTags.includes(t))) {

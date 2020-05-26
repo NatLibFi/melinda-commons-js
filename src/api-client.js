@@ -1,19 +1,24 @@
 import fetch from 'node-fetch';
 import httpStatus from 'http-status';
 import {URL} from 'url';
-import {createLogger, logError} from './utils';
+import {createLogger, logError, generateAuthorizationHeader} from './utils';
 import ApiError from './error';
 
 export function createApiClient({restApiUrl, restApiUsername, restApiPassword, userAgent = 'Melinda commons API client / Javascript'}) {
     const logger = createLogger();
+    const authorization = generateAuthorizationHeader(restApiUsername, restApiPassword);
 
     return {
         getRecord, postPrio, postBulk, getMetadata,
         getStatus, deleteBulk
     };
 
-    async function getRecord(recordId) {
+    async function getRecord(recordId, params = false) {
         logger.log('verbose', 'Getting record');
+        if (params) {
+            return doRequest({method: 'get', path: recordId, params});
+        }
+
         return doRequest({method: 'get', path: recordId});
     }
 
@@ -60,7 +65,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
                 headers: {
                     'User-Agent': userAgent,
                     'content-type': contentType,
-                    'Authorization': `Basic ${Buffer.from(`${restApiUsername}:${restApiPassword}`).toString('base64')}`,
+                    'Authorization': authorization,
                     'Accept': 'application/json'
                 },
                 body
