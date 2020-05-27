@@ -23,11 +23,12 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 	}
 
 	function postPrio({params, contentType, body}, id = false) {
-		logger.log('verbose', 'Posting prio');
 		if (id) {
+			logger.log('verbose', `Posting prio update ${id}`);
 			return doRequest({method: 'post', path: id, params, contentType, body});
 		}
 
+		logger.log('verbose', 'Posting prio create');
 		return doRequest({method: 'post', path: '', params, contentType, body});
 	}
 
@@ -59,6 +60,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 			const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
 
 			logger.log('silly', `connection URL ${url.toString()}`);
+			logger.log('silly', JSON.stringify(body, undefined, ' ');)
 
 			const response = await fetch(url, {
 				method,
