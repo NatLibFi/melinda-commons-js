@@ -14,7 +14,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 	};
 
 	function getRecord(recordId, params = false) {
-		logger.log('verbose', 'Getting record');
+		logger.log('silly', 'Getting record');
 		if (params) {
 			return doRequest({method: 'get', path: recordId, params});
 		}
@@ -24,43 +24,43 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 	function postPrio({params, contentType, body}, id = false) {
 		if (id) {
-			logger.log('verbose', `Posting prio update ${id}`);
+			logger.log('silly', `Posting prio update ${id}`);
 			return doRequest({method: 'post', path: id, params, contentType, body});
 		}
 
-		logger.log('verbose', 'Posting prio create');
+		logger.log('silly', 'Posting prio create');
 		return doRequest({method: 'post', path: '', params, contentType, body});
 	}
 
 	function postBulk({params, contentType, body}) {
-		logger.log('verbose', 'Posting bulk');
+		logger.log('silly', 'Posting bulk');
 		return doRequest({method: 'post', path: 'bulk/', params, contentType, body});
 	}
 
 	function getMetadata({id}) {
-		logger.log('verbose', 'Getting metadata');
+		logger.log('silly', 'Getting metadata');
 		return doRequest({method: 'get', path: 'bulk/', params: {id}});
 	}
 
 	async function getStatus({id}) {
-		logger.log('verbose', 'Getting status');
+		logger.log('silly', 'Getting status');
 		const result = await getMetadata({id});
 		return result.queueItemState;
 	}
 
 	function deleteBulk({id}) {
-		logger.log('verbose', 'Deleting bulk');
+		logger.log('silly', 'Deleting bulk');
 		return doRequest({method: 'delete', path: 'bulk/', params: {id}});
 	}
 
 	async function doRequest({method, path, params = false, contentType = 'application/json', body = null}) {
-		logger.log('verbose', 'Doing request');
+		logger.log('silly', 'Doing request');
 		try {
 			const query = params ? new URLSearchParams(params) : '';
 			const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
 
 			logger.log('silly', `connection URL ${url.toString()}`);
-			logger.log('debug', JSON.stringify(body, undefined, ' '));
+			logger.log('silly', JSON.stringify(body, undefined, ''));
 
 			const response = await fetch(url, {
 				method,
@@ -103,6 +103,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 				// Validation results & default
 				const data = await response.json();
+				logger.log('debug', `Response data: ${JSON.stringify(data)}`);
 				return data;
 			}
 
