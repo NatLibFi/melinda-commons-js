@@ -103,7 +103,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 				// Validation results & default
 				const data = await response.json();
-				logger.log('debug', `Response data: ${JSON.stringify(data)}`);
+				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 				return data;
 			}
 
