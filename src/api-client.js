@@ -97,8 +97,8 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 				if (path === '') {
 					// Create prio
-					const id = response.headers.get('Record-ID') || undefined;
-					return {id};
+					const recordId = response.headers.get('Record-ID') || undefined;
+					return {recordId};
 				}
 
 				// Validation results & default
