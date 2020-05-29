@@ -4,9 +4,12 @@ import {URL} from 'url';
 import {createLogger, logError, generateAuthorizationHeader} from './utils';
 import ApiError from './error';
 
-export function createApiClient({restApiUrl, restApiUsername, restApiPassword, userAgent = 'Melinda commons API client / Javascript'}) {
+export function createApiClient({restApiUrl, restApiUsername, restApiPassword, cataloger = false, userAgent = 'Melinda commons API client / Javascript'}) {
 	const logger = createLogger();
 	const Authorization = generateAuthorizationHeader(restApiUsername, restApiPassword);
+
+	const defaultParamsBulk = cataloger ? {pCatalogerIn: cataloger} : {};
+	const defaultParamsPrio = cataloger ? {cataloger} : {};
 
 	return {
 		getRecord, postPrio, postBulk, getMetadata,
@@ -25,16 +28,16 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 	function postPrio({params, contentType, body}, id = false) {
 		if (id) {
 			logger.log('silly', `Posting prio update ${id}`);
-			return doRequest({method: 'post', path: id, params, contentType, body});
+			return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, contentType, body});
 		}
 
 		logger.log('silly', 'Posting prio create');
-		return doRequest({method: 'post', path: '', params, contentType, body});
+		return doRequest({method: 'post', path: '', params: {...defaultParamsPrio, ...params}, contentType, body});
 	}
 
 	function postBulk({params, contentType, body}) {
 		logger.log('silly', 'Posting bulk');
-		return doRequest({method: 'post', path: 'bulk/', params, contentType, body});
+		return doRequest({method: 'post', path: 'bulk/', params: {...defaultParamsBulk, ...params}, contentType, body});
 	}
 
 	function getMetadata({id}) {
@@ -44,7 +47,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 	async function getStatus({id}) {
 		logger.log('silly', 'Getting status');
-		const result = await getMetadata({id});
+		const [result] = await getMetadata({id});
 		return result.queueItemState;
 	}
 
