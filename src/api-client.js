@@ -88,6 +88,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 						const value = data.value || data;
 						return value;
 					}
+
 					return data;
 				}
 
