@@ -91,16 +91,16 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 					return data;
 				}
 
-				logger.log('debug', 'Prio new ok');
 				if (path === '') {
 					// Create prio
+					logger.log('debug', 'Prio new ok');
 					const recordId = response.headers.get('Record-ID') || undefined;
 					logger.log('silly', `Response data: ${JSON.stringify(recordId)}`);
 					return {recordId};
 				}
 
-				logger.log('debug', 'Default ok');
 				// Validation results & default
+				logger.log('debug', 'Default ok');
 				const data = await response.json();
 				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 				return data;
