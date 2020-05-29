@@ -77,18 +77,18 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 			if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
 				if (path === 'bulk/') {
-					logger.log('verbose', 'bulk ok');
+					logger.log('debug', 'bulk ok');
 					const data = await response.json();
 					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 					if (method === 'post') {
-						logger.log('verbose', 'post');
+						logger.log('debug', 'post');
 						const value = data.value || data;
 						return value;
 					}
 					return data;
 				}
 
-				logger.log('verbose', 'Prio new ok');
+				logger.log('debug', 'Prio new ok');
 				if (path === '') {
 					// Create prio
 					const recordId = response.headers.get('Record-ID') || undefined;
@@ -96,7 +96,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 					return {recordId};
 				}
 
-				logger.log('verbose', 'Default ok');
+				logger.log('debug', 'Default ok');
 				// Validation results & default
 				const data = await response.json();
 				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
