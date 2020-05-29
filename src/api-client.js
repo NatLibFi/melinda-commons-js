@@ -77,40 +77,29 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, u
 
 			if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
 				if (path === 'bulk/') {
-					if (method === 'get') {
-						logger.log('verbose', 'bulk get ok');
-						// Get Bulk
-						const data = await response.json();
-						logger.log('debug', `Response data: ${JSON.stringify(data)}`);
-						if (data === undefined) { // eslint-disable-line functional/no-conditional-statement
-							throw new ApiError(httpStatus.NOT_FOUND, 'Queue item not found!');
-						}
-
-						return data;
-					}
-
-					// Post bulk
-					logger.log('verbose', 'Bulk default ok');
+					logger.log('verbose', 'bulk ok');
+					const data = await response.json();
+					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 					if (method === 'post') {
-						const result = await response.json();
-						const data = result.value || result;
-						logger.log('debug', `Response data: ${JSON.stringify(data)}`);
-						return data;
+						logger.log('verbose', 'post');
+						const value = data.value || data;
+						return value;
 					}
+					return data;
 				}
 
 				logger.log('verbose', 'Prio new ok');
 				if (path === '') {
 					// Create prio
 					const recordId = response.headers.get('Record-ID') || undefined;
-					logger.log('debug', `Response data: ${JSON.stringify(recordId)}`);
+					logger.log('silly', `Response data: ${JSON.stringify(recordId)}`);
 					return {recordId};
 				}
 
 				logger.log('verbose', 'Default ok');
 				// Validation results & default
 				const data = await response.json();
-				logger.log('debug', `Response data: ${JSON.stringify(data)}`);
+				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 				return data;
 			}
 
