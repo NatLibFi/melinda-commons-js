@@ -41,7 +41,7 @@
 		"@babel/register": "^7.0.0",
 		"@natlibfi/marc-record": "^4.0.4",
 		"@natlibfi/marc-record-serializers": "^4.0.0",
-		"@natlibfi/melinda-ai-commons": "^2.0.0",
+		"@natlibfi/melinda-ai-commons": "^2.0.3",
 		"@natlibfi/passport-atlassian-crowd": "^2.0.0",
 		"@natlibfi/sru-client": "^3.1.2",
 		"base64-url": "^2.3.3",
@@ -54,7 +54,7 @@
 		"passport": "^0.4.0",
 		"passport-http": "^0.3.0",
 		"passport-http-bearer": "^1.0.1",
-		"uuid": "^3.3.2",
+		"uuid": "^8.1.0",
 		"winston": "^3.2.0",
 		"xmldom": ">=0.1.27 <1.0.0"
 	},

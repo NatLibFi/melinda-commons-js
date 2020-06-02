@@ -28,7 +28,7 @@
 
 import {readFileSync} from 'fs';
 import passport from 'passport';
-import uuid from 'uuid/v4';
+import {v4 as uuid} from 'uuid';
 import {BasicStrategy} from 'passport-http';
 import {Strategy as BearerStrategy} from 'passport-http-bearer';
 import {clone} from '../utils';
