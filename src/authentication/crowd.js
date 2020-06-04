@@ -31,7 +31,7 @@ import passport from 'passport';
 import {v4 as uuid} from 'uuid';
 import {BasicStrategy} from 'passport-http';
 import {Strategy as BearerStrategy} from 'passport-http-bearer';
-import {clone} from '../utils';
+import {clone, logError} from '../utils';
 
 import {
 	BearerCredentialsStrategy as CrowdCredentialsStrategy,
@@ -94,6 +94,7 @@ export function generatePassportMiddlewares({crowd, localUsers}) {
 				try {
 					return JSON.parse(str);
 				} catch (err) {
+					logError(err);
 					throw new Error('Could not parse local users');
 				}
 			}

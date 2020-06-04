@@ -26,9 +26,6 @@
 *
 */
 
-// Disable import/named because eslint doesn't get __RewireAPI__
-/* eslint-disable new-cap, import/named */
-
 import fs from 'fs';
 import path from 'path';
 import nock from 'nock';

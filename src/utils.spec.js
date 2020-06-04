@@ -26,7 +26,7 @@
 *
 */
 
-/* eslint-disable camelcase, import/named */
+/* eslint-disable import/named */
 
 import fs from 'fs';
 import path from 'path';
