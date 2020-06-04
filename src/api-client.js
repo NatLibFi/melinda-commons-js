@@ -76,34 +76,29 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				body
 			});
 
-			logger.log('debug', `Response status: ${response.status}`);
+			logger.log('http', `${path === 'bulk/' ? 'Bulk' : 'Prio'} ${method} status: ${response.status}`);
 
 			if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
 				if (path === 'bulk/') {
-					logger.log('debug', 'bulk ok');
 					const data = await response.json();
 					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 					if (method === 'post') {
-						logger.log('debug', 'post');
 						const value = data.value || data;
 						return value;
 					}
-
 					return data;
 				}
 
 				if (path === '') {
 					// Create prio
-					logger.log('debug', 'Prio new ok');
 					const recordId = response.headers.get('Record-ID') || undefined;
 					logger.log('silly', `Response data: ${JSON.stringify(recordId)}`);
 					return {recordId};
 				}
 
 				// Validation results & default
-				logger.log('debug', 'Default ok');
 				const data = await response.json();
-				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
+				logger.log('debug', `Response data: ${JSON.stringify(data)}`);
 				return data;
 			}
 
