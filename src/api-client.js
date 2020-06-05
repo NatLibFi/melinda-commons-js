@@ -3,6 +3,10 @@ import httpStatus from 'http-status';
 import {URL} from 'url';
 import {createLogger, logError, generateAuthorizationHeader} from './utils';
 import ApiError from './error';
+import {MarcRecord} from '@natlibfi/marc-record';
+
+// Change to true when working
+MarcRecord.setValidationOptions({fields: false, subfields: false, subfieldValues: false});
 
 export function createApiClient({restApiUrl, restApiUsername, restApiPassword, cataloger = false, userAgent = 'Melinda commons API client / Javascript'}) {
 	const logger = createLogger();
@@ -88,6 +92,13 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 					}
 
 					return data;
+				}
+
+				if (method === 'get') {
+					const data = await response.json();
+					const record = new MarcRecord(JSON.parse(data.record));
+					const subrecords = (data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(JSON.parse(record)));
+					return {record, subrecords};
 				}
 
 				if (path === '') {
