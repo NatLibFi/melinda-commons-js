@@ -98,7 +98,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 					const data = await response.json();
 					logger.log('debug', `Response data: ${JSON.stringify(data)}`);
 					const record = new MarcRecord(data.record);
-					const subrecords = (data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(record));
+					const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(record));
 					return {record, subrecords};
 				}
 
