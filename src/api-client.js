@@ -96,9 +96,9 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 
 				if (method === 'get') {
 					const data = await response.json();
-					logger.log('debug', `Response data: ${JSON.stringify(data)}`);
-					const record = new MarcRecord(data.record);
-					const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(record));
+					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
+					const record = new MarcRecord(parseJson(data.record));
+					const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(parseJson(record)));
 					return {record, subrecords};
 				}
 
@@ -125,5 +125,13 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 			logError(error);
 			throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Unexpected internal error');
 		}
+	}
+
+	function parseJson(record) {
+		if (typeof record === 'string') {
+			return JSON.parse(record);
+		}
+
+		return record;
 	}
 }
