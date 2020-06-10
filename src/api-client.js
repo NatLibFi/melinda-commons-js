@@ -97,9 +97,14 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				if (method === 'get') {
 					const data = await response.json();
 					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
-					const record = new MarcRecord(parseJson(data.record));
-					const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(parseJson(record)));
-					return {record, subrecords};
+					if (params) {
+						const record = new MarcRecord(parseJson(data.record));
+						const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(parseJson(record)));
+						return {record, subrecords};
+					}
+
+					const record = new MarcRecord(parseJson(data));
+					return {record, subrecords: []};
 				}
 
 				if (path === '') {
@@ -115,7 +120,8 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				return data;
 			}
 
-			throw new ApiError(response.status, await response.text());
+			logger.log('error', response);
+			throw new ApiError(response.status);
 		} catch (error) {
 			logger.log('debug', 'Api-client Error');
 			if (error instanceof ApiError) {
