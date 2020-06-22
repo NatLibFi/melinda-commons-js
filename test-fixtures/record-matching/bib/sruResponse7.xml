@@ -2,38 +2,69 @@
 <zs:searchRetrieveResponse xmlns:zs="http://docs.oasis-open.org/ns/search-ws/sruResponse">
   <zs:numberOfRecords>2</zs:numberOfRecords>
   <zs:records>
-    </zs:records>
-      <zs:record>
-        <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
-        <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
-        <zs:recordData>
-          <record xmlns="http://www.loc.gov/MARC21/slim"><leader>01864cam a2200529zi 4500</leader><controlfield tag="001">000005000</controlfield><controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">foobar</subfield></datafield>&gt;</record>
-        </zs:recordData>
-        <zs:recordPosition>1</zs:recordPosition>
-      </zs:record>
-      <zs:record>
-        <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
-        <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
-        <zs:recordData>
-          <record xmlns="http://www.loc.gov/MARC21/slim"><leader>01864cam a2200529zi 4500</leader><controlfield tag="001">000006500</controlfield><controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">foobar</subfield></datafield>&gt;</record>
-        </zs:recordData>
-        <zs:recordPosition>2</zs:recordPosition>
-      </zs:record>      
-      <zs:record>
-        <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
-        <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
-        <zs:recordData>
-          <record xmlns="http://www.loc.gov/MARC21/slim"><leader>01864cam a2200529zi 4500</leader><controlfield tag="001">000007000</controlfield><controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">foobar</subfield></datafield>&gt;</record>
-        </zs:recordData>
-        <zs:recordPosition>3</zs:recordPosition>
-      </zs:record>
-      <zs:record>
-        <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
-        <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
-        <zs:recordData>
-          <record xmlns="http://www.loc.gov/MARC21/slim"><leader>01864cam a2200529zi 4500</leader><controlfield tag="001">000008001</controlfield><controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">foobar</subfield></datafield>&gt;</record>
-        </zs:recordData>
-        <zs:recordPosition>4</zs:recordPosition>
-      </zs:record>
+    <zs:record>
+      <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
+      <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
+      <zs:recordData>
+        <record xmlns="http://www.loc.gov/MARC21/slim">
+          <leader>01864cam a2200529zi 4500</leader>
+          <controlfield tag="001">000005000</controlfield>
+          <controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield>
+          <datafield tag="245" ind1=" " ind2=" ">
+            <subfield code="a">foobar</subfield>
+          </datafield>
+          &gt;
+        </record>
+      </zs:recordData>
+      <zs:recordPosition>1</zs:recordPosition>
+    </zs:record>
+    <zs:record>
+      <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
+      <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
+      <zs:recordData>
+        <record xmlns="http://www.loc.gov/MARC21/slim">
+          <leader>01864cam a2200529zi 4500</leader>
+          <controlfield tag="001">000006500</controlfield>
+          <controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield>
+          <datafield tag="245" ind1=" " ind2=" ">
+            <subfield code="a">foobar</subfield>
+          </datafield>
+          &gt;
+        </record>
+      </zs:recordData>
+      <zs:recordPosition>2</zs:recordPosition>
+    </zs:record>
+    <zs:record>
+      <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
+      <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
+      <zs:recordData>
+        <record xmlns="http://www.loc.gov/MARC21/slim">
+          <leader>01864cam a2200529zi 4500</leader>
+          <controlfield tag="001">000007000</controlfield>
+          <controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield>
+          <datafield tag="245" ind1=" " ind2=" ">
+            <subfield code="a">foobar</subfield>
+          </datafield>
+          &gt;
+        </record>
+      </zs:recordData>
+      <zs:recordPosition>3</zs:recordPosition>
+    </zs:record>
+    <zs:record>
+      <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
+      <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
+      <zs:recordData>
+        <record xmlns="http://www.loc.gov/MARC21/slim">
+          <leader>01864cam a2200529zi 4500</leader>
+          <controlfield tag="001">000008001</controlfield>
+          <controlfield tag="008">940518s1982    xxu|||||||||||||||||eng||</controlfield>
+          <datafield tag="245" ind1=" " ind2=" ">
+            <subfield code="a">foobar</subfield>
+          </datafield>
+          &gt;
+        </record>
+      </zs:recordData>
+      <zs:recordPosition>4</zs:recordPosition>
+    </zs:record>
   </zs:records>
 </zs:searchRetrieveResponse>
