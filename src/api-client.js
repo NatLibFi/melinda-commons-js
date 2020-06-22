@@ -67,9 +67,17 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 			logger.log('http', `${path === 'bulk/' ? 'Bulk' : 'Prio'} ${method} status: ${response.status}`);
 
 			if (response.status === httpStatus.OK || response.status === httpStatus.CREATED) {
+				if (path === '') {
+					// Create new record
+					const recordId = response.headers.get('Record-ID') || undefined;
+					logger.log('silly', `Response data: ${JSON.stringify(recordId)}`);
+					return {recordId};
+				}
+
+				const data = await response.json();
+				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
+
 				if (path === 'bulk/') {
-					const data = await response.json();
-					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 					if (method === 'post') {
 						// Post to bulk
 						const value = data.value || data;
@@ -81,30 +89,11 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				}
 
 				if (method === 'get') {
-					const data = await response.json();
-					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
-					if (params === false || params.subrecords === 0) {
-						// Get just one record
-						const record = new MarcRecord(parseJson(data));
-						return {record, subrecords: []};
-					}
-
-					// Get record and subrecords
 					const record = new MarcRecord(parseJson(data.record));
-					const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(parseJson(record)));
-					return {record, subrecords};
-				}
-
-				if (path === '') {
-					// Create new record
-					const recordId = response.headers.get('Record-ID') || undefined;
-					logger.log('silly', `Response data: ${JSON.stringify(recordId)}`);
-					return {recordId};
+					return {record};
 				}
 
 				// Validation results & update record
-				const data = await response.json();
-				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 				return data;
 			}
 
