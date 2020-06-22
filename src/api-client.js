@@ -34,9 +34,9 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 		return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, body: record});
 	}
 
-	function createBulk(records, params) {
+	function createBulk(stream, streamContentType, params) {
 		logger.log('silly', 'Posting bulk');
-		return doRequest({method: 'post', path: 'bulk/', params: {...defaultParamsBulk, ...params}, body: records});
+		return doRequest({method: 'post', path: 'bulk/', params: {...defaultParamsBulk, ...params}, contentType: streamContentType, body: stream});
 	}
 
 	function readBulk(id) {
@@ -44,7 +44,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 		return doRequest({method: 'get', path: 'bulk/', params: {id}});
 	}
 
-	async function doRequest({method, path, params = false, body = null}) {
+	async function doRequest({method, path, contentType = 'application/json', params = false, body = null}) {
 		logger.log('silly', 'Doing request');
 		try {
 			const query = params ? new URLSearchParams(params) : '';
@@ -57,7 +57,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				method,
 				headers: {
 					'User-Agent': userAgent,
-					'content-type': 'application/json',
+					'content-type': contentType,
 					Authorization,
 					Accept: 'application/json'
 				},
