@@ -8,7 +8,7 @@ MarcRecord.setValidationOptions({subfieldValues: false});
 
 export function createSubrecordPicker(sruURL) {
 	const logger = createLogger();
-	const sruClient = createSruClient({serverUrl: sruURL, version: '2.0'});
+	const sruClient = createSruClient({url: sruURL, recordSchema: 'marcxml'});
 
 	return {
 		readSubrecords

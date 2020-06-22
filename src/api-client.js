@@ -39,9 +39,9 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 		return doRequest({method: 'post', path: 'bulk/', params: {...defaultParamsBulk, ...params}, contentType: streamContentType, body: stream});
 	}
 
-	function readBulk(id) {
+	function readBulk(params) {
 		logger.log('silly', 'Reading bulk metadata');
-		return doRequest({method: 'get', path: 'bulk/', params: {id}});
+		return doRequest({method: 'get', path: 'bulk/', params});
 	}
 
 	async function doRequest({method, path, contentType = 'application/json', params = false, body = null}) {

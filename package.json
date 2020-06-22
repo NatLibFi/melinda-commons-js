@@ -43,7 +43,7 @@
 		"@natlibfi/marc-record-serializers": "^4.0.0",
 		"@natlibfi/melinda-ai-commons": "^2.0.3",
 		"@natlibfi/passport-atlassian-crowd": "^2.0.3",
-		"@natlibfi/sru-client": "^3.1.3",
+		"@natlibfi/sru-client": "^4.0.1",
 		"base64-url": "^2.3.3",
 		"debug": "^4.1.1",
 		"deep-eql": "^4.0.0",
