@@ -6,7 +6,7 @@ import ApiError from './error';
 import {MarcRecord} from '@natlibfi/marc-record';
 
 // Change to true when working
-MarcRecord.setValidationOptions({fields: false, subfields: false, subfieldValues: false});
+MarcRecord.setValidationOptions({subfieldValues: false});
 
 export function createApiClient({restApiUrl, restApiUsername, restApiPassword, cataloger = false, userAgent = 'Melinda commons API client / Javascript'}) {
 	const logger = createLogger();
@@ -16,51 +16,35 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 	const defaultParamsPrio = cataloger ? {cataloger} : {};
 
 	return {
-		getRecord, postPrio, postBulk, getMetadata,
-		getStatus, deleteBulk
+		read, create, update, createBulk, readBulk
 	};
 
-	function getRecord(recordId, params = false) {
-		logger.log('silly', 'Getting record');
-		if (params) {
-			return doRequest({method: 'get', path: recordId, params});
-		}
-
+	function read(recordId) {
+		logger.log('silly', 'Reading record');
 		return doRequest({method: 'get', path: recordId});
 	}
 
-	function postPrio({params, contentType, body}, id = false) {
-		if (id) {
-			logger.log('silly', `Posting prio update ${id}`);
-			return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, contentType, body});
-		}
-
-		logger.log('silly', 'Posting prio create');
-		return doRequest({method: 'post', path: '', params: {...defaultParamsPrio, ...params}, contentType, body});
+	function create(record, params) {
+		logger.log('silly', 'Posting create');
+		return doRequest({method: 'post', path: '', params: {...defaultParamsPrio, ...params}, body: record});
 	}
 
-	function postBulk({params, contentType, body}) {
+	function update(record, id, params) {
+		logger.log('silly', `Posting update ${id}`);
+		return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, body: record});
+	}
+
+	function createBulk(records, params) {
 		logger.log('silly', 'Posting bulk');
-		return doRequest({method: 'post', path: 'bulk/', params: {...defaultParamsBulk, ...params}, contentType, body});
+		return doRequest({method: 'post', path: 'bulk/', params: {...defaultParamsBulk, ...params}, body: records});
 	}
 
-	function getMetadata({id}) {
-		logger.log('silly', 'Getting metadata');
+	function readBulk(id) {
+		logger.log('silly', 'Reading bulk metadata');
 		return doRequest({method: 'get', path: 'bulk/', params: {id}});
 	}
 
-	async function getStatus({id}) {
-		logger.log('silly', 'Getting status');
-		const [result] = await getMetadata({id});
-		return result.queueItemState;
-	}
-
-	function deleteBulk({id}) {
-		logger.log('silly', 'Deleting bulk');
-		return doRequest({method: 'delete', path: 'bulk/', params: {id}});
-	}
-
-	async function doRequest({method, path, params = false, contentType = 'application/json', body = null}) {
+	async function doRequest({method, path, params = false, body = null}) {
 		logger.log('silly', 'Doing request');
 		try {
 			const query = params ? new URLSearchParams(params) : '';
@@ -73,7 +57,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				method,
 				headers: {
 					'User-Agent': userAgent,
-					'content-type': contentType,
+					'content-type': 'application/json',
 					Authorization,
 					Accept: 'application/json'
 				},
@@ -87,36 +71,40 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 					const data = await response.json();
 					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 					if (method === 'post') {
+						// Post to bulk
 						const value = data.value || data;
 						return value;
 					}
 
+					// Querry bulk status
 					return data;
 				}
 
 				if (method === 'get') {
 					const data = await response.json();
 					logger.log('silly', `Response data: ${JSON.stringify(data)}`);
-					if (params) {
-						const record = new MarcRecord(parseJson(data.record));
-						const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(parseJson(record)));
-						return {record, subrecords};
+					if (params === false || params.subrecords === 0) {
+						// Get just one record
+						const record = new MarcRecord(parseJson(data));
+						return {record, subrecords: []};
 					}
 
-					const record = new MarcRecord(parseJson(data));
-					return {record, subrecords: []};
+					// Get record and subrecords
+					const record = new MarcRecord(parseJson(data.record));
+					const subrecords = (data.subrecords === undefined || data.subrecords === []) ? [] : data.subrecords.map(record => new MarcRecord(parseJson(record)));
+					return {record, subrecords};
 				}
 
 				if (path === '') {
-					// Create prio
+					// Create new record
 					const recordId = response.headers.get('Record-ID') || undefined;
 					logger.log('silly', `Response data: ${JSON.stringify(recordId)}`);
 					return {recordId};
 				}
 
-				// Validation results & default
+				// Validation results & update record
 				const data = await response.json();
-				logger.log('debug', `Response data: ${JSON.stringify(data)}`);
+				logger.log('silly', `Response data: ${JSON.stringify(data)}`);
 				return data;
 			}
 
