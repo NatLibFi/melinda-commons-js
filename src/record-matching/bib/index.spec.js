@@ -36,8 +36,6 @@ import {createBibService} from './index';
 const FIXTURES_PATH = path.join(__dirname, '../../../test-fixtures/record-matching/bib');
 
 describe('record-matching/bib', () => {
-	const fake2ndGet = '<?xml version="1.0"?>\n<zs:searchRetrieveResponse xmlns:zs="http://docs.oasis-open.org/ns/search-ws/sruResponse">\n<zs:numberOfRecords>0</zs:numberOfRecords>\n<zs:records></zs:records>\n</zs:searchRetrieveResponse>';
-
 	afterEach(() => {
 		nock.cleanAll();
 	});
@@ -121,11 +119,10 @@ describe('record-matching/bib', () => {
 	it('Should find multiples matches (Up to the maximum)', async () => {
 		const {record, sruResponse, expectedMatchingIds} = getFixtures(6);
 		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3, retrieveAll: false});
+		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
 
 		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse)
-			.get(/.*/).reply(200, fake2ndGet);
+			.get(/.*/).reply(200, sruResponse);
 
 		const matchingIds = await Service.find(record);
 
@@ -135,11 +132,10 @@ describe('record-matching/bib', () => {
 	it('Should find multiples matches (Fetching candidates up to a maximum)', async () => {
 		const {record, sruResponse, expectedMatchingIds} = getFixtures(7);
 		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3, retrieveAll: false});
+		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
 
 		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse)
-			.get(/.*/).reply(200, fake2ndGet);
+			.get(/.*/).reply(200, sruResponse);
 
 		const matchingIds = await Service.find(record);
 

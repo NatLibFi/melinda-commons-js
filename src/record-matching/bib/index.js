@@ -36,7 +36,7 @@ import {isDeletedRecord} from '../../utils';
 
 export function createSimpleBibService({sruURL, maxCandidatesPerQuery = 10}) {
 	const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
-	const SruClient = createSruClient({url: sruURL, recordSchema: 'marcxml', maxRecordsPerRequest: maxCandidatesPerQuery});
+	const SruClient = createSruClient({url: sruURL, recordSchema: 'marcxml', maxRecordsPerRequest: maxCandidatesPerQuery, retrieveAll: false});
 
 	return {find};
 
@@ -87,7 +87,7 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
 	const setTimeoutPromise = promisify(setTimeout);
 	const {BibDefault: extractorSet} = Preference.ExtractorPresets;
 
-	const SruClient = createSruClient({url: sruURL, recordSchema: 'marcxml', maxRecordsPerRequest: maxCandidatesPerQuery});
+	const SruClient = createSruClient({url: sruURL, recordSchema: 'marcxml', maxRecordsPerRequest: maxCandidatesPerQuery, retrieveAll: false});
 	const PreferenceService = Preference.createService({model: Models.BibPreference, extractorSet});
 	const SimilarityService = Similarity.createService({model: Models.BibDuplicateDetection});
 
