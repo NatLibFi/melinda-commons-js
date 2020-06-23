@@ -119,7 +119,7 @@ describe('record-matching/bib', () => {
 	it('Should find multiples matches (Up to the maximum)', async () => {
 		const {record, sruResponse, expectedMatchingIds} = getFixtures(6);
 		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, maxDuplicates: 3});
+		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
 
 		nock('https://sru')
 			.get(/.*/).reply(200, sruResponse);
@@ -132,7 +132,7 @@ describe('record-matching/bib', () => {
 	it('Should find multiples matches (Fetching candidates up to a maximum)', async () => {
 		const {record, sruResponse, expectedMatchingIds} = getFixtures(7);
 		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, maximumRecords: 3});
+		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
 
 		nock('https://sru')
 			.get(/.*/).reply(200, sruResponse);
