@@ -49,7 +49,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 		try {
 			const query = params ? new URLSearchParams(params) : '';
 			const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
-			const stringBody = JSON.stringify(body, undefined, '');
+			const stringBody = (body === null) ? null : JSON.stringify(body, undefined, '');
 
 			logger.log('silly', `connection URL ${url.toString()}`);
 			logger.log('silly', stringBody);
