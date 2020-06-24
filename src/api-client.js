@@ -89,7 +89,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 				}
 
 				if (method === 'get') {
-					const record = new MarcRecord(parseJson(data.record));
+					const record = new MarcRecord(parseJson(data));
 					return {record};
 				}
 
