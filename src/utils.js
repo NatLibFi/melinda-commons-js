@@ -30,6 +30,8 @@ import expressWinston from 'express-winston';
 import winston from 'winston';
 import moment from 'moment';
 import {createCipher, createDecipher, randomBytes} from 'crypto';
+import createSruClient from '@natlibfi/sru-client';
+import {MARCXML} from '@natlibfi/marc-record-serializers';
 import ApiError from './error';
 
 const logger = createLogger();
@@ -201,4 +203,26 @@ export function logError(err) {
 	}
 
 	logger.log('error', err.stack === undefined ? err : err.stack);
+}
+
+export function createSubrecordPicker(sruURL) {
+	const logger = createLogger();
+	const sruClient = createSruClient({url: sruURL, recordSchema: 'marcxml'});
+
+	return {
+		readSubrecords
+	};
+
+	function readSubrecords(id) {
+		logger.log('verbose', `Picking subrecords for ${id}`);
+		return new Promise((resolve, reject) => {
+			const records = [];
+			sruClient.searchRetrieve(`melinda.partsofhost=${id}`)
+				.on('record', xmlString => {
+					records.push(MARCXML.from(xmlString));
+				})
+				.on('end', () => resolve(records))
+				.on('error', err => reject(err));
+		});
+	}
 }
