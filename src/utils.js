@@ -205,19 +205,19 @@ export function logError(err) {
 	logger.log('error', err.stack === undefined ? err : err.stack);
 }
 
-export function createSubrecordPicker(sruURL) {
+export function createSubrecordPicker(sruUrl) {
 	const logger = createLogger();
-	const sruClient = createSruClient({url: sruURL, recordSchema: 'marcxml'});
+	const sruClient = createSruClient({url: sruUrl, recordSchema: 'marcxml'});
 
 	return {
 		readSubrecords
 	};
 
-	function readSubrecords(id) {
-		logger.log('verbose', `Picking subrecords for ${id}`);
+	function readSubrecords(recordId) {
+		logger.log('verbose', `Picking subrecords for ${recordId}`);
 		return new Promise((resolve, reject) => {
 			const records = [];
-			sruClient.searchRetrieve(`melinda.partsofhost=${id}`)
+			sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`)
 				.on('record', xmlString => {
 					records.push(MARCXML.from(xmlString));
 				})
