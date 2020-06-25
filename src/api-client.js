@@ -24,12 +24,12 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 		return doRequest({method: 'get', path: recordId});
 	}
 
-	function create(record, params) {
+	function create(record, params = {noop: 0, unique: 0}) {
 		logger.log('silly', 'Posting create');
 		return doRequest({method: 'post', path: '', params: {...defaultParamsPrio, ...params}, body: record});
 	}
 
-	function update(record, id, params) {
+	function update(record, id, params = {noop: 0, unique: 0}) {
 		logger.log('silly', `Posting update ${id}`);
 		return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, body: record});
 	}
