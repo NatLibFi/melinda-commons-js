@@ -26,12 +26,12 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 
 	function create(record, params = {noop: 0, unique: 0}) {
 		logger.log('silly', 'Posting create');
-		return doRequest({method: 'post', path: '', params: {...defaultParamsPrio, ...params}, body: record});
+		return doRequest({method: 'post', path: '', params: {...defaultParamsPrio, ...params}, body: JSON.stringify(record, undefined, '')});
 	}
 
 	function update(record, id, params = {noop: 0, unique: 0}) {
 		logger.log('silly', `Posting update ${id}`);
-		return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, body: record});
+		return doRequest({method: 'post', path: id, params: {...defaultParamsPrio, ...params}, body: JSON.stringify(record, undefined, '')});
 	}
 
 	function createBulk(stream, streamContentType, params) {
@@ -49,7 +49,6 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 		try {
 			const query = params ? new URLSearchParams(params) : '';
 			const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
-			const stringBody = (body === null) ? null : JSON.stringify(body, undefined, '');
 
 			logger.log('debug', `connection URL ${url.toString()}`);
 			logger.log('silly', stringBody);
@@ -62,7 +61,7 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 					Authorization,
 					Accept: 'application/json'
 				},
-				body: stringBody
+				body
 			});
 
 			logger.log('http', `${path === 'bulk/' ? 'Bulk' : 'Prio'} ${method} status: ${response.status}`);
