@@ -51,7 +51,6 @@ export function createApiClient({restApiUrl, restApiUsername, restApiPassword, c
 			const url = new URL(`${restApiUrl}${path}${query === '' ? '' : '?'}${query}`);
 
 			logger.log('debug', `connection URL ${url.toString()}`);
-			logger.log('silly', stringBody);
 
 			const response = await fetch(url, {
 				method,
