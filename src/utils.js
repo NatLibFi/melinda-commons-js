@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -26,9 +26,6 @@
 *
 */
 
-import expressWinston from 'express-winston';
-import winston from 'winston';
-import moment from 'moment';
 import {createCipher, createDecipher, randomBytes} from 'crypto';
 
 export function generateAuthorizationHeader(username, password = '') {
@@ -60,58 +57,6 @@ export function isDeletedRecord(record) {
 	}
 }
 
-export function readEnvironmentVariable(name, {defaultValue = undefined, hideDefault = false, format = v => v} = {}) {
-	if (process.env[name] === undefined) {
-		if (defaultValue === undefined) {
-			throw new Error(`Mandatory environment variable missing: ${name}`);
-		}
-
-		const defaultValuePrintable = typeof defaultValue === 'object' ? JSON.stringify(defaultValue) : defaultValue;
-
-		console.error(`No environment variable set for ${name}, using default value: ${hideDefault ? '[hidden]' : defaultValuePrintable}`);
-		return defaultValue;
-	}
-
-	return format(process.env[name]);
-}
-
-export function createLogger(options = {}) {
-	return winston.createLogger({...createLoggerOptions(), ...options});
-}
-
-export function createExpressLogger(options = {}) {
-	return expressWinston.logger({
-		meta: true,
-		msg: '{{req.ip}} HTTP {{req.method}} {{req.path}} - {{res.statusCode}} {{res.responseTime}}ms',
-		ignoreRoute: () => false,
-		...createLoggerOptions(),
-		...options
-	});
-}
-
-function createLoggerOptions() {
-	const logLevel = process.env.LOG_LEVEL || 'info';
-	const debuggingEnabled = logLevel === 'debug';
-	const timestamp = winston.format(info => {
-		info.timestamp = moment().format();
-		return info;
-	});
-
-	return {
-		format: winston.format.combine(timestamp(), winston.format.printf(formatMessage)),
-		transports: [
-			new winston.transports.Console({
-				level: logLevel,
-				silent: process.env.NODE_ENV === 'test' && !debuggingEnabled
-			})
-		]
-	};
-
-	function formatMessage(i) {
-		return `${i.timestamp} - ${i.level}: ${i.message}`;
-	}
-}
-
 export function generateEncryptionKey() {
 	return randomBytes(32).toString('base64');
 }
@@ -125,17 +70,6 @@ export function encryptString({key, value, algorithm, encoding = 'base64'}) {
 export function decryptString({key, value, algorithm, encoding = 'base64'}) {
 	const Decipher = createDecipher(algorithm, key);
 	return Decipher.update(value, encoding, 'utf8') + Decipher.final('utf8');
-}
-
-export function handleInterrupt(arg) {
-	if (arg instanceof Error) {
-		console.error(`Uncaught Exception: ${arg.stack}`);
-		// Signal
-	} else {
-		console.log(`Received ${arg}`);
-	}
-
-	process.exit(1);
 }
 
 export function parseBoolean(value) {

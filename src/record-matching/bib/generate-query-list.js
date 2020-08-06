@@ -2,18 +2,18 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* RESTful API for Melinda
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
-* This file is part of melinda-rest-api
+* This file is part of melinda-commons-js
 *
-* melinda-rest-api program is free software: you can redistribute it and/or modify
+* melinda-commons-js program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as
 * published by the Free Software Foundation, either version 3 of the
 * License, or (at your option) any later version.
 *
-* melinda-rest-api is distributed in the hope that it will be useful,
+* melinda-commons-js is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU Lesser General Public License for more details.
