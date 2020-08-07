@@ -35,7 +35,7 @@ import * as RecordMatching from './record-matching';
 import * as Datastore from './datastore';
 import * as OwnAuthorization from './own-authorization';
 
-export *  from './utils';
+export * from './utils';
 
 export {default as Error} from './error';
 export {RecordMatching, Datastore, OwnAuthorization};

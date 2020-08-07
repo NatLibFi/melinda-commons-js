@@ -27,43 +27,41 @@
 */
 
 export function generateIdentifierQueries(record) {
-	const identifiers = getStandardIdentifiers();
-	return identifiers.map(id => `dc.identifier=${id}`);
+  const identifiers = getStandardIdentifiers();
+  return identifiers.map(id => `dc.identifier=${id}`);
 
-	function getStandardIdentifiers() {
-		return record.get(/^020|022|024$/)
-			.reduce((acc, field) => {
-				const codes = ['a', 'z'];
-				field.subfields
-					.forEach(sub => {
-						if (codes.includes(sub.code) && !acc.includes(sub.value)) {
-							acc.push(sub.value);
-						}
-					});
+  function getStandardIdentifiers() {
+    return record.get(/^020|022|024$/u)
+      .reduce((acc, field) => {
+        return acc.concat(getValues());
 
-				return acc;
-			}, []);
-	}
+        function getValues() {
+          return field.subfields
+            .filter(({code, value}) => ['a', 'z'].includes(code) && acc.includes(value) === false)
+            .map(({value}) => value);
+        }
+      }, []);
+  }
 }
 
 export function generateTitleQueries(record) {
-	const title = getTitle();
+  const title = getTitle();
 
-	return [`dc.title="${title}*"`];
+  return [`dc.title="${title}*"`];
 
-	function getTitle() {
-		const STRIP_PATTERN = '[\\s\\]\\[":;,.-?\'=+\\*]*';
-		const startPattern = new RegExp(`^${STRIP_PATTERN}`, 'g');
-		const endPattern = new RegExp(`${STRIP_PATTERN}$`, 'g');
-		const field = record.get(/^245$/).shift();
+  function getTitle() {
+    const STRIP_PATTERN = '[\\s\\]\\[":;,.-?\'=+\\*]*';
+    const startPattern = new RegExp(`^${STRIP_PATTERN}`, 'gu');
+    const endPattern = new RegExp(`${STRIP_PATTERN}$`, 'gu');
+    const [field] = record.get(/^245$/u);
 
-		// Normalize
-		if (field && field.subfields.some((sf => sf.code === 'a'))) {
-			return field.subfields.find(sf => sf.code === 'a').value
-				.replace(startPattern, ' ')
-				.replace(endPattern, ' ')
-				.substr(0, 20)
-				.trim();
-		}
-	}
+    // Normalize
+    if (field && field.subfields.some(sf => sf.code === 'a')) {
+      return field.subfields.find(sf => sf.code === 'a').value
+        .replace(startPattern, ' ')
+        .replace(endPattern, ' ')
+        .substr(0, 20)
+        .trim();
+    }
+  }
 }

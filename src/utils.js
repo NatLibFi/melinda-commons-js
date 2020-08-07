@@ -26,96 +26,79 @@
 *
 */
 
-import {createCipher, createDecipher, randomBytes} from 'crypto';
-
 export function generateAuthorizationHeader(username, password = '') {
-	const encoded = Buffer.from(`${username}:${password}`).toString('base64');
-	return `Basic ${encoded}`;
+  const encoded = Buffer.from(`${username}:${password}`).toString('base64');
+  return `Basic ${encoded}`;
 }
 
 export function isDeletedRecord(record) {
-	if (record.leader[5] === 'd') {
-		return true;
-	}
+  if (record.leader[5] === 'd') {
+    return true;
+  }
 
-	return checkDel() || checkSta();
+  return checkDel() || checkSta();
 
-	function checkDel() {
-		return record.get(/^DEL$/).some(check);
+  function checkDel() {
+    return record.get(/^DEL$/u).some(check);
 
-		function check({subfields}) {
-			return subfields.some(({code, value}) => code === 'a' && value === 'Y');
-		}
-	}
+    function check({subfields}) {
+      return subfields.some(({code, value}) => code === 'a' && value === 'Y');
+    }
+  }
 
-	function checkSta() {
-		return record.get(/^STA$/).some(check);
+  function checkSta() {
+    return record.get(/^STA$/u).some(check);
 
-		function check({subfields}) {
-			return subfields.some(({code, value}) => code === 'a' && value === 'DELETED');
-		}
-	}
-}
-
-export function generateEncryptionKey() {
-	return randomBytes(32).toString('base64');
-}
-
-// Do not use for very sensitive data (Implement IV-based encryption)
-export function encryptString({key, value, algorithm, encoding = 'base64'}) {
-	const Cipher = createCipher(algorithm, key);
-	return Cipher.update(value, 'utf8', encoding) + Cipher.final(encoding);
-}
-
-export function decryptString({key, value, algorithm, encoding = 'base64'}) {
-	const Decipher = createDecipher(algorithm, key);
-	return Decipher.update(value, encoding, 'utf8') + Decipher.final('utf8');
+    function check({subfields}) {
+      return subfields.some(({code, value}) => code === 'a' && value === 'DELETED');
+    }
+  }
 }
 
 export function parseBoolean(value) {
-	if (value === undefined) {
-		return false;
-	}
+  if (value === undefined) {
+    return false;
+  }
 
-	if (Number.isNaN(Number(value))) {
-		return value.length > 0 && value !== 'false';
-	}
+  if (Number.isNaN(Number(value))) {
+    return value.length > 0 && value !== 'false';
+  }
 
-	return Boolean(Number(value));
+  return Boolean(Number(value));
 }
 
 export function getRecordTitle(record) {
-	const TRIM_PATTERN = '[?!.,(){}:;/\\ ]*';
-	const field = record
-		.get(/^245$/)
-		.find(f => f.subfields.some(sf => sf.code === 'a'));
+  const TRIM_PATTERN = '[?!.,(){}:;/ ]*';
+  const field = record
+    .get(/^245$/u)
+    .find(f => f.subfields.some(sf => sf.code === 'a'));
 
-	if (field) {
-		return field.subfields.find(sf => sf.code === 'a').value
-			.replace(new RegExp(`^${TRIM_PATTERN}`), '')
-			.replace(new RegExp(`${TRIM_PATTERN}$`), '');
-	}
+  if (field) {
+    return field.subfields.find(sf => sf.code === 'a').value
+      .replace(new RegExp(`^${TRIM_PATTERN}`, 'u'), '')
+      .replace(new RegExp(`${TRIM_PATTERN}$`, 'u'), '');
+  }
 
-	return '';
+  return '';
 }
 
 export function getRecordStandardIdentifiers(record) {
-	return record.get(/^(020|022|024)$/)
-		.filter(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)))
-		.map(field => {
-			const subfield = field.subfields.find(sf => ['a', 'z'].includes(sf.code));
-			return subfield.value;
-		});
+  return record.get(/^(?<def>020|022|024)$/u)
+    .filter(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)))
+    .map(field => {
+      const subfield = field.subfields.find(sf => ['a', 'z'].includes(sf.code));
+      return subfield.value;
+    });
 }
 
 export function clone(o) {
-	return JSON.parse(JSON.stringify(o));
+  return JSON.parse(JSON.stringify(o));
 }
 
 export function toAlephId(id) {
-	return id.padStart(9, '0');
+  return id.padStart(9, '0');
 }
 
 export function fromAlephId(id) {
-	return id.replace(/^0+/, '');
+  return id.replace(/^0+/u, '');
 }

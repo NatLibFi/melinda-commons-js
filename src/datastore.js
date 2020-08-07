@@ -47,141 +47,139 @@ const MAX_RETRIES_ON_CONFLICT = 10;
 const RETRY_WAIT_TIME_ON_CONFLICT = 1000;
 
 export const INDEXING_PRIORITY = {
-	HIGH: 1,
-	LOW: 2
+  HIGH: 1,
+  LOW: 2
 };
 
 export class DatastoreError extends Error {
-	constructor(status, ...params) {
-		super(params);
-		this.status = status;
-	}
+  constructor(status, ...params) {
+    super(params);
+    this.status = status; // eslint-disable-line functional/no-this-expression
+  }
 }
 
 export function createService({sruURL, recordLoadURL, recordLoadApiKey, recordLoadLibrary}) {
-	const debug = createDebugLogger('@natlibfi/melinda-commons:datastore');
-	const requestOptions = {
-		headers: {
-			Accept: 'application/json',
-			Authorization: generateAuthorizationHeader(recordLoadApiKey)
-		}
-	};
+  const debug = createDebugLogger('@natlibfi/melinda-commons:datastore');
+  const requestOptions = {
+    headers: {
+      Accept: 'application/json',
+      Authorization: generateAuthorizationHeader(recordLoadApiKey)
+    }
+  };
 
-	return {create, read, update};
+  return {create, read, update};
 
-	async function read(id) {
-		return fetchRecord(id);
-	}
+  function read(id) {
+    return fetchRecord(id);
+  }
 
-	async function create({record, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
-		return loadRecord({record, cataloger, indexingPriority});
-	}
+  function create({record, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
+    return loadRecord({record, cataloger, indexingPriority});
+  }
 
-	async function update({record, id, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
-		const existingRecord = await fetchRecord(id);
-		updateField001ToParamId(id, record);
-		await validateRecordState(record, existingRecord);
-		await loadRecord({record, id, cataloger, indexingPriority});
-	}
+  async function update({record, id, cataloger = DEFAULT_CATALOGER_ID, indexingPriority = INDEXING_PRIORITY.HIGH}) {
+    const existingRecord = await fetchRecord(id);
+    updateField001ToParamId(id, record);
+    await validateRecordState(record, existingRecord);
+    await loadRecord({record, id, cataloger, indexingPriority});
+  }
 
-	async function fetchRecord(id) {
-		return new Promise((resolve, reject) => {
-			try {
-				const sruClient = createSruClient({serverUrl: sruURL, version: SRU_VERSION, maximumRecords: 1});
+  function fetchRecord(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const sruClient = createSruClient({serverUrl: sruURL, version: SRU_VERSION, maximumRecords: 1});
 
-				sruClient.searchRetrieve(`rec.id=${id}`)
-					.on('record', record => {
-						try {
-							resolve(MARCXML.from(record));
-						} catch (err) {
-							reject(err);
-						}
-					})
-					.on('end', () => {
-						reject(new DatastoreError(HttpStatus.NOT_FOUND));
-					})
-					.on('error', err => {
-						reject(err);
-					});
-			} catch (err) {
-				reject(err);
-			}
-		});
-	}
+        sruClient.searchRetrieve(`rec.id=${id}`)
+          .on('record', record => {
+            try {
+              resolve(MARCXML.from(record));
+            } catch (err) {
+              reject(err);
+            }
+          })
+          .on('end', () => {
+            reject(new DatastoreError(HttpStatus.NOT_FOUND));
+          })
+          .on('error', err => {
+            reject(err);
+          });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 
-	async function loadRecord({record, id, cataloger, indexingPriority, retriesCount = 0}) {
-		const url = new URL(recordLoadURL);
-		const formattedRecord = AlephSequential.to(record);
+  async function loadRecord({record, id, cataloger, indexingPriority, retriesCount = 0}) {
+    const url = new URL(recordLoadURL);
+    const formattedRecord = AlephSequential.to(record);
 
-		url.searchParams.set('library', recordLoadLibrary);
-		url.searchParams.set('method', id === undefined ? 'NEW' : 'OLD');
-		url.searchParams.set('fixRoutine', FIX_ROUTINE);
-		url.searchParams.set('updateAction', UPDATE_ACTION);
-		url.searchParams.set('cataloger', cataloger);
-		url.searchParams.set('indexingPriority', generateIndexingPriority(indexingPriority, id === undefined));
+    url.searchParams.set('library', recordLoadLibrary);
+    url.searchParams.set('method', id === undefined ? 'NEW' : 'OLD');
+    url.searchParams.set('fixRoutine', FIX_ROUTINE);
+    url.searchParams.set('updateAction', UPDATE_ACTION);
+    url.searchParams.set('cataloger', cataloger);
+    url.searchParams.set('indexingPriority', generateIndexingPriority(indexingPriority, id === undefined));
 
-		const response = await fetch(url, Object.assign({
-			method: 'POST',
-			body: formattedRecord
-		}, requestOptions));
+    const response = await fetch(url, {method: 'POST',
+      body: formattedRecord, ...requestOptions});
 
-		if (response.status === HttpStatus.OK) {
-			const idList = await response.json();
-			return formatRecordId(idList.shift());
-		}
+    if (response.status === HttpStatus.OK) {
+      const idList = await response.json();
+      return formatRecordId(idList[0]);
+    }
 
-		if (response.status === HttpStatus.SERVICE_UNAVAILABLE) {
-			throw new DatastoreError(HttpStatus.SERVICE_UNAVAILABLE);
-		}
+    if (response.status === HttpStatus.SERVICE_UNAVAILABLE) { // eslint-disable-line functional/no-conditional-statement
+      throw new DatastoreError(HttpStatus.SERVICE_UNAVAILABLE);
+    }
 
-		if (response.status === HttpStatus.CONFLICT) {
-			if (retriesCount === MAX_RETRIES_ON_CONFLICT) {
-				throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
-			}
+    if (response.status === HttpStatus.CONFLICT) {
+      if (retriesCount === MAX_RETRIES_ON_CONFLICT) { // eslint-disable-line functional/no-conditional-statement
+        throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
+      }
 
-			debug('Got conflict response. Retrying...');
-			await setTimeoutPromise(RETRY_WAIT_TIME_ON_CONFLICT);
-			return loadRecord({record, id, cataloger, indexingPriority, retriesCount: retriesCount + 1});
-		}
+      debug('Got conflict response. Retrying...');
+      await setTimeoutPromise(RETRY_WAIT_TIME_ON_CONFLICT);
+      return loadRecord({record, id, cataloger, indexingPriority, retriesCount: retriesCount + 1});
+    }
 
-		throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
+    throw new Error(`Unexpected response: ${response.status}: ${await response.text()}`);
 
-		function formatRecordId(id) {
-			const pattern = new RegExp(`${recordLoadLibrary.toUpperCase()}$`);
-			return id.replace(pattern, '');
-		}
+    function formatRecordId(id) {
+      const pattern = new RegExp(`${recordLoadLibrary.toUpperCase()}$`, 'u');
+      return id.replace(pattern, '');
+    }
 
-		function generateIndexingPriority(priority, forCreated) {
-			if (priority === INDEXING_PRIORITY.HIGH) {
-				// These are values Aleph assigns for records modified in the cataloging GUI
-				return forCreated ? '1990' : '1998';
-			}
+    function generateIndexingPriority(priority, forCreated) {
+      if (priority === INDEXING_PRIORITY.HIGH) {
+        // These are values Aleph assigns for records modified in the cataloging GUI
+        return forCreated ? '1990' : '1998';
+      }
 
-			return moment().add(1000, 'years').year();
-		}
-	}
+      return moment().add(1000, 'years').year();
+    }
+  }
 
-	// Checks that the modification history is identical
-	function validateRecordState(incomingRecord, existingRecord) {
-		const incomingModificationHistory = incomingRecord.get(/^CAT$/);
-		const existingModificationHistory = existingRecord.get(/^CAT$/);
+  // Checks that the modification history is identical
+  function validateRecordState(incomingRecord, existingRecord) {
+    const incomingModificationHistory = incomingRecord.get(/^CAT$/u);
+    const existingModificationHistory = existingRecord.get(/^CAT$/u);
 
-		if (!deepEqual(incomingModificationHistory, existingModificationHistory)) {
-			throw new DatastoreError(HttpStatus.CONFLICT);
-		}
-	}
+    if (!deepEqual(incomingModificationHistory, existingModificationHistory)) { // eslint-disable-line functional/no-conditional-statement
+      throw new DatastoreError(HttpStatus.CONFLICT);
+    }
+  }
 
-	function updateField001ToParamId(id, record) {
-		const fields = record.get(/^001$/);
+  function updateField001ToParamId(id, record) {
+    const fields = record.get(/^001$/u);
 
-		if (fields.length === 0) {
-			// Return to break out of function
-			return record.insertField({tag: '001', value: toAlephId(id)});
-		}
+    if (fields.length === 0) {
+      // Return to break out of function
+      return record.insertField({tag: '001', value: toAlephId(id)});
+    }
 
-		fields.map(field => {
-			field.value = toAlephId(id);
-			return field;
-		});
-	}
+    fields.forEach(field => {
+      field.value = toAlephId(id); // eslint-disable-line functional/immutable-data
+      return field;
+    });
+  }
 }

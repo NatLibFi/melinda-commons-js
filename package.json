@@ -18,7 +18,7 @@
 	"main": "./dist/index.js",
 	"bin": {
 		"gen-jwt-token": "./dist/gen-jwt-token.js"
-	},	
+	},
 	"engines": {
 		"node": ">=12"
 	},
@@ -37,11 +37,22 @@
 		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
+		"@natlibfi/marc-record": "^6.0.0",
+		"@natlibfi/marc-record-serializers": "^6.2.1",
+		"@natlibfi/melinda-ai-commons": "^2.0.3",
+		"@natlibfi/sru-client": "^3.0.0",
+		"debug": "^4.1.1",
+		"deep-eql": "^4.0.0",
+		"http-status": "^1.4.2",
+		"moment": "^2.27.0",
+		"nock": "^13.0.3",
+		"node-fetch": "^2.6.0"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.10.1",
 		"@babel/core": "^7.10.1",
 		"@babel/node": "^7.10.1",
+		"@babel/plugin-transform-runtime": "^7.11.0",
 		"@babel/preset-env": "^7.10.1",
 		"@babel/register": "^7.10.1",
 		"@natlibfi/eslint-config-melinda-backend": "^1.0.3",
@@ -49,6 +60,7 @@
 		"@natlibfi/fixura": "^2.1.2",
 		"babel-eslint": "^10.1.0",
 		"babel-plugin-istanbul": "^6.0.0",
+		"babel-plugin-rewire": "^1.2.0",
 		"chai": "^4.2.0",
 		"cross-env": "^7.0.2",
 		"eslint": "^7.0.0",
@@ -60,12 +72,17 @@
 		"extends": "@natlibfi/melinda-backend"
 	},
 	"babel": {
+		"plugins": [
+			[
+				"@babel/transform-runtime"
+			]
+		],
 		"presets": [
 			[
 				"@babel/preset-env",
 				{
 					"targets": [
-						"not dead",
+						"defaults",
 						"maintained node versions"
 					]
 				}
@@ -74,7 +91,8 @@
 		"env": {
 			"test": {
 				"plugins": [
-					"istanbul"
+					"istanbul",
+					"rewire"
 				]
 			}
 		}
