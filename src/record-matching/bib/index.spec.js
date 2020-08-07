@@ -40,23 +40,6 @@ describe('record-matching/bib', () => {
     nock.cleanAll();
   });
 
-  function getFixtures(index) {
-    const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `record${index}.json`), 'utf8');
-    const matchingsIdsPath = path.join(FIXTURES_PATH, `matchingIds${index}.json`);
-
-    const record = new MarcRecord(JSON.parse(recordData));
-    const sruResponse = fs.readFileSync(path.join(FIXTURES_PATH, `sruResponse${index}.xml`), 'utf8');
-
-    if (fs.existsSync(matchingsIdsPath)) {
-      return {
-        record, sruResponse,
-        expectedMatchingIds: JSON.parse(fs.readFileSync(matchingsIdsPath, 'utf8'))
-      };
-    }
-
-    return {record, sruResponse};
-  }
-
   it('Should find a match', async () => {
     const {record, sruResponse, expectedMatchingIds} = getFixtures(1);
     const url = 'https://sru';
@@ -154,4 +137,21 @@ describe('record-matching/bib', () => {
 
     expect(matchingIds).to.eql(expectedMatchingIds);
   });
+
+  function getFixtures(index) {
+    const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `record${index}.json`), 'utf8');
+    const matchingsIdsPath = path.join(FIXTURES_PATH, `matchingIds${index}.json`);
+
+    const record = new MarcRecord(JSON.parse(recordData));
+    const sruResponse = fs.readFileSync(path.join(FIXTURES_PATH, `sruResponse${index}.xml`), 'utf8');
+
+    if (fs.existsSync(matchingsIdsPath)) {
+      return {
+        record, sruResponse,
+        expectedMatchingIds: JSON.parse(fs.readFileSync(matchingsIdsPath, 'utf8'))
+      };
+    }
+
+    return {record, sruResponse};
+  }
 });

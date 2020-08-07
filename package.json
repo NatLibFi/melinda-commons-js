@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/melinda-commons-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "9.0.0",
+	"version": "9.0.0-alpha.1",
 	"main": "./dist/index.js",
 	"bin": {
 		"gen-jwt-token": "./dist/gen-jwt-token.js"
@@ -30,15 +30,15 @@
 		"lint": "eslint src",
 		"lint:dev": "eslint --fix src",
 		"test:base": "cross-env NODE_ENV=test nyc mocha --require @babel/register",
-		"test": "npm run lint && npm run test:base -- src/*.spec.js && npm run coverage",
-		"test:dev": "npm run lint:dev && npm run test:base -- src/*.spec.js && npm run coverage",
+		"test": "npm run lint && npm run test:base -- src/*.spec.js src/**/*.spec.js src/**/**/*.spec.js",
+		"test:dev": "npm run lint:dev && npm run test:base -- src/*.spec.js src/**/*.spec.js src/**/**/*.spec.js && npm run coverage",
 		"coverage": "nyc check-coverage --per-file",
 		"build": "babel src --source-maps --copy-files --delete-dir-on-start --out-dir=dist",
 		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
 		"@natlibfi/marc-record": "^6.0.0",
-		"@natlibfi/marc-record-serializers": "^6.2.1",
+		"@natlibfi/marc-record-serializers": "^5.0.0",
 		"@natlibfi/melinda-ai-commons": "^2.0.3",
 		"@natlibfi/sru-client": "^3.0.0",
 		"debug": "^4.1.1",
