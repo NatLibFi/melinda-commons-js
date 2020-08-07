@@ -39,9 +39,9 @@ steps:
       - npm ci --production
 
   - name: static-security-scan
-    image: quay.io/natlibfi/nodejsscan
+    image: quay.io/natlibfi/njsscan
     commands:
-      - python /usr/src/app/cli.py -d dist
+      - njsscan dist
 
   - name: npm
     image: plugins/npm
