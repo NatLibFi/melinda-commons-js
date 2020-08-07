@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -27,9 +27,9 @@
 */
 
 export default class extends Error {
-	constructor(status, payload, ...params) {
-		super(params);
-		this.status = status;
-		this.payload = payload;
-	}
+  constructor(status, payload, ...params) {
+    super(params);
+    this.status = status; // eslint-disable-line functional/no-this-expression
+    this.payload = payload; // eslint-disable-line functional/no-this-expression
+  }
 }

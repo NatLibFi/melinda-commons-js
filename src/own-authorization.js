@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -29,40 +29,32 @@
 import OwnAuthorizationError from './error';
 
 export function validateChanges(ownTags, incomingRecord, existingRecord) {
-	const lowTags = getLowTags();
+  const lowTags = getLowTags();
 
-	if (lowTags.some(t => !ownTags.includes(t))) {
-		throw new OwnAuthorizationError(403);
-	}
+  if (lowTags.some(t => !ownTags.includes(t))) { // eslint-disable-line functional/no-conditional-statement
+    throw new OwnAuthorizationError(403);
+  }
 
-	function getLowTags() {
-		if (existingRecord) {
-			const incomingTags = get(incomingRecord);
-			const existingTags = get(existingRecord);
+  function getLowTags() {
+    if (existingRecord) {
+      const incomingTags = get(incomingRecord);
+      const existingTags = get(existingRecord);
 
-			const additions = incomingTags.reduce((acc, tag) => {
-				return existingTags.includes(tag) ? acc : acc.concat(tag);
-			}, []);
+      const additions = incomingTags.reduce((acc, tag) => existingTags.includes(tag) ? acc : acc.concat(tag), []);
 
-			const removals = existingTags.reduce((acc, tag) => {
-				return incomingTags.includes(tag) ? acc : acc.concat(tag);
-			}, []);
+      const removals = existingTags.reduce((acc, tag) => incomingTags.includes(tag) ? acc : acc.concat(tag), []);
 
-			// Concat and remove duplicates
-			return additions.concat(removals).reduce((acc, tag) => {
-				return acc.includes(tag) ? acc : acc.concat(tag);
-			}, []);
-		}
+      // Concat and remove duplicates
+      return additions.concat(removals).reduce((acc, tag) => acc.includes(tag) ? acc : acc.concat(tag), []);
+    }
 
-		return get(incomingRecord);
+    return get(incomingRecord);
 
-		// Get unique tags
-		function get(record) {
-			return record.get(/^LOW$/)
-				.map(f => f.subfields.find(sf => sf.code === 'a').value)
-				.reduce((acc, v) => {
-					return acc.includes(v) ? acc : acc.concat(v);
-				}, []);
-		}
-	}
+    // Get unique tags
+    function get(record) {
+      return record.get(/^LOW$/u)
+        .map(f => f.subfields.find(sf => sf.code === 'a').value)
+        .reduce((acc, v) => acc.includes(v) ? acc : acc.concat(v), []);
+    }
+  }
 }

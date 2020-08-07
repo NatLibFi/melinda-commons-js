@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -49,43 +49,43 @@ const record4a = fs.readFileSync(path.join(FIXTURES_PATH, 'record4a.json'), 'utf
 const record4b = fs.readFileSync(path.join(FIXTURES_PATH, 'record4b.json'), 'utf8');
 
 describe('own-authorization', () => {
-	describe('validateChanges', () => {
-		it('Should pass', () => {
-			const tags = JSON.parse(tags1);
-			const record = new MarcRecord(JSON.parse(record1));
+  describe('validateChanges', () => {
+    it('Should pass', () => {
+      const tags = JSON.parse(tags1);
+      const record = new MarcRecord(JSON.parse(record1));
 
-			expect(() => {
-				testContext.validateChanges(tags, record);
-			}).to.not.throw();
-		});
+      expect(() => {
+        testContext.validateChanges(tags, record);
+      }).to.not.throw();
+    });
 
-		it('Should pass (Record comparison)', () => {
-			const tags = JSON.parse(tags2);
-			const recordA = new MarcRecord(JSON.parse(record2a));
-			const recordB = new MarcRecord(JSON.parse(record2b));
+    it('Should pass (Record comparison)', () => {
+      const tags = JSON.parse(tags2);
+      const recordA = new MarcRecord(JSON.parse(record2a));
+      const recordB = new MarcRecord(JSON.parse(record2b));
 
-			expect(() => {
-				testContext.validateChanges(tags, recordA, recordB);
-			}).to.not.throw();
-		});
+      expect(() => {
+        testContext.validateChanges(tags, recordA, recordB);
+      }).to.not.throw();
+    });
 
-		it('Should throw', () => {
-			const tags = JSON.parse(tags3);
-			const record = new MarcRecord(JSON.parse(record3));
+    it('Should throw', () => {
+      const tags = JSON.parse(tags3);
+      const record = new MarcRecord(JSON.parse(record3));
 
-			expect(() => {
-				testContext.validateChanges(tags, record);
-			}).to.throw(OwnAuthorizationError);
-		});
+      expect(() => {
+        testContext.validateChanges(tags, record);
+      }).to.throw(OwnAuthorizationError);
+    });
 
-		it('Should throw (Record comparison)', () => {
-			const tags = JSON.parse(tags4);
-			const recordA = new MarcRecord(JSON.parse(record4a));
-			const recordB = new MarcRecord(JSON.parse(record4b));
+    it('Should throw (Record comparison)', () => {
+      const tags = JSON.parse(tags4);
+      const recordA = new MarcRecord(JSON.parse(record4a));
+      const recordB = new MarcRecord(JSON.parse(record4b));
 
-			expect(() => {
-				testContext.validateChanges(tags, recordA, recordB);
-			}).to.throw(OwnAuthorizationError);
-		});
-	});
+      expect(() => {
+        testContext.validateChanges(tags, recordA, recordB);
+      }).to.throw(OwnAuthorizationError);
+    });
+  });
 });

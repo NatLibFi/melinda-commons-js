@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -47,35 +47,35 @@ const queryList3 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList3.json'), 
 const queryList4 = fs.readFileSync(path.join(FIXTURES_PATH, 'queryList4.json'), 'utf8');
 
 describe('record-matching/bib/generate-query-list', () => {
-	describe('#generateIdentifierQueries', () => {
-		it('Should generate a list of identifiers', () => {
-			const record = new MarcRecord(JSON.parse(record1));
-			const queryList = generateIdentifierQueries(record);
+  describe('#generateIdentifierQueries', () => {
+    it('Should generate a list of identifiers', () => {
+      const record = new MarcRecord(JSON.parse(record1));
+      const queryList = generateIdentifierQueries(record);
 
-			expect(queryList).to.eql(JSON.parse(queryList1));
-		});
+      expect(queryList).to.eql(JSON.parse(queryList1));
+    });
 
-		it('Should generate a list of identifiers(ISSN)', () => {
-			const record = new MarcRecord(JSON.parse(record2));
-			const queryList = generateIdentifierQueries(record);
+    it('Should generate a list of identifiers(ISSN)', () => {
+      const record = new MarcRecord(JSON.parse(record2));
+      const queryList = generateIdentifierQueries(record);
 
-			expect(queryList).to.eql(JSON.parse(queryList2));
-		});
+      expect(queryList).to.eql(JSON.parse(queryList2));
+    });
 
-		it('Should generate a list of multible identifiers from subfield a and z', () => {
-			const record = new MarcRecord(JSON.parse(record4));
-			const queryList = generateIdentifierQueries(record);
+    it('Should generate a list of multible identifiers from subfield a and z', () => {
+      const record = new MarcRecord(JSON.parse(record4));
+      const queryList = generateIdentifierQueries(record);
 
-			expect(queryList).to.eql(JSON.parse(queryList4));
-		});
-	});
+      expect(queryList).to.eql(JSON.parse(queryList4));
+    });
+  });
 
-	describe('#generateTitleQueries', () => {
-		it('Should generate a list of titles', () => {
-			const record = new MarcRecord(JSON.parse(record3));
-			const queryList = generateTitleQueries(record);
+  describe('#generateTitleQueries', () => {
+    it('Should generate a list of titles', () => {
+      const record = new MarcRecord(JSON.parse(record3));
+      const queryList = generateTitleQueries(record);
 
-			expect(queryList).to.eql(JSON.parse(queryList3));
-		});
-	});
+      expect(queryList).to.eql(JSON.parse(queryList3));
+    });
+  });
 });

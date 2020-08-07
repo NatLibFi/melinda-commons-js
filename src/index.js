@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -31,11 +31,11 @@ import {MarcRecord} from '@natlibfi/marc-record';
 // Aleph creates partial subfields...
 MarcRecord.setValidationOptions({subfieldValues: false});
 
-import * as Authentication from './authentication';
 import * as RecordMatching from './record-matching';
 import * as Datastore from './datastore';
 import * as OwnAuthorization from './own-authorization';
-import * as Utils from './utils';
+
+export * from './utils';
 
 export {default as Error} from './error';
-export {Authentication, RecordMatching, Datastore, OwnAuthorization, Utils};
+export {RecordMatching, Datastore, OwnAuthorization};

@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -26,9 +26,6 @@
 *
 */
 
-// Disable import/named because eslint doesn't get __RewireAPI__
-/* eslint-disable new-cap, import/named */
-
 import fs from 'fs';
 import path from 'path';
 import nock from 'nock';
@@ -39,122 +36,122 @@ import {createBibService} from './index';
 const FIXTURES_PATH = path.join(__dirname, '../../../test-fixtures/record-matching/bib');
 
 describe('record-matching/bib', () => {
-	afterEach(() => {
-		nock.cleanAll();
-	});
+  afterEach(() => {
+    nock.cleanAll();
+  });
 
-	function getFixtures(index) {
-		const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `record${index}.json`), 'utf8');
-		const matchingsIdsPath = path.join(FIXTURES_PATH, `matchingIds${index}.json`);
+  it('Should find a match', async () => {
+    const {record, sruResponse, expectedMatchingIds} = getFixtures(1);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url});
 
-		const record = new MarcRecord(JSON.parse(recordData));
-		const sruResponse = fs.readFileSync(path.join(FIXTURES_PATH, `sruResponse${index}.xml`), 'utf8');
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		if (fs.existsSync(matchingsIdsPath)) {
-			return {
-				record, sruResponse,
-				expectedMatchingIds: JSON.parse(fs.readFileSync(matchingsIdsPath, 'utf8'))
-			};
-		}
+    const matchingIds = await Service.find(record);
 
-		return {record, sruResponse};
-	}
+    expect(matchingIds).to.eql(expectedMatchingIds);
+  });
 
-	it('Should find a match', async () => {
-		const {record, sruResponse, expectedMatchingIds} = getFixtures(1);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url});
+  it('Should not find a match (No candidates)', async () => {
+    const {record, sruResponse} = getFixtures(2);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url});
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		const matchingIds = await Service.find(record);
+    expect(await Service.find(record)).to.have.lengthOf(0);
+  });
 
-		expect(matchingIds).to.eql(expectedMatchingIds);
-	});
+  it('Should not find a match (Candidates don\'t match)', async () => {
+    const {record, sruResponse} = getFixtures(3);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url});
 
-	it('Should not find a match (No candidates)', async () => {
-		const {record, sruResponse} = getFixtures(2);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url});
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    expect(await Service.find(record)).to.have.lengthOf(0);
+  });
 
-		expect(await Service.find(record)).to.have.lengthOf(0);
-	});
+  it('Should find multiples matches', async () => {
+    const {record, sruResponse, expectedMatchingIds} = getFixtures(4);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url});
 
-	it('Should not find a match (Candidates don\'t match)', async () => {
-		const {record, sruResponse} = getFixtures(3);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url});
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    const matchingIds = await Service.find(record);
 
-		expect(await Service.find(record)).to.have.lengthOf(0);
-	});
+    expect(matchingIds).to.eql(expectedMatchingIds);
+  });
 
-	it('Should find multiples matches', async () => {
-		const {record, sruResponse, expectedMatchingIds} = getFixtures(4);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url});
+  it('Should not find a match because of post filter', async () => {
+    const {record, sruResponse} = getFixtures(5);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url});
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		const matchingIds = await Service.find(record);
+    expect(await Service.find(record)).to.have.lengthOf(0);
+  });
 
-		expect(matchingIds).to.eql(expectedMatchingIds);
-	});
+  it('Should find multiples matches (Up to the maximum)', async () => {
+    const {record, sruResponse, expectedMatchingIds} = getFixtures(6);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url, maxDuplicates: 3});
 
-	it('Should not find a match because of post filter', async () => {
-		const {record, sruResponse} = getFixtures(5);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url});
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    const matchingIds = await Service.find(record);
 
-		expect(await Service.find(record)).to.have.lengthOf(0);
-	});
+    expect(matchingIds).to.eql(expectedMatchingIds);
+  });
 
-	it('Should find multiples matches (Up to the maximum)', async () => {
-		const {record, sruResponse, expectedMatchingIds} = getFixtures(6);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, maxDuplicates: 3});
+  it('Should find multiples matches (Fetching candidates up to a maximum)', async () => {
+    const {record, sruResponse, expectedMatchingIds} = getFixtures(7);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		const matchingIds = await Service.find(record);
+    const matchingIds = await Service.find(record);
 
-		expect(matchingIds).to.eql(expectedMatchingIds);
-	});
+    expect(matchingIds).to.eql(expectedMatchingIds);
+  });
 
-	it('Should find multiples matches (Fetching candidates up to a maximum)', async () => {
-		const {record, sruResponse, expectedMatchingIds} = getFixtures(7);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
+  it('Should find multiples matches (Ignoring negative features', async () => {
+    const {record, sruResponse, expectedMatchingIds} = getFixtures(8);
+    const url = 'https://sru';
+    const Service = createBibService({sruURL: url, ignoreNegativeFeatures: true});
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    nock('https://sru')
+      .get(/.*/u).reply(200, sruResponse);
 
-		const matchingIds = await Service.find(record);
+    const matchingIds = await Service.find(record);
 
-		expect(matchingIds).to.eql(expectedMatchingIds);
-	});
+    expect(matchingIds).to.eql(expectedMatchingIds);
+  });
 
-	it('Should find multiples matches (Ignoring negative features', async () => {
-		const {record, sruResponse, expectedMatchingIds} = getFixtures(8);
-		const url = 'https://sru';
-		const Service = createBibService({sruURL: url, ignoreNegativeFeatures: true});
+  function getFixtures(index) {
+    const recordData = fs.readFileSync(path.join(FIXTURES_PATH, `record${index}.json`), 'utf8');
+    const matchingsIdsPath = path.join(FIXTURES_PATH, `matchingIds${index}.json`);
 
-		nock('https://sru')
-			.get(/.*/).reply(200, sruResponse);
+    const record = new MarcRecord(JSON.parse(recordData));
+    const sruResponse = fs.readFileSync(path.join(FIXTURES_PATH, `sruResponse${index}.xml`), 'utf8');
 
-		const matchingIds = await Service.find(record);
+    if (fs.existsSync(matchingsIdsPath)) {
+      return {
+        record, sruResponse,
+        expectedMatchingIds: JSON.parse(fs.readFileSync(matchingsIdsPath, 'utf8'))
+      };
+    }
 
-		expect(matchingIds).to.eql(expectedMatchingIds);
-	});
+    return {record, sruResponse};
+  }
 });

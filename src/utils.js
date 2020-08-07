@@ -2,9 +2,9 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Shared modules for Melinda's applications
+* Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2019 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2020 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -26,162 +26,79 @@
 *
 */
 
-import expressWinston from 'express-winston';
-import winston from 'winston';
-import moment from 'moment';
-import {createCipher, createDecipher, randomBytes} from 'crypto';
-
 export function generateAuthorizationHeader(username, password = '') {
-	const encoded = Buffer.from(`${username}:${password}`).toString('base64');
-	return `Basic ${encoded}`;
+  const encoded = Buffer.from(`${username}:${password}`).toString('base64');
+  return `Basic ${encoded}`;
 }
 
 export function isDeletedRecord(record) {
-	if (record.leader[5] === 'd') {
-		return true;
-	}
+  if (record.leader[5] === 'd') {
+    return true;
+  }
 
-	return checkDel() || checkSta();
+  return checkDel() || checkSta();
 
-	function checkDel() {
-		return record.get(/^DEL$/).some(check);
+  function checkDel() {
+    return record.get(/^DEL$/u).some(check);
 
-		function check({subfields}) {
-			return subfields.some(({code, value}) => code === 'a' && value === 'Y');
-		}
-	}
+    function check({subfields}) {
+      return subfields.some(({code, value}) => code === 'a' && value === 'Y');
+    }
+  }
 
-	function checkSta() {
-		return record.get(/^STA$/).some(check);
+  function checkSta() {
+    return record.get(/^STA$/u).some(check);
 
-		function check({subfields}) {
-			return subfields.some(({code, value}) => code === 'a' && value === 'DELETED');
-		}
-	}
-}
-
-export function readEnvironmentVariable(name, {defaultValue = undefined, hideDefault = false, format = v => v} = {}) {
-	if (process.env[name] === undefined) {
-		if (defaultValue === undefined) {
-			throw new Error(`Mandatory environment variable missing: ${name}`);
-		}
-
-		const defaultValuePrintable = typeof defaultValue === 'object' ? JSON.stringify(defaultValue) : defaultValue;
-
-		console.error(`No environment variable set for ${name}, using default value: ${hideDefault ? '[hidden]' : defaultValuePrintable}`);
-		return defaultValue;
-	}
-
-	return format(process.env[name]);
-}
-
-export function createLogger(options = {}) {
-	return winston.createLogger({...createLoggerOptions(), ...options});
-}
-
-export function createExpressLogger(options = {}) {
-	return expressWinston.logger({
-		meta: true,
-		msg: '{{req.ip}} HTTP {{req.method}} {{req.path}} - {{res.statusCode}} {{res.responseTime}}ms',
-		ignoreRoute: () => false,
-		...createLoggerOptions(),
-		...options
-	});
-}
-
-function createLoggerOptions() {
-	const logLevel = process.env.LOG_LEVEL || 'info';
-	const debuggingEnabled = logLevel === 'debug';
-	const timestamp = winston.format(info => {
-		info.timestamp = moment().format();
-		return info;
-	});
-
-	return {
-		format: winston.format.combine(timestamp(), winston.format.printf(formatMessage)),
-		transports: [
-			new winston.transports.Console({
-				level: logLevel,
-				silent: process.env.NODE_ENV === 'test' && !debuggingEnabled
-			})
-		]
-	};
-
-	function formatMessage(i) {
-		return `${i.timestamp} - ${i.level}: ${i.message}`;
-	}
-}
-
-export function generateEncryptionKey() {
-	return randomBytes(32).toString('base64');
-}
-
-// Do not use for very sensitive data (Implement IV-based encryption)
-export function encryptString({key, value, algorithm, encoding = 'base64'}) {
-	const Cipher = createCipher(algorithm, key);
-	return Cipher.update(value, 'utf8', encoding) + Cipher.final(encoding);
-}
-
-export function decryptString({key, value, algorithm, encoding = 'base64'}) {
-	const Decipher = createDecipher(algorithm, key);
-	return Decipher.update(value, encoding, 'utf8') + Decipher.final('utf8');
-}
-
-export function handleInterrupt(arg) {
-	if (arg instanceof Error) {
-		console.error(`Uncaught Exception: ${arg.stack}`);
-		// Signal
-	} else {
-		console.log(`Received ${arg}`);
-	}
-
-	process.exit(1);
+    function check({subfields}) {
+      return subfields.some(({code, value}) => code === 'a' && value === 'DELETED');
+    }
+  }
 }
 
 export function parseBoolean(value) {
-	if (value === undefined) {
-		return false;
-	}
+  if (value === undefined) {
+    return false;
+  }
 
-	if (Number.isNaN(Number(value))) {
-		return value.length > 0 && value !== 'false';
-	}
+  if (Number.isNaN(Number(value))) {
+    return value.length > 0 && value !== 'false';
+  }
 
-	return Boolean(Number(value));
+  return Boolean(Number(value));
 }
 
 export function getRecordTitle(record) {
-	const TRIM_PATTERN = '[?!.,(){}:;/\\ ]*';
-	const field = record
-		.get(/^245$/)
-		.find(f => f.subfields.some(sf => sf.code === 'a'));
+  const TRIM_PATTERN = '[?!.,(){}:;/ ]*';
+  const field = record
+    .get(/^245$/u)
+    .find(f => f.subfields.some(sf => sf.code === 'a'));
 
-	if (field) {
-		return field.subfields.find(sf => sf.code === 'a').value
-			.replace(new RegExp(`^${TRIM_PATTERN}`), '')
-			.replace(new RegExp(`${TRIM_PATTERN}$`), '');
-	}
+  if (field) {
+    return field.subfields.find(sf => sf.code === 'a').value
+      .replace(new RegExp(`^${TRIM_PATTERN}`, 'u'), '')
+      .replace(new RegExp(`${TRIM_PATTERN}$`, 'u'), '');
+  }
 
-	return '';
+  return '';
 }
 
 export function getRecordStandardIdentifiers(record) {
-	return record.get(/^(020|022|024)$/)
-		.filter(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)))
-		.map(field => {
-			const subfield = field.subfields.find(sf => ['a', 'z'].includes(sf.code));
-			return subfield.value;
-		});
+  return record.get(/^(?<def>020|022|024)$/u)
+    .filter(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)))
+    .map(field => {
+      const subfield = field.subfields.find(sf => ['a', 'z'].includes(sf.code));
+      return subfield.value;
+    });
 }
 
 export function clone(o) {
-	return JSON.parse(JSON.stringify(o));
+  return JSON.parse(JSON.stringify(o));
 }
 
 export function toAlephId(id) {
-	return id.padStart(9, '0');
+  return id.padStart(9, '0');
 }
 
 export function fromAlephId(id) {
-	return id.replace(/^0+/, '');
+  return id.replace(/^0+/u, '');
 }
