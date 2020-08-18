@@ -1,5 +1,6 @@
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
+import {createLogger} from './utils';
 
 export function createSubrecordPicker(sruUrl) {
 	const logger = createLogger();
