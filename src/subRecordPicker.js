@@ -1,5 +1,6 @@
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
+import createDebugLogger from 'debug';
 
 export function createSubrecordPicker(sruUrl, retrieveAll = false) {
   const sruClient = createSruClient({url: sruUrl, recordSchema: 'marcxml', retrieveAll});
