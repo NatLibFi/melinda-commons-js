@@ -21,7 +21,7 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
             return resolve({nextRecordOffset, records});
           }
 
-          resolve(records)
+          resolve(records);
         })
         .on('error', err => reject(err));
     });
