@@ -16,7 +16,13 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
         .on('record', xmlString => {
           records.push(MARCXML.from(xmlString)); // eslint-disable-line functional/immutable-data
         })
-        .on('end', () => resolve(records))
+        .on('end', nextRecordOffset => {
+          if (nextRecordOffset) {
+            return resolve({nextRecordOffset, records});
+          }
+
+          resolve(records)
+        })
         .on('error', err => reject(err));
     });
   }
