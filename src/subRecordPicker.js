@@ -1,15 +1,14 @@
 import createSruClient from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
-import {createLogger} from './utils';
 
-export function createSubrecordPicker(sruUrl) {
-  const logger = createLogger();
-  const sruClient = createSruClient({url: sruUrl, recordSchema: 'marcxml'});
+export function createSubrecordPicker(sruUrl, retrieveAll = false) {
+  const sruClient = createSruClient({url: sruUrl, recordSchema: 'marcxml', retrieveAll});
+  const debug = createDebugLogger('@natlibfi/melinda-commons:subRecordPicker');
 
   return {readSubrecords};
 
   function readSubrecords(recordId) {
-    logger.log('verbose', `Picking subrecords for ${recordId}`);
+    debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
       const records = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`)
