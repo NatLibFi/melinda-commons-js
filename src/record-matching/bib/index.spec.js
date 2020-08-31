@@ -43,7 +43,7 @@ describe('record-matching/bib', () => {
   it('Should find a match', async () => {
     const {record, sruResponse, expectedMatchingIds} = getFixtures(1);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url});
+    const Service = createBibService({url});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -56,7 +56,7 @@ describe('record-matching/bib', () => {
   it('Should not find a match (No candidates)', async () => {
     const {record, sruResponse} = getFixtures(2);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url});
+    const Service = createBibService({url});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -67,7 +67,7 @@ describe('record-matching/bib', () => {
   it('Should not find a match (Candidates don\'t match)', async () => {
     const {record, sruResponse} = getFixtures(3);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url});
+    const Service = createBibService({url});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -78,7 +78,7 @@ describe('record-matching/bib', () => {
   it('Should find multiples matches', async () => {
     const {record, sruResponse, expectedMatchingIds} = getFixtures(4);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url});
+    const Service = createBibService({url});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -91,7 +91,7 @@ describe('record-matching/bib', () => {
   it('Should not find a match because of post filter', async () => {
     const {record, sruResponse} = getFixtures(5);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url});
+    const Service = createBibService({url});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -102,7 +102,7 @@ describe('record-matching/bib', () => {
   it('Should find multiples matches (Up to the maximum)', async () => {
     const {record, sruResponse, expectedMatchingIds} = getFixtures(6);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url, maxDuplicates: 3});
+    const Service = createBibService({url, maxRecordsPerRequest: 3});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -115,7 +115,7 @@ describe('record-matching/bib', () => {
   it('Should find multiples matches (Fetching candidates up to a maximum)', async () => {
     const {record, sruResponse, expectedMatchingIds} = getFixtures(7);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url, maxCandidatesPerQuery: 3});
+    const Service = createBibService({url, maxRecordsPerRequest: 3});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);
@@ -128,7 +128,7 @@ describe('record-matching/bib', () => {
   it('Should find multiples matches (Ignoring negative features', async () => {
     const {record, sruResponse, expectedMatchingIds} = getFixtures(8);
     const url = 'https://sru';
-    const Service = createBibService({sruURL: url, ignoreNegativeFeatures: true});
+    const Service = createBibService({url, ignoreNegativeFeatures: true});
 
     nock('https://sru')
       .get(/.*/u).reply(200, sruResponse);

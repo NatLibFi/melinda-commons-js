@@ -34,9 +34,9 @@ import {Preference, Similarity, Models} from '@natlibfi/melinda-ai-commons';
 import {generateIdentifierQueries, generateTitleQueries} from './generate-query-list';
 import {isDeletedRecord} from '../../utils';
 
-export function createSimpleBibService({sruURL, maxCandidatesPerQuery = 10}) {
+export function createSimpleBibService({url, maxRecordsPerRequest = 10}) {
   const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
-  const SruClient = createSruClient({serverUrl: sruURL, maximumRecords: maxCandidatesPerQuery});
+  const SruClient = createSruClient({url, recordSchema: 'marcxml', maxRecordsPerRequest, retrieveAll: false});
 
   return {find};
 
@@ -81,13 +81,13 @@ export function createSimpleBibService({sruURL, maxCandidatesPerQuery = 10}) {
   }
 }
 
-export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQuery = 10, ignoreNegativeFeatures = false}) {
+export function createBibService({url, maxDuplicates = 5, maxRecordsPerRequest = 10, ignoreNegativeFeatures = false}) {
   const debug = createDebugLogger('@natlibfi/melinda-commons:record-matching');
 
   const setTimeoutPromise = promisify(setTimeout);
   const {BibDefault: extractorSet} = Preference.ExtractorPresets;
 
-  const SruClient = createSruClient({serverUrl: sruURL, maximumRecords: maxCandidatesPerQuery});
+  const SruClient = createSruClient({url, recordSchema: 'marcxml', maxRecordsPerRequest, retrieveAll: false});
   const PreferenceService = Preference.createService({model: Models.BibPreference, extractorSet});
   const SimilarityService = Similarity.createService({model: Models.BibDuplicateDetection});
 
@@ -127,7 +127,7 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
           });
 
         function handleRecord(xml) {
-          if (candidatesForQuery < maxCandidatesPerQuery) {
+          if (candidatesForQuery < maxRecordsPerRequest) {
             const record = MARCXML.from(xml);
             const id = getId(record);
 
@@ -135,7 +135,7 @@ export function createBibService({sruURL, maxDuplicates = 5, maxCandidatesPerQue
               foundIdList.push(id); // eslint-disable-line functional/immutable-data
               candidates.push(record); // eslint-disable-line functional/immutable-data
 
-              if (++candidatesForQuery === maxCandidatesPerQuery) { // eslint-disable-line no-plusplus, functional/no-conditional-statement
+              if (++candidatesForQuery === maxRecordsPerRequest) { // eslint-disable-line no-plusplus, functional/no-conditional-statement
                 done = true;
               }
             }
