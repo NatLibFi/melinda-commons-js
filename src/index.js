@@ -31,8 +31,6 @@ import {MarcRecord} from '@natlibfi/marc-record';
 // Aleph creates partial subfields...
 MarcRecord.setValidationOptions({subfieldValues: false});
 
-import * as RecordMatching from './record-matching';
-import * as Datastore from './datastore';
 import * as OwnAuthorization from './own-authorization';
 import {createSubrecordPicker} from './subRecordPicker';
 
