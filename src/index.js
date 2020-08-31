@@ -37,4 +37,4 @@ import {createSubrecordPicker} from './subRecordPicker';
 export * from './utils';
 
 export {default as Error} from './error';
-export {RecordMatching, Datastore, OwnAuthorization, createSubrecordPicker};
+export {OwnAuthorization, createSubrecordPicker};
