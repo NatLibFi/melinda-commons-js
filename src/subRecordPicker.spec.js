@@ -26,28 +26,18 @@
 *
 */
 
-import fs from 'fs';
-import path from 'path';
 import {expect} from 'chai';
-import {MarcRecord} from '@natlibfi/marc-record';
 import {createSubrecordPicker} from './subRecordPicker';
-// import apiError from './error';
-
-MarcRecord.setValidationOptions({subfieldValues: false});
-
-const FIXTURES_PATH = path.join(__dirname, '../test-fixtures/subRecordPicker');
-
-const allIn = fs.readFileSync(path.join(FIXTURES_PATH, 'readAllSubrecords-in'), 'utf8');
-const allOut = fs.readFileSync(path.join(FIXTURES_PATH, 'readAllSubrecords-out'), 'utf8');
-const someIn = fs.readFileSync(path.join(FIXTURES_PATH, 'readSomeSubrecords-in'), 'utf8');
-const someOut = fs.readFileSync(path.join(FIXTURES_PATH, 'readSomeSubrecords-out'), 'utf8');
-
-const sruUrl = 'https://sru';
-const retrieveAll = false;
+import {READERS} from '@natlibfi/fixura';
+import generateTests from '@natlibfi/fixugen-http-client';
+import {MarcRecord} from '@natlibfi/marc-record';
 
 describe('subRecordPicker', () => {
+  const sruUrl = 'https://sru';
+  const retrieveAll = false;
+
   describe('createSubrecordPicker', () => {
-    it('Client should have methods pass', () => {
+    it('Client should have methods', () => {
       const client = createSubrecordPicker(sruUrl, retrieveAll);
       expect(client).to.respondTo('readAllSubrecords');
       expect(client).to.respondTo('readSomeSubrecords');
@@ -64,16 +54,25 @@ describe('subRecordPicker', () => {
     });
   });
 
-  describe('readAllSubrecords', () => {
-    it('Should pass', () => {
-      console.log(allIn); // eslint-disable-line no-console
-      console.log(allOut); // eslint-disable-line no-console
-    });
+  generateTests({
+    callback,
+    path: [__dirname, '..', 'test-fixtures', 'subRecordPicker']
   });
-  describe('readSomeSubrecords', () => {
-    it('Should pass', () => {
-      console.log(someIn); // eslint-disable-line no-console
-      console.log(someOut); // eslint-disable-line no-console
-    });
-  });
+
+  async function callback({getFixture, method, sruUrl, retrieveAll, recordId}) {
+    const client = createSubrecordPicker(sruUrl, retrieveAll);
+    const expectedRecords = getFixture({components: ['expected-records.json'], reader: READERS.JSON});
+    const {records} = await client[method](recordId);
+
+    // Expect records to be marc records
+    const [record] = records;
+    expect(record).to.be.instanceof(MarcRecord);
+    expect(format()).to.eql(expectedRecords);
+
+    function format() {
+      return records.map(r => r.toObject());
+    }
+  }
+
+  console.log('OK'); // eslint-disable-line no-console
 });

@@ -14,15 +14,16 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
 
   return {readSomeSubrecords, readAllSubrecords};
 
-  function readSomeSubrecords(recordId, offset = 0) {
+  function readSomeSubrecords(recordId, offset = 1) {
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
       const records = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`, {startRecord: offset})
-        .on('record', xmlString => {
-          records.push(MARCXML.from(xmlString)); // eslint-disable-line functional/immutable-data
+        .on('record', async xmlString => {
+          records.push(await MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
         })
-        .on('end', nextRecordOffset => {
+        .on('end', async nextRecordOffset => {
+          await Promise.all(records);
           resolve({nextRecordOffset, records});
         })
         .on('error', err => reject(err));
@@ -34,11 +35,12 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
     return new Promise((resolve, reject) => {
       const records = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`)
-        .on('record', xmlString => {
-          records.push(MARCXML.from(xmlString)); // eslint-disable-line functional/immutable-data
+        .on('record', async xmlString => {
+          records.push(await MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
         })
-        .on('end', () => {
-          resolve(records);
+        .on('end', async () => {
+          await Promise.all(records);
+          resolve({records});
         })
         .on('error', err => reject(err));
     });
