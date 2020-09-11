@@ -17,14 +17,18 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
   function readSomeSubrecords(recordId, offset = 1) {
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
-      const records = [];
+      const promises = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`, {startRecord: offset})
-        .on('record', async xmlString => {
-          records.push(await MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
+        .on('record', xmlString => {
+          promises.push(MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
         })
         .on('end', async nextRecordOffset => {
-          await Promise.all(records);
-          resolve({nextRecordOffset, records});
+          try {
+            const records = await Promise.all(promises);
+            resolve({nextRecordOffset, records});
+          } catch (error) {
+            reject(error);
+          }
         })
         .on('error', err => reject(err));
     });
@@ -33,14 +37,18 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
   function readAllSubrecords(recordId) {
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
-      const records = [];
+      const promises = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`)
-        .on('record', async xmlString => {
-          records.push(await MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
+        .on('record', xmlString => {
+          promises.push(MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
         })
         .on('end', async () => {
-          await Promise.all(records);
-          resolve({records});
+          try {
+            const records = await Promise.all(promises);
+            resolve({records});
+          } catch (error) {
+            reject(error);
+          }
         })
         .on('error', err => reject(err));
     });

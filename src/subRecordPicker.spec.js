@@ -73,6 +73,4 @@ describe('subRecordPicker', () => {
       return records.map(r => r.toObject());
     }
   }
-
-  console.log('OK'); // eslint-disable-line no-console
 });
