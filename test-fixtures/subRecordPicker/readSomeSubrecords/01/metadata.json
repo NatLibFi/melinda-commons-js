@@ -1,0 +1,14 @@
+{
+    "description": "Should retrieve some records",
+    "sruUrl": "http://foo.bar",
+    "retrieveAll": false,
+    "recordId": "000000123",
+    "method": "readSomeSubrecords",
+    "requests": [
+        {
+            "method": "get",
+            "url": "/?operation=searchRetrieve&query=melinda.partsofhost%3D000000123&startRecord=1&recordSchema=marcxml&version=2.0&maximumRecords=1000",
+            "status": 200
+        }
+    ]
+}
