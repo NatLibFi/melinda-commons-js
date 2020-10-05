@@ -32,12 +32,5 @@ describe('error', () => {
       expect(error).to.have.property('stack');
     }
   });
-  it('Should contain function logError', () => {
-    try {
-      doThrow();
-    } catch (error) {
-      expect(error).to.have.property('logError');
-    }
-  });
 });
 
