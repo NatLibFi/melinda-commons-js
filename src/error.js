@@ -31,5 +31,13 @@ export default class extends Error {
     super(params);
     this.status = status; // eslint-disable-line functional/no-this-expression
     this.payload = payload; // eslint-disable-line functional/no-this-expression
+
+    this.logError = logError; // eslint-disable-line functional/no-this-expression
+
+    function logError(logger) {
+      logger.log('error', `Error status: ${status}`);
+      logger.log('error', `Error payload: ${typeof payload === 'object' ? `\n${JSON.stringify(payload, undefined, 2)}` : payload}`);
+      logger.log('error', `Error stack:\n${this.stack === undefined ? '' : this.stack}`); // eslint-disable-line functional/no-this-expression, no-invalid-this
+    }
   }
 }
