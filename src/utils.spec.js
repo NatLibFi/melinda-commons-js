@@ -71,6 +71,30 @@ describe('utils', () => {
       const record = new MarcRecord(JSON.parse(data));
       expect(isDeletedRecord(record)).to.equal(false);
     });
+
+    it('Should find the record deleted (Split)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record5.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isDeletedRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record deleted (Deprecated)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record6.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isDeletedRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record deleted (Split (Aleph))', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record7.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isDeletedRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record deleted (Deprecated (Aleph))', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isDeletedRecord/record8.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isDeletedRecord(record)).to.equal(true);
+    });
   });
 
   describe('parseBoolean', () => {
