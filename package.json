@@ -37,12 +37,15 @@
 		"@natlibfi/marc-record": "^6.0.4",
 		"@natlibfi/marc-record-serializers": "^7.1.4",
 		"@natlibfi/sru-client": "^4.0.2",
+		"base64-url": "^2.3.3",
 		"debug": "^4.1.1",
 		"deep-eql": "^4.0.0",
+		"express-winston": "^4.0.5",
 		"http-status": "^1.4.2",
 		"moment": "^2.27.0",
-		"nock": "^13.0.3",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"uuid": "^8.3.0",
+		"winston": "^3.3.3"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.11.6",
