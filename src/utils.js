@@ -32,7 +32,7 @@ export function generateAuthorizationHeader(username, password = '') {
 }
 
 export function isDeletedRecord(record) {
-  if (record.leader[5] === 'd') {
+  if (['d', 's', 'x'].includes(record.leader[5])) {
     return true;
   }
 
@@ -50,7 +50,8 @@ export function isDeletedRecord(record) {
     return record.get(/^STA$/u).some(check);
 
     function check({subfields}) {
-      return subfields.some(({code, value}) => code === 'a' && value === 'DELETED');
+      const values = ['DELETED', 'DELETED-SPLIT', 'DELETED-DEPRECATED'];
+      return subfields.some(({code, value}) => code === 'a' && values.includes(value));
     }
   }
 }
