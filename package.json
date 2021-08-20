@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/melinda-commons-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "11.1.4",
+	"version": "11.1.5",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=12"
@@ -34,8 +34,8 @@
 		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
-		"@natlibfi/marc-record": "^6.1.1",
-		"@natlibfi/marc-record-serializers": "^7.2.6",
+		"@natlibfi/marc-record": "^6.1.2",
+		"@natlibfi/marc-record-serializers": "^7.2.8",
 		"@natlibfi/sru-client": "^4.1.0",
 		"debug": "^4.3.2",
 		"deep-eql": "^4.0.0",
