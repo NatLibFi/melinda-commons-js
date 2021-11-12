@@ -35,7 +35,7 @@
 	},
 	"dependencies": {
 		"@natlibfi/marc-record": "^6.1.2",
-		"@natlibfi/marc-record-serializers": "^8.0.0-alpha.1",
+		"@natlibfi/marc-record-serializers": "^8.0.4",
 		"@natlibfi/sru-client": "^4.1.0",
 		"debug": "^4.3.2",
 		"deep-eql": "^4.0.0",
