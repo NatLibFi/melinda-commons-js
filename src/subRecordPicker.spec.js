@@ -31,6 +31,9 @@ import {createSubrecordPicker} from './subRecordPicker';
 import {READERS} from '@natlibfi/fixura';
 import generateTests from '@natlibfi/fixugen-http-client';
 import {MarcRecord} from '@natlibfi/marc-record';
+import createDebugLogger from 'debug';
+
+const debug = createDebugLogger('@natlibfi/melinda-commons:subRecordPicker:test');
 
 describe('subRecordPicker', () => {
   const sruUrl = 'https://sru';
@@ -65,7 +68,11 @@ describe('subRecordPicker', () => {
     const {records} = await client[method](recordId);
 
     // Expect records to be marc records
-    const [record] = records;
+    const [recordObject] = records;
+    debug(recordObject);
+    const record = new MarcRecord(recordObject);
+    debug(record);
+
     expect(record).to.be.instanceof(MarcRecord);
     expect(format()).to.eql(expectedRecords);
 
