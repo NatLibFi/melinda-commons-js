@@ -30,7 +30,6 @@ import {expect} from 'chai';
 import {createSubrecordPicker} from './subRecordPicker';
 import {READERS} from '@natlibfi/fixura';
 import generateTests from '@natlibfi/fixugen-http-client';
-import {MarcRecord} from '@natlibfi/marc-record';
 
 describe('subRecordPicker', () => {
   const sruUrl = 'https://sru';
@@ -64,9 +63,6 @@ describe('subRecordPicker', () => {
     const expectedRecords = getFixture({components: ['expected-records.json'], reader: READERS.JSON});
     const {records} = await client[method](recordId);
 
-    // Expect records to be marc records
-    const [record] = records;
-    expect(record).to.be.instanceof(MarcRecord);
     expect(format()).to.eql(expectedRecords);
 
     function format() {
