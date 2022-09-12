@@ -126,6 +126,10 @@ describe('utils', () => {
       expect(parseBoolean('FALSE')).to.equal(false);
     });
 
+    it('Should parse literal \'FAlsE\' value as false', () => {
+      expect(parseBoolean('FAlsE')).to.equal(false);
+    });
+
   });
 
   describe('getRecordTitle', () => {
