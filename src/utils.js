@@ -62,7 +62,7 @@ export function parseBoolean(value) {
   }
 
   if (Number.isNaN(Number(value))) {
-    return value.length > 0 && value !== 'false';
+    return value.length > 0 && value !== 'false' && value !== 'FALSE';
   }
 
   return Boolean(Number(value));

@@ -121,6 +121,11 @@ describe('utils', () => {
     it('Should parse non-numericish value as true', () => {
       expect(parseBoolean('foo')).to.equal(true);
     });
+
+    it('Should parse literal \'FALSE\' value as false', () => {
+      expect(parseBoolean('FALSE')).to.equal(false);
+    });
+
   });
 
   describe('getRecordTitle', () => {
