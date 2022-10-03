@@ -4,7 +4,7 @@
 *
 * Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2021 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2022 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -121,6 +121,15 @@ describe('utils', () => {
     it('Should parse non-numericish value as true', () => {
       expect(parseBoolean('foo')).to.equal(true);
     });
+
+    it('Should parse literal \'FALSE\' value as false', () => {
+      expect(parseBoolean('FALSE')).to.equal(false);
+    });
+
+    it('Should parse literal \'FAlsE\' value as false', () => {
+      expect(parseBoolean('FAlsE')).to.equal(false);
+    });
+
   });
 
   describe('getRecordTitle', () => {

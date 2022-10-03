@@ -4,7 +4,7 @@
 *
 * Shared modules for Melinda's software
 *
-* Copyright (C) 2018-2021 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2018-2022 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of melinda-commons-js
 *
@@ -62,7 +62,7 @@ export function parseBoolean(value) {
   }
 
   if (Number.isNaN(Number(value))) {
-    return value.length > 0 && value !== 'false';
+    return value.length > 0 && !(/^(?:false)$/ui).test(value);
   }
 
   return Boolean(Number(value));
