@@ -34,8 +34,8 @@
 		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
-		"@natlibfi/marc-record": "^7.2.1",
-		"@natlibfi/marc-record-serializers": "^9.0.0",
+		"@natlibfi/marc-record": "^7.2.2",
+		"@natlibfi/marc-record-serializers": "^9.0.2",
 		"@natlibfi/sru-client": "^5.0.3",
 		"debug": "^4.3.4",
 		"deep-eql": "^4.1.1",
@@ -46,11 +46,11 @@
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.19.3",
-		"@babel/core": "^7.19.3",
+		"@babel/core": "^7.19.6",
 		"@babel/eslint-parser": "^7.19.1",
-		"@babel/node": "^7.19.1",
-		"@babel/plugin-transform-runtime": "^7.19.1",
-		"@babel/preset-env": "^7.19.3",
+		"@babel/node": "^7.20.0",
+		"@babel/plugin-transform-runtime": "^7.19.6",
+		"@babel/preset-env": "^7.19.4",
 		"@babel/register": "^7.18.9",
 		"@natlibfi/eslint-config-melinda-backend": "^2.0.1",
 		"@natlibfi/fixugen-http-client": "^2.0.1",
@@ -59,8 +59,8 @@
 		"babel-plugin-rewire": "^1.2.0",
 		"chai": "^4.3.6",
 		"cross-env": "^7.0.3",
-		"eslint": "^8.24.0",
-		"mocha": "^10.0.0",
+		"eslint": "^8.26.0",
+		"mocha": "^10.1.0",
 		"nodemon": "^2.0.20",
 		"nyc": "^15.1.0"
 	},
