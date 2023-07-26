@@ -32,7 +32,7 @@ import createDebugLogger from 'debug';
 import {Error as ApiError} from './error';
 
 export function createSubrecordPicker(sruUrl, retrieveAll = false) {
-  if (sruUrl === undefined) { // eslint-disable-line functional/no-conditional-statement
+  if (sruUrl === undefined) { // eslint-disable-line functional/no-conditional-statements
     throw new ApiError(400, 'Invalid sru url');
   }
 
