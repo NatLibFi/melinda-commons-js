@@ -43,8 +43,7 @@
 		"deep-eql": "^4.1.4",
 		"http-status": "^1.7.4",
 		"moment": "^2.30.1",
-		"nock": "^13.5.4",
-		"node-fetch": "^2.7.0"
+		"nock": "^13.5.4"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.24.7",
