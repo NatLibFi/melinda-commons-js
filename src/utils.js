@@ -42,6 +42,7 @@ export function parseBoolean(value) {
 
 export function getRecordTitle(record) {
   const TRIM_PATTERN = '[?!.,(){}:;/ ]*';
+  // DEVELOP: get mainHeadings for aut records
   const field = record
     .get(/^245$/u)
     .find(f => f.subfields.some(sf => sf.code === 'a'));
