@@ -48,6 +48,7 @@
 		"@babel/plugin-transform-runtime": "^7.25.9",
 		"@babel/preset-env": "^7.26.0",
 		"@babel/register": "^7.25.9",
+		"@babel/runtime": "^7.27.1",
 		"@natlibfi/eslint-config-melinda-backend": "^3.0.5",
 		"@natlibfi/fixugen-http-client": "^3.0.10",
 		"@natlibfi/fixura": "^3.0.11",
