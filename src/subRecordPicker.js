@@ -1,10 +1,10 @@
-import createSruClient from '@natlibfi/sru-client';
+import {default as createSruClient} from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
 import createDebugLogger from 'debug';
-import {Error as ApiError} from './error';
+import ApiError from './error.js';
 
 export function createSubrecordPicker(sruUrl, retrieveAll = false) {
-  if (sruUrl === undefined) { // eslint-disable-line functional/no-conditional-statements
+  if (sruUrl === undefined) {
     throw new ApiError(400, 'Invalid sru url');
   }
 
@@ -20,7 +20,7 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
       const promises = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`, {startRecord: offset})
         .on('record', xmlString => {
-          promises.push(MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
+          promises.push(MARCXML.from(xmlString, {subfieldValues: false}));
         })
         .on('end', async nextRecordOffset => {
           try {
@@ -40,7 +40,7 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false) {
       const promises = [];
       sruClient.searchRetrieve(`melinda.partsofhost=${recordId}`)
         .on('record', xmlString => {
-          promises.push(MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
+          promises.push(MARCXML.from(xmlString, {subfieldValues: false}));
         })
         .on('end', async () => {
           try {
