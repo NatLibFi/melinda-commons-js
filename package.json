@@ -38,13 +38,13 @@
 		"@natlibfi/marc-record": "^10.0.0-alpha.1",
 		"@natlibfi/marc-record-serializers": "^11.0.0-alpha.2",
 		"@natlibfi/sru-client": "^7.0.0-alpha.1",
-		"debug": "^4.4.1",
-		"esbuild": "^0.25.8"
+		"debug": "^4.4.1"
 	},
 	"devDependencies": {
 		"@natlibfi/fixugen-http-client": "^4.0.0-alpha.1",
 		"@natlibfi/fixura": "^4.0.0-alpha.12",
 		"cross-env": "^7.0.3",
+		"esbuild": "^0.25.8",
 		"eslint": "^9.32.0"
 	}
 }
