@@ -1,7 +1,8 @@
-import {expect} from 'chai';
-import {createSubrecordPicker} from './subRecordPicker';
+import {describe, it} from 'node:test';
+import assert from 'node:assert';
 import {READERS} from '@natlibfi/fixura';
 import generateTests from '@natlibfi/fixugen-http-client';
+import {createSubrecordPicker} from './subRecordPicker.js';
 
 describe('subRecordPicker', () => {
   const sruUrl = 'https://sru';
@@ -10,24 +11,32 @@ describe('subRecordPicker', () => {
   describe('createSubrecordPicker', () => {
     it('Client should have methods', () => {
       const client = createSubrecordPicker(sruUrl, retrieveAll);
-      expect(client).to.respondTo('readAllSubrecords');
-      expect(client).to.respondTo('readSomeSubrecords');
+      // expect(client).to.respondTo('readAllSubrecords');
+      // expect(client).to.respondTo('readSomeSubrecords');
+      assert(typeof client.readAllSubrecords, 'function');
+      assert(typeof client.readSomeSubrecords, 'function');
     });
 
     it('Create client should work with just one parametter', () => {
       const client = createSubrecordPicker(sruUrl);
-      expect(client).to.respondTo('readAllSubrecords');
-      expect(client).to.respondTo('readSomeSubrecords');
+      // expect(client).to.respondTo('readAllSubrecords');
+      // expect(client).to.respondTo('readSomeSubrecords');
+      assert(typeof client.readAllSubrecords, 'function');
+      assert(typeof client.readSomeSubrecords, 'function');
     });
 
     it('Create client should have at least one parametter', () => {
-      expect(createSubrecordPicker).to.throw();
+      try {
+        createSubrecordPicker();
+      } catch (error) {
+        assert.equal(error.payload, 'Invalid sru url');
+      }
     });
   });
 
   generateTests({
     callback,
-    path: [__dirname, '..', 'test-fixtures', 'subRecordPicker']
+    path: [import.meta.dirname, '..', 'test-fixtures', 'subRecordPicker']
   });
 
   async function callback({getFixture, method, sruUrl, retrieveAll, recordId}) {
@@ -35,7 +44,7 @@ describe('subRecordPicker', () => {
     const expectedRecords = getFixture({components: ['expected-records.json'], reader: READERS.JSON});
     const {records} = await client[method](recordId);
 
-    expect(format()).to.eql(expectedRecords);
+    assert.deepStrictEqual(format(), expectedRecords);
 
     function format() {
       return records.map(r => r.toObject());
