@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<zs:searchRetrieveResponse xmlns:zs="http://docs.oasis-open.org/ns/search-ws/sruResponse">
+  <zs:numberOfRecords>3</zs:numberOfRecords>
+  <zs:records>
+    <zs:record>
+      <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
+      <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
+      <zs:recordData>
+        <record xmlns="http://www.loc.gov/MARC21/slim">
+          <leader>00623dam a22002417a 4500</leader>
+          <controlfield tag="001">000059308</controlfield>
+          <controlfield tag="003">FI-MELINDA</controlfield>
+          <controlfield tag="005">20100115121808.0</controlfield>
+          <controlfield tag="008">920131s1992    xxk|||||||||||||||||eng||</controlfield>
+          <datafield tag="STA" ind1=" " ind2=" ">
+            <subfield code="a">DELETED</subfield>
+          </datafield>
+          <datafield tag="020" ind1=" " ind2=" ">
+            <subfield code="a">0-333-52414-4 (inb.)</subfield>
+          </datafield>
+          <datafield tag="035" ind1=" " ind2=" ">
+            <subfield code="a">(FI-MELINDA)000059308</subfield>
+          </datafield>
+          <datafield tag="041" ind1="0" ind2=" ">
+            <subfield code="a">eng</subfield>
+          </datafield>
+          <datafield tag="080" ind1=" " ind2=" ">
+            <subfield code="a">1</subfield>
+            <subfield code="x">(091)</subfield>
+          </datafield>
+          <datafield tag="080" ind1=" " ind2=" ">
+            <subfield code="a">17</subfield>
+          </datafield>
+          <datafield tag="100" ind1="1" ind2=" ">
+            <subfield code="a">Phillips, D. Z.</subfield>
+          </datafield>
+          <datafield tag="245" ind1="1" ind2="0">
+            <subfield code="a">Interventions in ethics /</subfield>
+            <subfield code="c">D. Z. Phillips.</subfield>
+          </datafield>
+          <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="a">London :</subfield>
+            <subfield code="b">Macmillan,</subfield>
+            <subfield code="c">1992.</subfield>
+          </datafield>
+          <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code="a">xv, 300 s.</subfield>
+          </datafield>
+          <datafield tag="490" ind1="0" ind2=" ">
+            <subfield code="a">Swansea studies in philosophy</subfield>
+          </datafield>
+          <datafield tag="SID" ind1=" " ind2=" ">
+            <subfield code="c">134997</subfield>
+            <subfield code="b">alma</subfield>
+          </datafield>
+          <datafield tag="CAT" ind1=" " ind2=" ">
+            <subfield code="a">KVP4001</subfield>
+            <subfield code="b" />
+            <subfield code="c">20100115</subfield>
+            <subfield code="l">FIN01</subfield>
+            <subfield code="h">1218</subfield>
+          </datafield>
+          <datafield tag="LOW" ind1=" " ind2=" ">
+            <subfield code="a">ALMA</subfield>
+          </datafield>
+        </record>
+      </zs:recordData>
+      <zs:recordPosition>1</zs:recordPosition>
+    </zs:record>
+    <zs:record>
+      <zs:recordSchema>info:srw/schema/1/marcxml-v1.1</zs:recordSchema>
+      <zs:recordXMLEscaping>xml</zs:recordXMLEscaping>
+      <zs:recordData>
+        <record xmlns="http://www.loc.gov/MARC21/slim">
+          <leader>00623dam a22002417a 4500</leader>
+          <controlfield tag="001">000059308</controlfield>
+          <controlfield tag="003">FI-MELINDA</controlfield>
+          <controlfield tag="005">20100115121808.0</controlfield>
+          <controlfield tag="008">920131s1992    xxk|||||||||||||||||eng||</controlfield>
+          <datafield tag="STA" ind1=" " ind2=" ">
+            <subfield code="a">DELETED</subfield>
+          </datafield>
+          <datafield tag="020" ind1=" " ind2=" ">
+            <subfield code="a">0-333-52414-4 (inb.)</subfield>
+          </datafield>
+          <datafield tag="035" ind1=" " ind2=" ">
+            <subfield code="a">(FI-MELINDA)000059308</subfield>
+          </datafield>
+          <datafield tag="041" ind1="0" ind2=" ">
+            <subfield code="a">eng</subfield>
+          </datafield>
+          <datafield tag="080" ind1=" " ind2=" ">
+            <subfield code="a">1</subfield>
+            <subfield code="x">(091)</subfield>
+          </datafield>
+          <datafield tag="080" ind1=" " ind2=" ">
+            <subfield code="a">17</subfield>
+          </datafield>
+          <datafield tag="100" ind1="1" ind2=" ">
+            <subfield code="a">Phillips, D. Z.</subfield>
+          </datafield>
+          <datafield tag="245" ind1="1" ind2="0">
+            <subfield code="a">Interventions in ethics /</subfield>
+            <subfield code="c">D. Z. Phillips.</subfield>
+          </datafield>
+          <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="a">London :</subfield>
+            <subfield code="b">Macmillan,</subfield>
+            <subfield code="c">1992.</subfield>
+          </datafield>
+          <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code="a">xv, 300 s.</subfield>
+          </datafield>
+          <datafield tag="490" ind1="0" ind2=" ">
+            <subfield code="a">Swansea studies in philosophy</subfield>
+          </datafield>
+          <datafield tag="SID" ind1=" " ind2=" ">
+            <subfield code="c">134997</subfield>
+            <subfield code="b">alma</subfield>
+          </datafield>
+          <datafield tag="CAT" ind1=" " ind2=" ">
+            <subfield code="a">KVP4001</subfield>
+            <subfield code="b" />
+            <subfield code="c">20100115</subfield>
+            <subfield code="l">FIN01</subfield>
+            <subfield code="h">1218</subfield>
+          </datafield>
+          <datafield tag="LOW" ind1=" " ind2=" ">
+            <subfield code="a">ALMA</subfield>
+          </datafield>
+        </record>
+      </zs:recordData>
+      <zs:recordPosition>2</zs:recordPosition>
+    </zs:record>
+  </zs:records>
+</zs:searchRetrieveResponse>
