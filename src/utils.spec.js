@@ -4,7 +4,7 @@ import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
 import {
   generateAuthorizationHeader, isDeletedRecord, parseBoolean, clone,
-  getRecordTitle, getRecordStandardIdentifiers
+  getRecordTitle, getRecordStandardIdentifiers, isComponentRecord
 } from './utils';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
@@ -103,6 +103,60 @@ describe('utils', () => {
     });
 
   });
+
+  describe('isComponentRecord', () => {
+    it('Should find out that the record is a component record (f773)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record1.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record)).to.equal(true);
+    });
+
+    it('Should find out that the record is a component record (f773 + LDR/07 "a")', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record2.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record)).to.equal(true);
+    });
+
+    it('Should find out that the record is a component (LDR/07 "d")', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record3.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record)).to.equal(true);
+    });
+
+    it('Should find out that the record is not a component record', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record4.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record)).to.equal(false);
+    });
+
+    it('Should find out that the record is not a component record when ignoring collections', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record4.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record, true)).to.equal(false);
+    });
+
+
+    it('Should find out that the record is not a component record when ignoring collections (LDR/07 "d")', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record5.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record, true)).to.equal(false);
+    });
+
+
+    it('Should find out that the record is not a component record when ignoring collections (LDR/07 "c" and f773)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record6.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record, true)).to.equal(false);
+    });
+
+    it('Should find out that the record is a component record when using additional host fields (f973)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record7.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isComponentRecord(record, false, ['973'])).to.equal(true);
+    });
+
+  });
+
 
   describe('getRecordTitle', () => {
     [
