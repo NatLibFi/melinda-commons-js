@@ -28,6 +28,37 @@ export function isDeletedRecord(record) {
   }
 }
 
+export function isTestRecord(record, checkNotesInf500 = true) {
+
+  return checkSta() || checkf500(checkNotesInf500);
+
+  function checkSta() {
+    return record.get(/^STA$/u).some(check);
+
+    function check({subfields}) {
+      const values = ['TEST'];
+      return subfields.some(({code, value}) => code === 'a' && values.includes(value));
+    }
+  }
+
+  function checkf500(checkNotesInf500) {
+    if (!checkNotesInf500) {
+      return false;
+    }
+
+    return record.get(/^500$/u).some(check);
+
+    // Recognize record as test record if it has f500 $a that has contents matching "test record" or "testitietue"
+    // Note: we might have false positives here, this test can be ignored by giving second param as 'false'
+    function check({subfields}) {
+      const testRecordRegexp = /testitietue|test record/iu;
+      return subfields.some(({code, value}) => code === 'a' && testRecordRegexp.test(value));
+    }
+  }
+
+}
+
+
 export function isComponentRecord(record, ignoreCollections = false, additionalHostFields = []) {
 
   // Record is a component record if it has bibliografic level of a component in leader

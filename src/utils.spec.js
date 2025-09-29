@@ -3,7 +3,7 @@ import path from 'path';
 import {expect} from 'chai';
 import {MarcRecord} from '@natlibfi/marc-record';
 import {
-  generateAuthorizationHeader, isDeletedRecord, parseBoolean, clone,
+  generateAuthorizationHeader, isDeletedRecord, isTestRecord, parseBoolean, clone,
   getRecordTitle, getRecordStandardIdentifiers, isComponentRecord
 } from './utils';
 
@@ -68,6 +68,46 @@ describe('utils', () => {
       expect(isDeletedRecord(record)).to.equal(true);
     });
   });
+
+  describe('isTestRecord', () => {
+    it('Should find the record a test record (STA)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isTestRecord/record1.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isTestRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record a test record (f500 "Testitietue.")', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isTestRecord/record2.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isTestRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record a test record (f500 "Foobar TESTITIETUE baz.")', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isTestRecord/record3.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isTestRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record a test record (f500 "test record")', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isTestRecord/record4.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isTestRecord(record)).to.equal(true);
+    });
+
+    it('Should find the record not a test record', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isTestRecord/record5.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isTestRecord(record)).to.equal(false);
+    });
+
+    it('Should find the record not a test record (f500 "test record", but configured not test f500)', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isTestRecord/record4.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      expect(isTestRecord(record, false)).to.equal(false);
+    });
+
+  });
+
 
   describe('parseBoolean', () => {
     it('Should parse undefined as false', () => {
