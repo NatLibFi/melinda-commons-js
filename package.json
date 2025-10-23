@@ -5,13 +5,12 @@
 		"name": "The National Library of Finland"
 	},
 	"keywords": [],
-	"homepage": "https://github.com/natlibfi/melinda-commons-js",
+	"homepage": "https://www.npmjs.com/package/@natlibfi/melinda-commons",
 	"bugs": {
 		"url": "https://github.com/natlibfi/melinda-commons-js/issues"
 	},
 	"repository": {
-		"type": "git",
-		"url": "git@github.com:natlibfi/melinda-commons-js.git"
+		"url": "https://github.com/NatLibFi/melinda-commons-js"
 	},
 	"license": "MIT",
 	"version": "14.0.0-alpha.3",
