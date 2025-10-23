@@ -40,8 +40,8 @@
 		"debug": "^4.4.1"
 	},
 	"devDependencies": {
-		"@natlibfi/fixugen-http-client": "^4.0.0-alpha.1",
-		"@natlibfi/fixura": "^4.0.0-alpha.12",
+		"@natlibfi/fixugen-http-client": "next",
+		"@natlibfi/fixura": "next",
 		"cross-env": "^7.0.3",
 		"esbuild": "^0.25.8",
 		"eslint": "^9.32.0"
