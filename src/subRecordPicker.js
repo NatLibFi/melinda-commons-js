@@ -39,11 +39,9 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
       const promises = [];
-      // eslint-disable-next-line functional/no-let
       let amount;
       sruClient.searchRetrieve(`${index}=${recordId}`, {startRecord: offset})
         .on('total', totalNumberOfRecords => {
-          // eslint-disable-next-line no-const-assign
           amount = totalNumberOfRecords;
         })
         .on('record', xmlString => {
