@@ -1,7 +1,7 @@
-import createSruClient from '@natlibfi/sru-client';
+import {default as createSruClient} from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
 import createDebugLogger from 'debug';
-import {Error as ApiError} from './error';
+import ApiError from './error.js';
 
 const componentIndex = 'melinda.partsofhost';
 const monoHostComponentIndex = 'melinda.partsofmonohost';
@@ -11,7 +11,7 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
   const debug = createDebugLogger('@natlibfi/melinda-commons:subRecordPicker');
 
   debug(`SRU client url: ${sruUrl}`);
-  if (sruUrl === undefined) { // eslint-disable-line functional/no-conditional-statements
+  if (sruUrl === undefined) {
     throw new ApiError(400, 'Invalid sru url');
   }
 
@@ -47,7 +47,7 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
           amount = totalNumberOfRecords;
         })
         .on('record', xmlString => {
-          promises.push(MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
+          promises.push(MARCXML.from(xmlString, {subfieldValues: false}));
         })
         .on('end', async nextRecordOffset => {
           try {
@@ -65,15 +65,13 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
       const promises = [];
-      // eslint-disable-next-line functional/no-let
       let amount;
       sruClient.searchRetrieve(`${index}=${recordId}`)
         .on('total', totalNumberOfRecords => {
-          // eslint-disable-next-line no-const-assign
           amount = totalNumberOfRecords;
         })
         .on('record', xmlString => {
-          promises.push(MARCXML.from(xmlString, {subfieldValues: false})); // eslint-disable-line functional/immutable-data
+          promises.push(MARCXML.from(xmlString, {subfieldValues: false}));
         })
         .on('end', async () => {
           try {
