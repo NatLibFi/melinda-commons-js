@@ -1,15 +1,17 @@
 {
-    "description": "Should retrieve all records",
+    "description": "Should not fail if there are no records to retrieve",
     "sruUrl": "http://foo.bar",
     "retrieveAll": true,
     "recordId": "000000123",
     "method": "readAllSubrecords",
-    "expectedAmount": 3,
+    "expectedAmount": 0,
     "requests": [
         {
             "method": "get",
             "url": "/?operation=searchRetrieve&query=melinda.partsofhost%3D000000123&startRecord=1&recordSchema=marcxml&version=2.0&maximumRecords=1000",
             "status": 200
         }
-    ]
+    ],
+    "only": false,
+    "skip": false
 }

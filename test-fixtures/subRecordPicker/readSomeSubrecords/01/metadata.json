@@ -4,6 +4,7 @@
     "retrieveAll": false,
     "recordId": "000000123",
     "method": "readSomeSubrecords",
+    "expectedAmount": 3,
     "requests": [
         {
             "method": "get",

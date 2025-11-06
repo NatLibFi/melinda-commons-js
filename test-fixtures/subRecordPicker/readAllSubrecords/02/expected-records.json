@@ -1,0 +1,632 @@
+[
+  {
+    "fields": [
+      {
+        "tag": "001",
+        "value": "000059308"
+      },
+      {
+        "tag": "003",
+        "value": "FI-MELINDA"
+      },
+      {
+        "tag": "005",
+        "value": "20100115121808.0"
+      },
+      {
+        "tag": "008",
+        "value": "920131s1992    xxk|||||||||||||||||eng||"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "DELETED"
+          }
+        ],
+        "tag": "STA"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "0-333-52414-4 (inb.)"
+          }
+        ],
+        "tag": "020"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "(FI-MELINDA)000059308"
+          }
+        ],
+        "tag": "035"
+      },
+      {
+        "ind1": "0",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "eng"
+          }
+        ],
+        "tag": "041"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "1"
+          },
+          {
+            "code": "x",
+            "value": "(091)"
+          }
+        ],
+        "tag": "080"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "17"
+          }
+        ],
+        "tag": "080"
+      },
+      {
+        "ind1": "1",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Phillips, D. Z."
+          }
+        ],
+        "tag": "100"
+      },
+      {
+        "ind1": "1",
+        "ind2": "0",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Interventions in ethics /"
+          },
+          {
+            "code": "c",
+            "value": "D. Z. Phillips."
+          }
+        ],
+        "tag": "245"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "London :"
+          },
+          {
+            "code": "b",
+            "value": "Macmillan,"
+          },
+          {
+            "code": "c",
+            "value": "1992."
+          }
+        ],
+        "tag": "260"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "xv, 300 s."
+          }
+        ],
+        "tag": "300"
+      },
+      {
+        "ind1": "0",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Swansea studies in philosophy"
+          }
+        ],
+        "tag": "490"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "c",
+            "value": "134997"
+          },
+          {
+            "code": "b",
+            "value": "alma"
+          }
+        ],
+        "tag": "SID"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "KVP4001"
+          },
+          {
+            "code": "b"
+          },
+          {
+            "code": "c",
+            "value": "20100115"
+          },
+          {
+            "code": "l",
+            "value": "FIN01"
+          },
+          {
+            "code": "h",
+            "value": "1218"
+          }
+        ],
+        "tag": "CAT"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "ALMA"
+          }
+        ],
+        "tag": "LOW"
+      }
+    ],
+    "leader": "00623dam a22002417a 4500"
+  },
+  {
+    "fields": [
+      {
+        "tag": "001",
+        "value": "000059308"
+      },
+      {
+        "tag": "003",
+        "value": "FI-MELINDA"
+      },
+      {
+        "tag": "005",
+        "value": "20100115121808.0"
+      },
+      {
+        "tag": "008",
+        "value": "920131s1992    xxk|||||||||||||||||eng||"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "DELETED"
+          }
+        ],
+        "tag": "STA"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "0-333-52414-4 (inb.)"
+          }
+        ],
+        "tag": "020"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "(FI-MELINDA)000059308"
+          }
+        ],
+        "tag": "035"
+      },
+      {
+        "ind1": "0",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "eng"
+          }
+        ],
+        "tag": "041"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "1"
+          },
+          {
+            "code": "x",
+            "value": "(091)"
+          }
+        ],
+        "tag": "080"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "17"
+          }
+        ],
+        "tag": "080"
+      },
+      {
+        "ind1": "1",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Phillips, D. Z."
+          }
+        ],
+        "tag": "100"
+      },
+      {
+        "ind1": "1",
+        "ind2": "0",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Interventions in ethics /"
+          },
+          {
+            "code": "c",
+            "value": "D. Z. Phillips."
+          }
+        ],
+        "tag": "245"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "London :"
+          },
+          {
+            "code": "b",
+            "value": "Macmillan,"
+          },
+          {
+            "code": "c",
+            "value": "1992."
+          }
+        ],
+        "tag": "260"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "xv, 300 s."
+          }
+        ],
+        "tag": "300"
+      },
+      {
+        "ind1": "0",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Swansea studies in philosophy"
+          }
+        ],
+        "tag": "490"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "c",
+            "value": "134997"
+          },
+          {
+            "code": "b",
+            "value": "alma"
+          }
+        ],
+        "tag": "SID"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "KVP4001"
+          },
+          {
+            "code": "b"
+          },
+          {
+            "code": "c",
+            "value": "20100115"
+          },
+          {
+            "code": "l",
+            "value": "FIN01"
+          },
+          {
+            "code": "h",
+            "value": "1218"
+          }
+        ],
+        "tag": "CAT"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "ALMA"
+          }
+        ],
+        "tag": "LOW"
+      }
+    ],
+    "leader": "00623dam a22002417a 4500"
+  },
+  {
+    "fields": [
+      {
+        "tag": "001",
+        "value": "000059308"
+      },
+      {
+        "tag": "003",
+        "value": "FI-MELINDA"
+      },
+      {
+        "tag": "005",
+        "value": "20100115121808.0"
+      },
+      {
+        "tag": "008",
+        "value": "920131s1992    xxk|||||||||||||||||eng||"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "DELETED"
+          }
+        ],
+        "tag": "STA"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "0-333-52414-4 (inb.)"
+          }
+        ],
+        "tag": "020"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "(FI-MELINDA)000059308"
+          }
+        ],
+        "tag": "035"
+      },
+      {
+        "ind1": "0",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "eng"
+          }
+        ],
+        "tag": "041"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "1"
+          },
+          {
+            "code": "x",
+            "value": "(091)"
+          }
+        ],
+        "tag": "080"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "17"
+          }
+        ],
+        "tag": "080"
+      },
+      {
+        "ind1": "1",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Phillips, D. Z."
+          }
+        ],
+        "tag": "100"
+      },
+      {
+        "ind1": "1",
+        "ind2": "0",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Interventions in ethics /"
+          },
+          {
+            "code": "c",
+            "value": "D. Z. Phillips."
+          }
+        ],
+        "tag": "245"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "London :"
+          },
+          {
+            "code": "b",
+            "value": "Macmillan,"
+          },
+          {
+            "code": "c",
+            "value": "1992."
+          }
+        ],
+        "tag": "260"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "xv, 300 s."
+          }
+        ],
+        "tag": "300"
+      },
+      {
+        "ind1": "0",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "Swansea studies in philosophy"
+          }
+        ],
+        "tag": "490"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "c",
+            "value": "134997"
+          },
+          {
+            "code": "b",
+            "value": "alma"
+          }
+        ],
+        "tag": "SID"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "KVP4001"
+          },
+          {
+            "code": "b"
+          },
+          {
+            "code": "c",
+            "value": "20100115"
+          },
+          {
+            "code": "l",
+            "value": "FIN01"
+          },
+          {
+            "code": "h",
+            "value": "1218"
+          }
+        ],
+        "tag": "CAT"
+      },
+      {
+        "ind1": " ",
+        "ind2": " ",
+        "subfields": [
+          {
+            "code": "a",
+            "value": "ALMA"
+          }
+        ],
+        "tag": "LOW"
+      }
+    ],
+    "leader": "00623dam a22002417a 4500"
+  }
+]

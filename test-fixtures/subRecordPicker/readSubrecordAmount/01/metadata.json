@@ -1,0 +1,16 @@
+{
+    "description": "Should retrieve subrecord amount",
+    "sruUrl": "http://foo.bar",
+    "retrieveAll": false,
+    "recordId": "000000567",
+    "method": "readSubrecordAmount",
+    "requests": [
+        {
+            "method": "get",
+            "url": "/?operation=searchRetrieve&query=melinda.partsofhost%3D000000567&startRecord=1&recordSchema=marcxml&version=2.0",
+            "status": 200
+        }
+    ],
+    "only": false,
+    "skip": false
+}
