@@ -28,6 +28,80 @@ export function isDeletedRecord(record) {
   }
 }
 
+export function isTestRecord(record, checkNotesInf500 = true) {
+
+  return checkSta() || checkf500(checkNotesInf500);
+
+  function checkSta() {
+    return record.get(/^STA$/u).some(check);
+
+    function check({subfields}) {
+      const values = ['TEST'];
+      return subfields.some(({code, value}) => code === 'a' && values.includes(value));
+    }
+  }
+
+  function checkf500(checkNotesInf500) {
+    if (!checkNotesInf500) {
+      return false;
+    }
+
+    return record.get(/^500$/u).some(check);
+
+    // Recognize record as test record if it has f500 $a that has contents matching "test record" or "testitietue"
+    // Note: we might have false positives here, this test can be ignored by giving second param as 'false'
+    function check({subfields}) {
+      const testRecordRegexp = /testitietue|test record/iu;
+      return subfields.some(({code, value}) => code === 'a' && testRecordRegexp.test(value));
+    }
+  }
+
+}
+
+
+export function isComponentRecord(record, ignoreCollections = false, additionalHostFields = []) {
+
+  // Record is a component record if it has bibliografic level of a component in leader
+  // and/or has at least one host link field (f773)
+
+
+  // Ignore collections - optionally do not handle collections (LDR/07 'c')
+  // or collection subUnits (LDR/07 'd') as components, even if they do have f773
+
+  // https://www.loc.gov/marc/bibliographic/bdleader.html
+  // LDR/07
+  //  c - Collection
+  // d - Subunit (in a collection)
+
+  if (ignoreCollections && ['c', 'd'].includes(record.leader[7])) {
+    return false;
+  }
+
+  // https://www.loc.gov/marc/bibliographic/bdleader.html
+  // LDR/07
+  // a - Monographic component part
+  // b - Serial component part
+  // d - Subunit (in a collection)
+
+  if (['a', 'b', 'd'].includes(record.leader[7])) {
+    return true;
+  }
+
+  // https://www.loc.gov/marc/bibliographic/bd773.html
+  // 773 - Host Item Entry (R)
+
+  // additionalHostFields (for example f973 for Viola's multihost componenets)
+  // optionally recognize fields given in additionalHostFields array as hostFields
+
+  const hostFields = additionalHostFields.concat('773');
+  const hostFieldPatternString = `^(${hostFields.join('|')})$`;
+  const hostFieldRegex = new RegExp(hostFieldPatternString, 'u');
+
+  const recordHasHostFields = record.get(hostFieldRegex).length > 0;
+  return recordHasHostFields;
+  //return record.get(/^773$/u).length > 0;
+}
+
 export function parseBoolean(value) {
   if (value === undefined) {
     return false;

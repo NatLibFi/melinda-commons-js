@@ -2,11 +2,15 @@ import {describe, it} from 'node:test';
 import assert from 'node:assert';
 import {READERS} from '@natlibfi/fixura';
 import generateTests from '@natlibfi/fixugen-http-client';
+import createDebugLogger from 'debug';
 import {createSubrecordPicker} from './subRecordPicker.js';
+
+const debug = createDebugLogger('@natlibfi/melinda-commons:subRecordPicker:test');
 
 describe('subRecordPicker', () => {
   const sruUrl = 'https://sru';
   const retrieveAll = false;
+  //const monoHostComponentsOnly = false;
 
   describe('createSubrecordPicker', () => {
     it('Client should have methods', () => {
@@ -39,12 +43,21 @@ describe('subRecordPicker', () => {
     path: [import.meta.dirname, '..', 'test-fixtures', 'subRecordPicker']
   });
 
-  async function callback({getFixture, method, sruUrl, retrieveAll, recordId}) {
+  async function callback({getFixture, method, sruUrl, retrieveAll, recordId, expectedAmount = undefined}) {
     const client = createSubrecordPicker(sruUrl, retrieveAll);
     const expectedRecords = getFixture({components: ['expected-records.json'], reader: READERS.JSON});
-    const {records} = await client[method](recordId);
+    debug(`Testing: ${method}`);
+    const result = await client[method](recordId);
+    debug(`${JSON.stringify(result)}`);
+    const {records, amount} = result;
 
-    assert.deepStrictEqual(format(), expectedRecords);
+    if (expectedAmount) {
+      assert.equal(amount, expectedAmount);
+    }
+
+    if (expectedRecords) {
+      assert.deepStrictEqual(format(), expectedRecords);
+    }
 
     function format() {
       return records.map(r => r.toObject());
