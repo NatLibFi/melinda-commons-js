@@ -40,10 +40,10 @@
 		"debug": "^4.4.3"
 	},
 	"devDependencies": {
-		"@natlibfi/fixugen-http-client": "^4.0.1",
-		"@natlibfi/fixura": "^4.0.0",
+		"@natlibfi/fixugen-http-client": "^4.0.3",
+		"@natlibfi/fixura": "^4.0.1",
 		"cross-env": "^10.1.0",
-		"esbuild": "^0.27.2",
-		"eslint": "^9.39.2"
+		"esbuild": "^0.27.4",
+		"eslint": "^9.39.4"
 	}
 }
