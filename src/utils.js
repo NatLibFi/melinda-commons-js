@@ -59,7 +59,7 @@ export function isTestRecord(record, checkNotesInf500 = true) {
 }
 
 
-export function isComponentRecord(record, ignoreCollections = false, additionalHostFields = []) {
+export function isComponentRecord(record, ignoreCollections = false, additionalHostTags = []) {
 
   // Record is a component record if it has bibliografic level of a component in leader
   // and/or has at least one host link field (f773)
@@ -93,11 +93,14 @@ export function isComponentRecord(record, ignoreCollections = false, additionalH
   // additionalHostFields (for example f973 for Viola's multihost componenets)
   // optionally recognize fields given in additionalHostFields array as hostFields
 
-  const hostFields = additionalHostFields.concat('773');
-  const hostFieldPatternString = `^(${hostFields.join('|')})$`;
+  const hostTags= additionalHostTags.concat('773');
+  const hostFieldPatternString = `^(${hostTags.join('|')})$`;
   const hostFieldRegex = new RegExp(hostFieldPatternString, 'u');
 
-  const recordHasHostFields = record.get(hostFieldRegex).length > 0;
+  // MUU-901: reject Fennica's 973 collection fields
+  const hostFields = record.get(hostFieldRegex).filter(f => f.tag !== '973' || !f.subfields.some(sf => sf.code === 'i' && sf.value === "Sisältyy kokoelmaan:"));
+
+  const recordHasHostFields = hostFields.length > 0;
   return recordHasHostFields;
   //return record.get(/^773$/u).length > 0;
 }
