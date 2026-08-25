@@ -197,6 +197,12 @@ describe('utils', () => {
       assert.equal(isComponentRecord(record, false, ['973']), true);
     });
 
+    it('Should find out that the record is a not component record even when using additional host fields (f973) if 973$i is "Sisältyy kokoelmaan:"', () => {
+      const data = fs.readFileSync(path.join(FIXTURES_PATH, 'isComponentRecord/record8.json'), 'utf8');
+      const record = new MarcRecord(JSON.parse(data));
+      assert.equal(isComponentRecord(record, false, ['973']), false);
+    });
+
   });
 
 

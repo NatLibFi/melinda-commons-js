@@ -43,7 +43,7 @@
 		"@natlibfi/fixugen-http-client": "^4.0.3",
 		"@natlibfi/fixura": "^4.0.1",
 		"cross-env": "^10.1.0",
-		"esbuild": "^0.28.1",
-		"eslint": "^10.8.0"
+		"esbuild": "^0.28.2",
+		"eslint": "^10.8.1"
 	}
 }

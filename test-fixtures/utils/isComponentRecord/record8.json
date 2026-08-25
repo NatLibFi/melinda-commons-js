@@ -1,5 +1,5 @@
 {
-  "leader": "01864caa a2200529zi 4500",
+  "leader": "01864cam a2200529zi 4500",
   "fields": [
     {
       "tag": "001",
@@ -16,19 +16,15 @@
         }
       ]
     },
+    { "tag": "500", "ind1": " ", "ind2": " ", "subfields": [ { "code": "a", "value": "MUU-901." } ] },
     {
-      "tag": "773",
+      "tag": "973",
       "ind1": " ",
       "ind2": " ",
       "subfields": [
-        {
-          "code": "t",
-          "value": "foobar"
-        },
-        {
-          "code": "w",
-          "value": "[hostID]"
-        }
+        { "code": "i", "value": "Sisältyy kokoelmaan:" },
+        { "code": "t", "value": "foobar" },
+        { "code": "w", "value": "[hostID]" }
       ]
     }
   ]
