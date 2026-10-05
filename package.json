@@ -37,13 +37,10 @@
 		"dev": "npm run watch:test",
 		"dev:debug": "cross-env LOG_LEVEL=debug DEBUG=@natlibfi/* NODE_ENV=test npm run watch:test"
 	},
-	"overrides": {
-		"nodemailer": "^10.0.14"
-	},
 	"dependencies": {
 		"@natlibfi/marc-record": "^11.0.3",
 		"@natlibfi/marc-record-serializers": "^11.0.5",
-		"@natlibfi/sru-client": "^7.0.5",
+		"@natlibfi/sru-client": "^7.0.6-alpha.2",
 		"base64-url": "^2.3.3",
 		"debug": "^4.4.3",
 		"moment": "^2.31.0",
