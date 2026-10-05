@@ -10,7 +10,8 @@ import {
   generateEncryptionKey, encryptString, decryptString,
   joinObjects, createWebhookOperator,
   logWait,
-  createLogger
+  createLogger,
+  createExpressLogger
 } from './backendUtils.ts';
 
 const FIXTURES_PATH = path.join(import.meta.dirname, '../test-fixtures/utils');
@@ -75,6 +76,20 @@ describe('utils', () => {
     it('Should not crash when logging', () => {
       const logger = createLogger();
       logWait(logger, 900000);
+    });
+  });
+
+  describe('createExpressLogger', () => {
+    it('Should be a function when called without arguments', () => {
+      assert.equal(typeof createExpressLogger(), 'function');
+    });
+
+    it('Should be a function when called with an empty object', () => {
+      assert.equal(typeof createExpressLogger({}), 'function');
+    });
+
+    it('Should be a function when called with full options', () => {
+      assert.equal(typeof createExpressLogger({dateFormat: 'web', responseTimeDigits: 2}), 'function');
     });
   });
 

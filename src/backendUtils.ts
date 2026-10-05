@@ -63,11 +63,11 @@ function createLoggerOptions() {
 }
 
 interface expressLoggerOptions {
-  dateFormat: string,
-  responseTimeDigits: number
+  dateFormat?: string,
+  responseTimeDigits?: number
 }
 
-export function createExpressLogger({dateFormat = 'iso', responseTimeDigits = 3}: expressLoggerOptions) {
+export function createExpressLogger({dateFormat = 'iso', responseTimeDigits = 3}: expressLoggerOptions = {}) {
   return morgan(`:date[${dateFormat}] :remote-addr HTTP :method :url - :status :response-time[${responseTimeDigits}] ms - :user-agent`);
 }
 
