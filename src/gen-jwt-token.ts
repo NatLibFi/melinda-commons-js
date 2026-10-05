@@ -22,6 +22,6 @@ if (jwtKey && id) {
 
 console.error('USAGE: gen-jwt-token <id>'); // eslint-disable-line no-console
 console.error(); // eslint-disable-line no-console
-console.error('Mandatory parameteters missing. JWT_KEY environment variable must be set and application id must be passed as a positional argument'); // eslint-disable-line no-console
+console.error('Mandatory parameters missing. JWT_KEY environment variable must be set and application id must be passed as a positional argument'); // eslint-disable-line no-console
 process.exit(1);
 
