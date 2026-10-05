@@ -216,34 +216,21 @@ describe('utils', () => {
       assert.equal(result, true);
     });
 
-    it('Should return test interface with sendNotification function that mocks failing request', () => {
+    it('Should return test interface with sendNotification function that mocks failing request', async () => {
       const notificationText = {text: 'Foo'};
 
       const webhookOperator = createWebhookOperator('test');
-      try {
-        webhookOperator.sendNotification(notificationText, {template: false, fail: true});
-      } catch (error) {
-        assert(error instanceof Error);
-        assert.equal(error.message, 'HTTP response status was not ok (MOCK)');
-      }
+      const result = await webhookOperator.sendNotification(notificationText, {template: false, fail: true});
+
+      assert.equal(result, false);
     });
 
     it('Should throw error when initializing interface without URL', () => {
-      try {
-        createWebhookOperator();
-      } catch (error) {
-        assert(error instanceof Error);
-        assert.equal(error.message, 'Webhook URL is not defined');
-      }
+      assert.throws(() => createWebhookOperator(), {message: 'Webhook URL is not defined'});
     });
 
     it('Should throw error when initializing interface with URL that uses http', () => {
-      try {
-        createWebhookOperator('http://foobar');
-      } catch (error) {
-        assert(error instanceof Error);
-        assert.equal(error.message, 'Webhook URL needs to use https');
-      }
+      assert.throws(() => createWebhookOperator('http://foobar'), {message: 'Webhook URL needs to use https'});
     });
   });
 });
