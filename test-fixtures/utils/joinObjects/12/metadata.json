@@ -1,0 +1,4 @@
+{
+  "description": "Join {value: {test:true}} obj to {value: {test:false}} obj => Overrides value",
+  "testType": "joinObjects"
+}

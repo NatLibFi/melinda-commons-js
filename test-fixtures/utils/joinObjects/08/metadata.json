@@ -1,0 +1,4 @@
+{
+  "description": "Join {value: undefined} obj to {} obj => Does not insert value",
+  "testType": "joinObjects"
+}

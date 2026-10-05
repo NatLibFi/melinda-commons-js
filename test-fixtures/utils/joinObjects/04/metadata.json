@@ -1,0 +1,4 @@
+{
+  "description": "Join {value: 0} obj to {} obj => Inserts value integer",
+  "testType": "joinObjects"
+}

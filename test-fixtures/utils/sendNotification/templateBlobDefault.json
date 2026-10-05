@@ -1,0 +1,205 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "Record import blob: ",
+        "emoji": true
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_section",
+          "elements": [
+            {
+              "type": "text",
+              "text": "Id: ",
+              "style": {
+                "bold": true
+              }
+            },
+            {
+              "type": "text",
+              "text": ""
+            }
+          ]
+        },
+        {
+          "type": "rich_text_section",
+          "elements": [
+            {
+              "type": "text",
+              "text": "Correlation id: ",
+              "style": {
+                "bold": true
+              }
+            },
+            {
+              "type": "link",
+              "url": "/?id=",
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_section",
+          "elements": [
+            {
+              "type": "text",
+              "text": "Transformation results",
+              "style": {
+                "bold": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "indent": 1,
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Number of records: "
+                },
+                {
+                  "type": "text",
+                  "text": "0"
+                }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Failed records: "
+                },
+                {
+                  "type": "text",
+                  "text": "0"
+                }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Processed records: "
+                },
+                {
+                  "type": "text",
+                  "text": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_section",
+          "elements": [
+            {
+              "type": "text",
+              "text": "Process results",
+              "style": {
+                "bold": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "indent": 1,
+          "elements": [
+            {
+              "elements": [
+                {
+                  "text": "Created records: ",
+                  "type": "text"
+                },
+                {
+                  "text": "0",
+                  "type": "text"
+                }
+              ],
+              "type": "rich_text_section"
+            },
+            {
+              "elements": [
+                {
+                  "text": "Updated records: ",
+                  "type": "text"
+                },
+                {
+                  "text": "0",
+                  "type": "text"
+                }
+              ],
+              "type": "rich_text_section"
+            },
+            {
+              "elements": [
+                {
+                  "text": "Skipped records: ",
+                  "type": "text"
+                },
+                {
+                  "text": "0",
+                  "type": "text"
+                }
+              ],
+              "type": "rich_text_section"
+            },
+            {
+              "elements": [
+                {
+                  "text": "Error records: ",
+                  "type": "text"
+                },
+                {
+                  "text": "0",
+                  "type": "text"
+                }
+              ],
+              "type": "rich_text_section"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    }
+  ]
+}

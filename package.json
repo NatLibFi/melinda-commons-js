@@ -13,9 +13,13 @@
 		"url": "https://github.com/NatLibFi/melinda-commons-js"
 	},
 	"license": "MIT",
-	"version": "15.0.3",
+	"version": "16.0.0-alpha.1",
 	"main": "./dist/index.js",
 	"type": "module",
+	"bin": {
+		"gen-jwt-token": "./dist/gen-jwt-token.js",
+		"gen-encryption-key": "./dist/gen-encryption-key.js"
+	},
 	"engines": {
 		"node": ">=24"
 	},
@@ -37,7 +41,11 @@
 		"@natlibfi/marc-record": "^11.0.3",
 		"@natlibfi/marc-record-serializers": "^11.0.5",
 		"@natlibfi/sru-client": "^7.0.5",
-		"debug": "^4.4.3"
+		"base64-url": "^2.3.3",
+		"debug": "^4.4.3",
+		"moment": "^2.31.0",
+		"morgan": "^1.10.1",
+		"winston": "^3.19.0"
 	},
 	"devDependencies": {
 		"@natlibfi/fixugen-http-client": "^4.0.3",

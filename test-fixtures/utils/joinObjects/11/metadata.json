@@ -1,0 +1,4 @@
+{
+  "description": "Join {value: {test:true}} obj to {} obj => Inserts object",
+  "testType": "joinObjects"
+}
