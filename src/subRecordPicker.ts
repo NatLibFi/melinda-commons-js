@@ -1,12 +1,32 @@
 import {default as createSruClient} from '@natlibfi/sru-client';
 import {MARCXML} from '@natlibfi/marc-record-serializers';
+import type {MarcRecord} from '@natlibfi/marc-record';
 import createDebugLogger from 'debug';
-import ApiError from './error.js';
+import ApiError from './error.ts';
 
 const componentIndex = 'melinda.partsofhost';
 const monoHostComponentIndex = 'melinda.partsofmonohost';
 
-export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostComponentsOnly = false) {
+export interface SubrecordAmount {
+  amount: number;
+}
+
+export interface SomeSubrecords extends SubrecordAmount {
+  nextRecordOffset: number;
+  records: MarcRecord[];
+}
+
+export interface AllSubrecords extends SubrecordAmount {
+  records: MarcRecord[];
+}
+
+export interface SubrecordPicker {
+  readSubrecordAmount(recordId: string): Promise<SubrecordAmount>;
+  readSomeSubrecords(recordId: string, offset?: number): Promise<SomeSubrecords>;
+  readAllSubrecords(recordId: string): Promise<AllSubrecords>;
+}
+
+export function createSubrecordPicker(sruUrl?: string, retrieveAll = false, monoHostComponentsOnly = false): SubrecordPicker {
 
   const debug = createDebugLogger('@natlibfi/melinda-commons:subRecordPicker');
 
@@ -24,7 +44,7 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
 
   return {readSubrecordAmount, readSomeSubrecords, readAllSubrecords};
 
-  function readSubrecordAmount(recordId) {
+  function readSubrecordAmount(recordId: string): Promise<SubrecordAmount> {
     debug(`Getting subrecord amount for ${recordId}`);
     return new Promise((resolve, reject) => {
       sruClientForAmount.searchRetrieve(`${index}=${recordId}`)
@@ -35,11 +55,11 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
     });
   }
 
-  function readSomeSubrecords(recordId, offset = 1) {
+  function readSomeSubrecords(recordId: string, offset = 1): Promise<SomeSubrecords> {
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
-      const promises = [];
-      let amount;
+      const promises: Promise<MarcRecord>[] = [];
+      let amount: number | undefined;
       sruClient.searchRetrieve(`${index}=${recordId}`, {startRecord: offset})
         .on('total', totalNumberOfRecords => {
           amount = totalNumberOfRecords;
@@ -50,7 +70,8 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
         .on('end', async nextRecordOffset => {
           try {
             const records = await Promise.all(promises);
-            resolve({nextRecordOffset, records, amount});
+            // amount is set by the 'total' event which always precedes 'end'
+            resolve({nextRecordOffset, records, amount: amount!});
           } catch (error) {
             reject(error);
           }
@@ -59,11 +80,11 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
     });
   }
 
-  function readAllSubrecords(recordId) {
+  function readAllSubrecords(recordId: string): Promise<AllSubrecords> {
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
-      const promises = [];
-      let amount;
+      const promises: Promise<MarcRecord>[] = [];
+      let amount: number | undefined;
       sruClient.searchRetrieve(`${index}=${recordId}`)
         .on('total', totalNumberOfRecords => {
           amount = totalNumberOfRecords;
@@ -74,7 +95,8 @@ export function createSubrecordPicker(sruUrl, retrieveAll = false, monoHostCompo
         .on('end', async () => {
           try {
             const records = await Promise.all(promises);
-            resolve({records, amount});
+            // amount is set by the 'total' event which always precedes 'end'
+            resolve({records, amount: amount!});
           } catch (error) {
             reject(error);
           }

@@ -6,7 +6,7 @@ import {MarcRecord} from '@natlibfi/marc-record';
 import {
    generateAuthorizationHeader, isDeletedRecord, isTestRecord, parseBoolean, clone,
   getRecordTitle, getRecordStandardIdentifiers, isComponentRecord
-} from './utils.js';
+} from './utils.ts';
 
 MarcRecord.setValidationOptions({subfieldValues: false});
 

@@ -1,6 +1,6 @@
 import {describe, it} from 'node:test';
 import assert from 'node:assert';
-import CommonsError from './error.js';
+import CommonsError from './error.ts';
 
 describe('error', () => {
   it('Should construct the expected instance', () => {

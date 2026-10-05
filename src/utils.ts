@@ -1,17 +1,19 @@
-export function generateAuthorizationHeader(username, password = '') {
+import type {MarcField, MarcRecord} from '@natlibfi/marc-record';
+
+export function generateAuthorizationHeader(username: string, password = '') {
   const encoded = Buffer.from(`${username}:${password}`).toString('base64');
   return `Basic ${encoded}`;
 }
 
-export function isDeletedRecord(record) {
-  if (['d', 's', 'x'].includes(record.leader[5])) {
+export function isDeletedRecord(record: MarcRecord) {
+  if (['d', 's', 'x'].includes(record.leader[5] ?? '')) {
     return true;
   }
 
   return checkDel() || checkSta();
 
   function checkDel() {
-    return record.get(/^DEL$/u).some(check);
+    return (record.get(/^DEL$/u) as MarcField[]).some(check);
 
     function check({subfields}) {
       return subfields.some(({code, value}) => code === 'a' && value === 'Y');
@@ -19,7 +21,7 @@ export function isDeletedRecord(record) {
   }
 
   function checkSta() {
-    return record.get(/^STA$/u).some(check);
+    return (record.get(/^STA$/u) as MarcField[]).some(check);
 
     function check({subfields}) {
       const values = ['DELETED', 'DELETED-SPLIT', 'DELETED-DEPRECATED'];
@@ -28,12 +30,12 @@ export function isDeletedRecord(record) {
   }
 }
 
-export function isTestRecord(record, checkNotesInf500 = true) {
+export function isTestRecord(record: MarcRecord, checkNotesInf500 = true) {
 
   return checkSta() || checkf500(checkNotesInf500);
 
   function checkSta() {
-    return record.get(/^STA$/u).some(check);
+    return (record.get(/^STA$/u) as MarcField[]).some(check);
 
     function check({subfields}) {
       const values = ['TEST'];
@@ -46,7 +48,7 @@ export function isTestRecord(record, checkNotesInf500 = true) {
       return false;
     }
 
-    return record.get(/^500$/u).some(check);
+    return (record.get(/^500$/u) as MarcField[]).some(check);
 
     // Recognize record as test record if it has f500 $a that has contents matching "test record" or "testitietue"
     // Note: we might have false positives here, this test can be ignored by giving second param as 'false'
@@ -59,7 +61,7 @@ export function isTestRecord(record, checkNotesInf500 = true) {
 }
 
 
-export function isComponentRecord(record, ignoreCollections = false, additionalHostTags = []) {
+export function isComponentRecord(record: MarcRecord, ignoreCollections = false, additionalHostTags: string[] = []) {
 
   // Record is a component record if it has bibliografic level of a component in leader
   // and/or has at least one host link field (f773)
@@ -73,7 +75,7 @@ export function isComponentRecord(record, ignoreCollections = false, additionalH
   //  c - Collection
   // d - Subunit (in a collection)
 
-  if (ignoreCollections && ['c', 'd'].includes(record.leader[7])) {
+  if (ignoreCollections && ['c', 'd'].includes(record.leader[7] ?? '')) {
     return false;
   }
 
@@ -83,7 +85,7 @@ export function isComponentRecord(record, ignoreCollections = false, additionalH
   // b - Serial component part
   // d - Subunit (in a collection)
 
-  if (['a', 'b', 'd'].includes(record.leader[7])) {
+  if (['a', 'b', 'd'].includes(record.leader[7] ?? '')) {
     return true;
   }
 
@@ -93,19 +95,20 @@ export function isComponentRecord(record, ignoreCollections = false, additionalH
   // additionalHostFields (for example f973 for Viola's multihost componenets)
   // optionally recognize fields given in additionalHostFields array as hostFields
 
-  const hostTags= additionalHostTags.concat('773');
+  const hostTags = additionalHostTags.concat('773');
   const hostFieldPatternString = `^(${hostTags.join('|')})$`;
   const hostFieldRegex = new RegExp(hostFieldPatternString, 'u');
 
   // MUU-901: reject Fennica's 973 collection fields
-  const hostFields = record.get(hostFieldRegex).filter(f => f.tag !== '973' || !f.subfields.some(sf => sf.code === 'i' && sf.value === "Sisältyy kokoelmaan:"));
+  const hostFields = (record.get(hostFieldRegex) as MarcField[])
+    .filter(f => f.tag !== '973' || !f.subfields.some(sf => sf.code === 'i' && sf.value === 'Sisältyy kokoelmaan:'));
 
   const recordHasHostFields = hostFields.length > 0;
   return recordHasHostFields;
   //return record.get(/^773$/u).length > 0;
 }
 
-export function parseBoolean(value) {
+export function parseBoolean(value: string | undefined) {
   if (value === undefined) {
     return false;
   }
@@ -117,39 +120,41 @@ export function parseBoolean(value) {
   return Boolean(Number(value));
 }
 
-export function getRecordTitle(record) {
+export function getRecordTitle(record: MarcRecord) {
   const TRIM_PATTERN = '[?!.,(){}:;/ ]*';
   // DEVELOP: get mainHeadings for aut records
-  const field = record
-    .get(/^245$/u)
+  const field = (record.get(/^245$/u) as MarcField[])
     .find(f => f.subfields.some(sf => sf.code === 'a'));
 
   if (field) {
-    return field.subfields.find(sf => sf.code === 'a').value
-      .replace(new RegExp(`^${TRIM_PATTERN}`, 'u'), '')
-      .replace(new RegExp(`${TRIM_PATTERN}$`, 'u'), '');
+    const subfield = field.subfields.find(sf => sf.code === 'a');
+    if (subfield && subfield.value !== undefined) {
+      return subfield.value
+        .replace(new RegExp(`^${TRIM_PATTERN}`, 'u'), '')
+        .replace(new RegExp(`${TRIM_PATTERN}$`, 'u'), '');
+    }
   }
 
   return '';
 }
 
-export function getRecordStandardIdentifiers(record) {
-  return record.get(/^(?<def>020|022|024)$/u)
+export function getRecordStandardIdentifiers(record: MarcRecord) {
+  return (record.get(/^(?<def>020|022|024)$/u) as MarcField[])
     .filter(f => f.subfields.some(sf => ['a', 'z'].includes(sf.code)))
     .map(field => {
       const subfield = field.subfields.find(sf => ['a', 'z'].includes(sf.code));
-      return subfield.value;
+      return subfield?.value ?? '';
     });
 }
 
-export function clone(o) {
+export function clone<T>(o: T): T {
   return JSON.parse(JSON.stringify(o));
 }
 
-export function toAlephId(id) {
+export function toAlephId(id: string) {
   return id.padStart(9, '0');
 }
 
-export function fromAlephId(id) {
+export function fromAlephId(id: string) {
   return id.replace(/^0+/u, '');
 }

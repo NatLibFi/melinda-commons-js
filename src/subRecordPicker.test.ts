@@ -3,7 +3,8 @@ import assert from 'node:assert';
 import {READERS} from '@natlibfi/fixura';
 import generateTests from '@natlibfi/fixugen-http-client';
 import createDebugLogger from 'debug';
-import {createSubrecordPicker} from './subRecordPicker.js';
+import {createSubrecordPicker} from './subRecordPicker.ts';
+import ApiError from './error.ts';
 
 const debug = createDebugLogger('@natlibfi/melinda-commons:subRecordPicker:test');
 
@@ -33,6 +34,7 @@ describe('subRecordPicker', () => {
       try {
         createSubrecordPicker();
       } catch (error) {
+        assert(error instanceof ApiError);
         assert.equal(error.payload, 'Invalid sru url');
       }
     });
