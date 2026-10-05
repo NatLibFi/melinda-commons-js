@@ -3,6 +3,7 @@ node_modules
 coverage
 dist
 .nyc_output
+*.tsbuildinfo
 configCrowd.js
 .DS_Store
 .env
