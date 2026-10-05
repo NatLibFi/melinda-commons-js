@@ -211,7 +211,7 @@ export function createWebhookOperator(WEBHOOK_URL: webhookUrl = false): createWe
 
   async function sendNotification(bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts = {template: 'basic'}): Promise<boolean> {
     const method = 'POST';
-    const headers = {type: 'application/json'};
+    const headers = {'Content-Type': 'application/json'};
 
     try {
       const body = prepareBodyData(bodyData, options);

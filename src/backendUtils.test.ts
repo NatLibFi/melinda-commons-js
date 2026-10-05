@@ -172,6 +172,20 @@ describe('utils', () => {
       assert.equal(result, true);
     });
 
+    it('Should send request to webhook URL with Content-Type application/json header', async () => {
+      // mock interceptor to mock HTTP request response
+      mock.method(global, 'fetch', (url, {headers}) => {
+        assert.equal(url, webhookUrl);
+        assert.equal(headers['Content-Type'], 'application/json');
+        return {ok: true};
+      });
+
+      const webhookOperator = createWebhookOperator(webhookUrl);
+      const result = await webhookOperator.sendNotification({text: 'Foo'}, {template: false});
+
+      assert.equal(result, true);
+    });
+
     it('Should send request to webhook URL with blob template and default values', async () => {
       const expectedBody = fs.readFileSync(path.join(FIXTURES_PATH, 'sendNotification/templateBlobDefault.json'), 'utf8');
 
