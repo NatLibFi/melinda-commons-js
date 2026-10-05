@@ -95,14 +95,31 @@ export function encryptString({key, value}: {key: string; value: string}, mockIv
   return Buffer.concat([iv, encrypted, cipher.getAuthTag()]).toString('base64');
 }
 
+// 16-byte IV + at least 1 byte of ciphertext + 16-byte GCM auth tag
+const MIN_ENCRYPTED_VALUE_LENGTH = 33;
+
 export function decryptString({key, value}: {key: string; value: string}) {
+  if (!/^[0-9a-f]{64}$/iu.test(key)) {
+    throw new Error('decryptString: key must be a 64-character hex string (32 bytes)');
+  }
+
   const input = Buffer.from(value, 'base64');
+
+  if (input.length < MIN_ENCRYPTED_VALUE_LENGTH) {
+    throw new Error(`decryptString: value is too short (${input.length} bytes; minimum ${MIN_ENCRYPTED_VALUE_LENGTH}: 16-byte IV + ciphertext + 16-byte auth tag)`);
+  }
+
   const iv = input.subarray(0, 16);
   const ciphertext = input.subarray(16, input.length - 16);
   const authTag = input.subarray(-16);
   const decipher = createDecipheriv('aes-256-gcm', Buffer.from(key, 'hex'), iv).setAuthTag(authTag);
-  const decrypted = decipher.update(ciphertext);
-  return decrypted.toString('utf-8');
+
+  try {
+    const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    return decrypted.toString('utf-8');
+  } catch (error) {
+    throw new Error('decryptString: decryption failed: key does not match value, or value is corrupted', {cause: error});
+  }
 }
 
 export function logWait(logger, waitTime) {

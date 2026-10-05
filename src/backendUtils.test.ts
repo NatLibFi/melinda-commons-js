@@ -98,6 +98,37 @@ describe('utils', () => {
 
       assert.equal(decryptString({key, value}), expectedValue);
     });
+
+    it('Should throw when the ciphertext has been tampered with', () => {
+      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
+      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
+
+      const buffer = Buffer.from(value.trim(), 'base64');
+      // flip a byte in the ciphertext region (iv = bytes 0-15, auth tag = last 16 bytes)
+      buffer[20]! ^= 0xff;
+      const tamperedValue = buffer.toString('base64');
+
+      assert.throws(() => decryptString({key, value: tamperedValue}), /decryption failed/u);
+    });
+
+    it('Should throw when the wrong key is used', () => {
+      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
+
+      assert.throws(() => decryptString({key: generateEncryptionKey(), value}), /decryption failed/u);
+    });
+
+    it('Should throw when the key is not 64 hex characters', () => {
+      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
+
+      assert.throws(() => decryptString({key: 'not-hex', value}), /64-character hex/u);
+    });
+
+    it('Should throw when the value is shorter than the minimum layout', () => {
+      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
+
+      assert.throws(() => decryptString({key, value: Buffer.alloc(10).toString('base64')}), /too short/u);
+      assert.throws(() => decryptString({key, value: ''}), /too short \(0 bytes/u);
+    });
   });
 
   // eslint-disable-next-line max-lines-per-function
