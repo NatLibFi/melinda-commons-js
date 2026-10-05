@@ -5,3 +5,11 @@ dist
 .nyc_output
 configCrowd.js
 .DS_Store
+.env
+.env*
+
+# AI agent files
+.pi/
+AGENTS.md
+CONTEXT.md
+zoo/
