@@ -1,7 +1,7 @@
 # Shared modules for Melinda's software
 [![NPM Version](https://img.shields.io/npm/v/@natlibfi/melinda-commons.svg)](https://npmjs.org/package/@natlibfi/melinda-commons)
 
-Shared modules for Melinda's software. Written in strict TypeScript, built with `tsc` (declarations and source maps are published), and tested with `node:test` on Node.js >= 24.
+Shared modules for Melinda's software. Written in TypeScript, built with `tsc` (declarations and source maps are published), and tested with `node:test` on Node.js >= 24.
 
 Since v16 this package is the canonical home for the shared modules formerly split between `@natlibfi/melinda-commons` (MARC helpers, SRU subrecord picker) and `@natlibfi/melinda-backend-commons` (env, logging, crypto, webhook). The latter is deprecated: all of its exports moved here with identical signatures.
 
