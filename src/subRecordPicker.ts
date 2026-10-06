@@ -56,6 +56,12 @@ export function createSubrecordPicker(sruUrl?: string, retrieveAll = false, mono
   }
 
   function readSomeSubrecords(recordId: string, offset = 1): Promise<SomeSubrecords> {
+    // retrieveAll: true makes the SRU client follow every page internally, so
+    // the 'end' event no longer carries a nextRecordOffset and this method
+    // could not fulfill its single-page contract. Fail loudly instead.
+    if (retrieveAll) {
+      throw new ApiError(400, 'readSomeSubrecords requires retrieveAll: false (the picker was created with retrieveAll: true); use readAllSubrecords, or create the picker without retrieveAll, for paging');
+    }
     debug(`Picking subrecords for ${recordId}`);
     return new Promise((resolve, reject) => {
       const promises: Promise<MarcRecord>[] = [];

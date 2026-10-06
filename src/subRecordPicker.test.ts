@@ -40,6 +40,20 @@ describe('subRecordPicker', () => {
     });
   });
 
+  describe('retrieveAll guard', () => {
+    // readAllSubrecords with retrieveAll: true is covered by the fixture
+    // suite (readAllSubrecords 01-03); only the readSomeSubrecords guard
+    // is tested here, so no network calls are made.
+    it('readSomeSubrecords should throw when retrieveAll is true', () => {
+      const client = createSubrecordPicker(sruUrl, true);
+
+      assert.throws(
+        () => client.readSomeSubrecords('000012345'),
+        error => error instanceof ApiError && error.status === 400 && /retrieveAll: false/u.test(String(error.payload)),
+      );
+    });
+  });
+
   generateTests({
     callback,
     path: [import.meta.dirname, '..', 'test-fixtures', 'subRecordPicker']
