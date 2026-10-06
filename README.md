@@ -11,6 +11,8 @@ Since v16 this package is the canonical home for the shared modules formerly spl
 npm i @natlibfi/melinda-commons
 ```
 
+See [`example.env`](example.env) for the environment variables used by this package: `DEBUG` and `LOG_LEVEL` (read by `createLogger` / the `debug` package) and `JWT_KEY` (read only by the `gen-jwt-token` CLI).
+
 ## MARC record helpers
 
 | Function | Description |
@@ -49,8 +51,6 @@ npm i @natlibfi/melinda-commons
 | `generateEncryptionKey(mockBytes?)` | 32 random bytes as hex (or hex of given bytes) |
 | `encryptString({key, value}, mockIv?)` | AES-256-GCM, base64 output (iv + ciphertext + auth tag) |
 | `decryptString({key, value})` | Reverse of `encryptString` |
-
-See [`example.env`](example.env) for the environment variables used by this package: `DEBUG` and `LOG_LEVEL` (read by `createLogger` / the `debug` package) and `JWT_KEY` (read only by the `gen-jwt-token` CLI).
 
 ## Webhook notifications
 
