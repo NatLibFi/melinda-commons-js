@@ -35,62 +35,7 @@ interface blobNotificationResult {
   blocks: any[] // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-function plainText(text: string) {
-  return {
-    'type': 'text',
-    'text': text
-  };
-}
-
-function boldText(text: string) {
-  return {
-    'type': 'text',
-    'text': text,
-    'style': {
-      'bold': true
-    }
-  };
-}
-
-function linkElement(text: string, url: string) {
-  return {
-    'type': 'link',
-    'url': url,
-    'text': text
-  };
-}
-
-function richTextSection(elements: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
-  return {
-    'type': 'rich_text_section',
-    'elements': elements
-  };
-}
-
-function richTextBlock(elements: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
-  return {
-    'type': 'rich_text',
-    'elements': elements
-  };
-}
-
-function bulletListBlock(sections: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
-  return richTextBlock([{
-    'type': 'rich_text_list',
-    'style': 'bullet',
-    'indent': 1,
-    'elements': sections
-  }]);
-}
-
-function labelValueSection(label: string, value: string) {
-  return richTextSection([plainText(label), plainText(value)]);
-}
-
-function headingSection(heading: string) {
-  return richTextBlock([richTextSection([boldText(heading)])]);
-}
-
+// eslint-disable-next-line max-lines-per-function -- Slack block builder helpers are deliberately scoped to this function
 export function generateBlobNotification({
   profile = '',
   id = '',
@@ -103,6 +48,62 @@ export function generateBlobNotification({
   skipped = 0,
   error = 0
 }: blobNotificationContext, {environment = false, linkUrl = ''}: sendNotificationOpts): blobNotificationResult {
+  function plainText(text: string) {
+    return {
+      'type': 'text',
+      'text': text
+    };
+  }
+
+  function boldText(text: string) {
+    return {
+      'type': 'text',
+      'text': text,
+      'style': {
+        'bold': true
+      }
+    };
+  }
+
+  function linkElement(text: string, url: string) {
+    return {
+      'type': 'link',
+      'url': url,
+      'text': text
+    };
+  }
+
+  function richTextSection(elements: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    return {
+      'type': 'rich_text_section',
+      'elements': elements
+    };
+  }
+
+  function richTextBlock(elements: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    return {
+      'type': 'rich_text',
+      'elements': elements
+    };
+  }
+
+  function bulletListBlock(sections: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    return richTextBlock([{
+      'type': 'rich_text_list',
+      'style': 'bullet',
+      'indent': 1,
+      'elements': sections
+    }]);
+  }
+
+  function labelValueSection(label: string, value: string) {
+    return richTextSection([plainText(label), plainText(value)]);
+  }
+
+  function headingSection(heading: string) {
+    return richTextBlock([richTextSection([boldText(heading)])]);
+  }
+
   const headerText = `${environment ? `${environment} - ` : ''}Record import blob: ${profile}`;
 
   return {
