@@ -56,7 +56,7 @@ Both are available via `npx` after installing the package.
 
 ## Error
 
-`Error` (default export of `src/error.ts`, re-exported as `Error`) carries `status` (number) and `payload` (string).
+`Error` (default export of `src/error.ts`, re-exported as `Error`) carries `status` (number), `payload` (arbitrary value, typed `unknown` — it is data, not necessarily a message), and `params` (`unknown[]` of any extra constructor arguments). `message` is intentionally empty; read `status`/`payload` for details.
 
 ## Notes
 

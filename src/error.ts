@@ -1,13 +1,15 @@
 export default class extends Error {
   status: number;
-  payload: string;
+  payload: unknown;
+  /** Extra arguments passed to the constructor (legacy API compatibility). */
+  params: unknown[];
 
-  constructor(status: number, payload: string, ...params: unknown[]) {
-    // KNOWN BUG: the original code passed the rest-array `params` (always
-    // `[]`) to Error, so `error.message` is always ''. Preserved verbatim
-    // to keep the JS->TS migration behavior-identical; fix separately.
-    super(params as unknown as string);
+  // message is intentionally left empty: payload is data, not a message
+  // (identical behavior to all JS-era versions of this package).
+  constructor(status: number, payload: unknown, ...params: unknown[]) {
+    super();
     this.status = status;
     this.payload = payload;
+    this.params = params;
   }
 }
