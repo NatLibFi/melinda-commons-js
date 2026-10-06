@@ -35,6 +35,62 @@ interface blobNotificationResult {
   blocks: any[] // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
+function plainText(text: string) {
+  return {
+    'type': 'text',
+    'text': text
+  };
+}
+
+function boldText(text: string) {
+  return {
+    'type': 'text',
+    'text': text,
+    'style': {
+      'bold': true
+    }
+  };
+}
+
+function linkElement(text: string, url: string) {
+  return {
+    'type': 'link',
+    'url': url,
+    'text': text
+  };
+}
+
+function richTextSection(elements: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return {
+    'type': 'rich_text_section',
+    'elements': elements
+  };
+}
+
+function richTextBlock(elements: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return {
+    'type': 'rich_text',
+    'elements': elements
+  };
+}
+
+function bulletListBlock(sections: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return richTextBlock([{
+    'type': 'rich_text_list',
+    'style': 'bullet',
+    'indent': 1,
+    'elements': sections
+  }]);
+}
+
+function labelValueSection(label: string, value: string) {
+  return richTextSection([plainText(label), plainText(value)]);
+}
+
+function headingSection(heading: string) {
+  return richTextBlock([richTextSection([boldText(heading)])]);
+}
+
 export function generateBlobNotification({
   profile = '',
   id = '',
@@ -47,206 +103,41 @@ export function generateBlobNotification({
   skipped = 0,
   error = 0
 }: blobNotificationContext, {environment = false, linkUrl = ''}: sendNotificationOpts): blobNotificationResult {
+  const headerText = `${environment ? `${environment} - ` : ''}Record import blob: ${profile}`;
+
   return {
     'blocks': [
       {
         'type': 'header',
         'text': {
           'type': 'plain_text',
-          'text': `${environment ? `${environment} - ` : ''}Record import blob: ${profile}`,
+          'text': headerText,
           'emoji': true
         }
       },
       {
         'type': 'divider'
       },
-      {
-        'type': 'rich_text',
-        'elements': [
-          {
-            'type': 'rich_text_section',
-            'elements': [
-              {
-                'type': 'text',
-                'text': 'Id: ',
-                'style': {
-                  'bold': true
-                }
-              },
-              {
-                'type': 'text',
-                'text': `${id}`
-              }
-            ]
-          },
-          {
-            'type': 'rich_text_section',
-            'elements': [
-              {
-                'type': 'text',
-                'text': 'Correlation id: ',
-                'style': {
-                  'bold': true
-                }
-              },
-              {
-                'type': 'link',
-                'url': `${linkUrl}/?id=${correlationId}`,
-                'text': `${correlationId}`
-              }
-            ]
-          }
-        ]
-      },
-      {
-        'type': 'rich_text',
-        'elements': [
-          {
-            'type': 'rich_text_section',
-            'elements': [
-              {
-                'type': 'text',
-                'text': 'Transformation results',
-                'style': {
-                  'bold': true
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        'type': 'rich_text',
-        'elements': [
-          {
-            'type': 'rich_text_list',
-            'style': 'bullet',
-            'indent': 1,
-            'elements': [
-              {
-                'type': 'rich_text_section',
-                'elements': [
-                  {
-                    'type': 'text',
-                    'text': 'Number of records: '
-                  },
-                  {
-                    'type': 'text',
-                    'text': `${numberOfRecords}`
-                  }
-                ]
-              },
-              {
-                'type': 'rich_text_section',
-                'elements': [
-                  {
-                    'type': 'text',
-                    'text': 'Failed records: '
-                  },
-                  {
-                    'type': 'text',
-                    'text': `${failedRecords}`
-                  }
-                ]
-              },
-              {
-                'type': 'rich_text_section',
-                'elements': [
-                  {
-                    'type': 'text',
-                    'text': 'Processed records: '
-                  },
-                  {
-                    'type': 'text',
-                    'text': `${processedRecords}`
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        'type': 'rich_text',
-        'elements': [
-          {
-            'type': 'rich_text_section',
-            'elements': [
-              {
-                'type': 'text',
-                'text': 'Process results',
-                'style': {
-                  'bold': true
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        'type': 'rich_text',
-        'elements': [
-          {
-            'type': 'rich_text_list',
-            'style': 'bullet',
-            'indent': 1,
-            'elements': [
-              {
-                'elements': [
-                  {
-                    'text': 'Created records: ',
-                    'type': 'text'
-                  },
-                  {
-                    'text': `${created}`,
-                    'type': 'text'
-                  }
-                ],
-                'type': 'rich_text_section'
-              },
-              {
-                'elements': [
-                  {
-                    'text': 'Updated records: ',
-                    'type': 'text'
-                  },
-                  {
-                    'text': `${updated}`,
-                    'type': 'text'
-                  }
-                ],
-                'type': 'rich_text_section'
-              },
-              {
-                'elements': [
-                  {
-                    'text': 'Skipped records: ',
-                    'type': 'text'
-                  },
-                  {
-                    'text': `${skipped}`,
-                    'type': 'text'
-                  }
-                ],
-                'type': 'rich_text_section'
-              },
-              {
-                'elements': [
-                  {
-                    'text': 'Error records: ',
-                    'type': 'text'
-                  },
-                  {
-                    'text': `${error}`,
-                    'type': 'text'
-                  }
-                ],
-                'type': 'rich_text_section'
-              }
-            ]
-          }
-        ]
-      },
+      richTextBlock([
+        richTextSection([boldText('Id: '), plainText(`${id}`)]),
+        richTextSection([
+          boldText('Correlation id: '),
+          linkElement(`${correlationId}`, `${linkUrl}/?id=${correlationId}`)
+        ])
+      ]),
+      headingSection('Transformation results'),
+      bulletListBlock([
+        labelValueSection('Number of records: ', `${numberOfRecords}`),
+        labelValueSection('Failed records: ', `${failedRecords}`),
+        labelValueSection('Processed records: ', `${processedRecords}`)
+      ]),
+      headingSection('Process results'),
+      bulletListBlock([
+        labelValueSection('Created records: ', `${created}`),
+        labelValueSection('Updated records: ', `${updated}`),
+        labelValueSection('Skipped records: ', `${skipped}`),
+        labelValueSection('Error records: ', `${error}`)
+      ]),
       {
         'type': 'divider'
       }
