@@ -88,8 +88,8 @@ describe('utils', () => {
       assert.equal(typeof createExpressLogger({}), 'function');
     });
 
-    it('Should be a function when called with full options', () => {
-      assert.equal(typeof createExpressLogger({dateFormat: 'web', responseTimeDigits: 2}), 'function');
+    it('Should accept a custom msg option (as in melinda-backend-commons)', () => {
+      assert.equal(typeof createExpressLogger({msg: '{{req.ip}} {{req.user.id}} HTTP {{req.method}} {{req.path}} - {{res.statusCode}} {{res.responseTime}}ms'}), 'function');
     });
   });
 
@@ -172,6 +172,22 @@ describe('utils', () => {
       assert.equal(result, true);
     });
 
+    it('Should send request to webhook URL with basic template and a plain string bodyData (as in melinda-backend-commons)', async () => {
+      const notificationText = 'Foo';
+
+      // mock interceptor to mock HTTP request response
+      mock.method(global, 'fetch', (url, {body}) => {
+        assert.equal(url, webhookUrl);
+        assert.deepEqual(JSON.parse(body), {text: notificationText});
+        return {ok: true};
+      });
+
+      const webhookOperator = createWebhookOperator(webhookUrl);
+      const result = await webhookOperator.sendNotification(notificationText);
+
+      assert.equal(result, true);
+    });
+
     it('Should send request to webhook URL with Content-Type application/json header', async () => {
       // mock interceptor to mock HTTP request response
       mock.method(global, 'fetch', (url, {headers}) => {
@@ -245,13 +261,11 @@ describe('utils', () => {
       assert.equal(result, true);
     });
 
-    it('Should return test interface with sendNotification function that mocks failing request', async () => {
+    it('Should return test interface with sendNotification function that mocks failing request (throws, as in melinda-backend-commons)', () => {
       const notificationText = {text: 'Foo'};
 
       const webhookOperator = createWebhookOperator('test');
-      const result = await webhookOperator.sendNotification(notificationText, {template: false, fail: true});
-
-      assert.equal(result, false);
+      assert.throws(() => webhookOperator.sendNotification(notificationText, {template: false, fail: true}), {message: 'HTTP response status was not ok (MOCK)'});
     });
 
     it('Should throw error when initializing interface without URL', () => {

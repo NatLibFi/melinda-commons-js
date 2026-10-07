@@ -43,8 +43,8 @@
 		"@natlibfi/sru-client": "^7.0.6",
 		"base64-url": "^2.3.3",
 		"debug": "^4.4.3",
+		"express-winston": "^4.2.0",
 		"moment": "^2.31.0",
-		"morgan": "^1.10.1",
 		"winston": "^3.19.0"
 	},
 	"devDependencies": {

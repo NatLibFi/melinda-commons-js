@@ -45,7 +45,7 @@ See [`example.env`](example.env) for the environment variables used by this pack
 |----------|-------------|
 | `readEnvironmentVariable(name, {defaultValue, hideDefault, format}?)` | Mandatory/default env access with optional formatting |
 | `createLogger(options?)` | winston logger honoring `LOG_LEVEL` (quiet in `NODE_ENV=test` unless debug) |
-| `createExpressLogger({dateFormat?, responseTimeDigits?})` | morgan format for Express |
+| `createExpressLogger(options?)` | express-winston logger for Express; options are spread over the defaults, so `msg` (custom log format / user-id injection) can be overridden |
 | `logWait(logger, waitTime)` | Verbose/debug/silly progress logging by wait duration |
 | `handleInterrupt(arg)` | Log uncaught exceptions / shutdown signals and exit |
 | `generateEncryptionKey(mockBytes?)` | 32 random bytes as hex (or hex of given bytes) |
@@ -57,7 +57,7 @@ See [`example.env`](example.env) for the environment variables used by this pack
 `createWebhookOperator(WEBHOOK_URL)` returns `{sendNotification(bodyData, options)}`, which posts a JSON payload to an https Slack-style webhook.
 
 - `WEBHOOK_URL` is passed as an argument (not read from the environment) and must use `https` — a non-`https` URL throws when the operator is created.
-- `options.template` selects the payload shape: `'basic'` (default; body `{text: bodyData.text}`) or `'blob'` (a record-import summary with `profile`, `numberOfRecords`, `created`, `updated`, `skipped`, `error`, … plus optional `options.environment` and `options.linkUrl`).
+- `options.template` selects the payload shape: `'basic'` (default; body `{text: …}` — `bodyData` may be a plain string or an object with a `text` property) or `'blob'` (a record-import summary with `profile`, `numberOfRecords`, `created`, `updated`, `skipped`, `error`, … plus optional `options.environment` and `options.linkUrl`).
 - Passing `'test'` as the URL returns a mock that logs and resolves without any network call (handy for tests).
 
 > **Note:** `sendNotification` **does not throw on send failure** — it catches network/HTTP errors and returns `false` (a successful send returns `true`). Check the return value; a `try/catch` around it will not see a failed request.

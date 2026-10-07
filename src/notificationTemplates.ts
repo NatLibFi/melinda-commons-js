@@ -1,13 +1,11 @@
-interface basicNotificationContext {
-  text: string
-}
+type basicNotificationContext = string | {text: string};
 
 interface basicNotificationResult {
   text: string
 }
 
 export function generateBasicNotification(basicContext: basicNotificationContext): basicNotificationResult {
-  return {text: basicContext.text};
+  return {text: typeof basicContext === 'string' ? basicContext : basicContext.text};
 }
 
 interface blobNotificationContext {

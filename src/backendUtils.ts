@@ -1,7 +1,6 @@
-import morgan from 'morgan';
+import expressWinston from 'express-winston';
 import winston from 'winston';
 import moment from 'moment';
-import {promisify} from 'util';
 
 import {createCipheriv, createDecipheriv, randomBytes} from 'node:crypto';
 
@@ -9,8 +8,6 @@ import createDebugLogger from 'debug';
 import {millisecondsToString} from './millisecondsToString.ts';
 
 import {generateBasicNotification, generateBlobNotification} from './notificationTemplates.ts';
-
-const setTimeoutPromise = promisify(setTimeout);
 
 interface readEnvironmentVariableOptions {
   defaultValue?: string | boolean | number | any[] // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -62,13 +59,14 @@ function createLoggerOptions() {
   }
 }
 
-interface expressLoggerOptions {
-  dateFormat?: string,
-  responseTimeDigits?: number
-}
-
-export function createExpressLogger({dateFormat = 'iso', responseTimeDigits = 3}: expressLoggerOptions = {}) {
-  return morgan(`:date[${dateFormat}] :remote-addr HTTP :method :url - :status :response-time[${responseTimeDigits}] ms - :user-agent`);
+export function createExpressLogger(options = {}) {
+  return expressWinston.logger({
+    meta: true,
+    msg: '{{req.ip}} HTTP {{req.method}} {{req.path}} - {{res.statusCode}} {{res.responseTime}}ms',
+    ignoreRoute: () => false,
+    ...createLoggerOptions(),
+    ...options
+  });
 }
 
 export function handleInterrupt(arg) {
@@ -162,9 +160,7 @@ export function joinObjects(obj, objectToBeJoined, arrayOfKeysWanted: string[] =
 
 type webhookUrl = string | false;
 
-interface basicNotificationContext {
-  text: string
-}
+type basicNotificationContext = string | {text: string};
 
 interface blobNotificationContext {
   profile?: string,
@@ -188,7 +184,7 @@ interface sendNotificationOpts {
 }
 
 interface createWebhookOperatorResponse {
-  sendNotification: (bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts) => Promise<boolean>
+  sendNotification: (bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts) => Promise<boolean> | boolean
 }
 
 export function createWebhookOperator(WEBHOOK_URL: webhookUrl = false): createWebhookOperatorResponse {
@@ -228,15 +224,15 @@ export function createWebhookOperator(WEBHOOK_URL: webhookUrl = false): createWe
     }
   }
 
-  async function sendNotificationMock(bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts = {template: false, fail: false}): Promise<boolean> {
+  // NOTE: synchronous on purpose, matching the old @natlibfi/melinda-backend-commons
+  // contract: the 'test' mock throws synchronously when {fail: true}.
+  function sendNotificationMock(bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts = {template: false, fail: false}): boolean {
     debug('Mock notification!');
     debug(JSON.stringify(bodyData));
     debug(JSON.stringify(options));
-    await setTimeoutPromise(10);
 
     if (options.fail) {
-      debug('Notification send HTTP response status was not ok (MOCK)');
-      return false;
+      throw new Error('HTTP response status was not ok (MOCK)');
     }
 
     return true;
