@@ -95,29 +95,143 @@ export function encryptString({key, value}: {key: string; value: string}, mockIv
 
 // 16-byte IV + at least 1 byte of ciphertext + 16-byte GCM auth tag
 const MIN_ENCRYPTED_VALUE_LENGTH = 33;
+// 16-byte IV + at least 1 byte of ciphertext (AES-256-CTR layout from @natlibfi/melinda-backend-commons ≤ 3.0.6)
+const MIN_LEGACY_CTR_VALUE_LENGTH = 17;
 
-export function decryptString({key, value}: {key: string; value: string}) {
+const STRICT_BASE64 = /^[A-Za-z0-9+/]*={0,2}$/u;
+
+// Node's base64 decoder never throws (it silently drops invalid characters),
+// so invalid input is detected with a strict check. Whitespace padding is
+// tolerated (stored values often come from files/env with trailing newlines).
+function decodeBase64Strict(value: string): Buffer | false {
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    return Buffer.alloc(0);
+  }
+
+  if (trimmed.length % 4 !== 0 || !STRICT_BASE64.test(trimmed)) {
+    return false;
+  }
+
+  return Buffer.from(trimmed, 'base64');
+}
+interface decryptStringOptions {
+  // TEMPORARY (removed in 17.0.0): fall back to legacy AES-256-CTR for values
+  // written by @natlibfi/melinda-backend-commons ≤ 3.0.6 before they are re-encrypted.
+  legacyCtrFallback?: boolean,
+}
+
+/**
+ * Verbatim copy of the legacy AES-256-CTR decryption algorithm used by
+ * @natlibfi/melinda-backend-commons ≤ 3.0.6: base64(input) = iv (16 bytes) ‖ ciphertext.
+ * No input validation beyond the length guard; a wrong key returns garbage (old behavior).
+ */
+export function decryptLegacyCtrString({key, value}: {key: string; value: string}) {
   if (!/^[0-9a-f]{64}$/iu.test(key)) {
-    throw new Error('decryptString: key must be a 64-character hex string (32 bytes)');
+    throw new Error('decryptLegacyCtrString: key must be a 64-character hex string (32 bytes)');
   }
 
-  const input = Buffer.from(value, 'base64');
-
-  if (input.length < MIN_ENCRYPTED_VALUE_LENGTH) {
-    throw new Error(`decryptString: value is too short (${input.length} bytes; minimum ${MIN_ENCRYPTED_VALUE_LENGTH}: 16-byte IV + ciphertext + 16-byte auth tag)`);
+  const input = decodeBase64Strict(value);
+  if (input === false) {
+    throw new Error('decryptLegacyCtrString: value is not valid base64');
   }
 
+  if (input.length < MIN_LEGACY_CTR_VALUE_LENGTH) {
+    throw new Error(`decryptLegacyCtrString: value is too short (${input.length} bytes; minimum ${MIN_LEGACY_CTR_VALUE_LENGTH}: 16-byte IV + ciphertext)`);
+  }
+
+  const iv = input.subarray(0, 16);
+  const decipher = createDecipheriv('aes-256-ctr', Buffer.from(key, 'hex'), iv);
+  return Buffer.concat([decipher.update(input.subarray(16)), decipher.final()]).toString('utf-8');
+}
+
+// One-time-per-process console.warn when the legacy CTR fallback is used on the
+// ambiguous path (grep-able stable prefix, documented in README for log alerting).
+let legacyCtrFallbackWarned = false;
+
+function warnLegacyCtrFallback() {
+  if (legacyCtrFallbackWarned) {
+    return;
+  }
+
+  legacyCtrFallbackWarned = true;
+  // eslint-disable-next-line no-console
+  console.warn('decryptString: legacy AES-256-CTR value was decrypted via the legacyCtrFallback option; re-encrypt it with encryptString (the fallback will be removed in a future major)');
+}
+
+// Exposed for tests so the "one-time per process" flag can be reset between tests.
+export function __resetLegacyCtrFallbackWarnFlagForTests() {
+  legacyCtrFallbackWarned = false;
+}
+
+function decryptGcmString(key: string, input: Buffer): string {
   const iv = input.subarray(0, 16);
   const ciphertext = input.subarray(16, input.length - 16);
   const authTag = input.subarray(-16);
   const decipher = createDecipheriv('aes-256-gcm', Buffer.from(key, 'hex'), iv).setAuthTag(authTag);
 
-  try {
-    const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-    return decrypted.toString('utf-8');
-  } catch (error) {
-    throw new Error('decryptString: decryption failed: key does not match value, or value is corrupted', {cause: error});
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return decrypted.toString('utf-8');
+}
+
+export function decryptString({key, value}: {key: string; value: string}, {legacyCtrFallback = true}: decryptStringOptions = {}) {
+  if (!/^[0-9a-f]{64}$/iu.test(key)) {
+    throw new Error('decryptString: key must be a 64-character hex string (32 bytes)');
   }
+
+  const input = decodeBase64Strict(value);
+  if (input === false) {
+    throw new Error('decryptString: value is not valid base64');
+  }
+
+  if (input.length < MIN_LEGACY_CTR_VALUE_LENGTH) {
+    throw new Error(`decryptString: value is too short (${input.length} bytes; minimum ${MIN_ENCRYPTED_VALUE_LENGTH} for AES-256-GCM: 16-byte IV + ciphertext + 16-byte auth tag)`);
+  }
+
+  if (input.length < MIN_ENCRYPTED_VALUE_LENGTH) {
+    // Provably legacy CTR: the GCM layout cannot be this short.
+    if (legacyCtrFallback) {
+      return decryptLegacyCtrString({key, value});
+    }
+
+    throw new Error(`decryptString: value is too short for AES-256-GCM (${input.length} bytes) but looks like a legacy AES-256-CTR value; enable {legacyCtrFallback: true} or re-encrypt`);
+  }
+
+  // Ambiguous length: both layouts possible — try GCM first (current behavior).
+  try {
+    return decryptGcmString(key, input);
+  } catch (error) {
+    if (legacyCtrFallback) {
+      warnLegacyCtrFallback();
+      return decryptLegacyCtrString({key, value});
+    }
+
+    throw new Error('decryptString: decryption failed: key does not match value, or value is corrupted (or the value was encrypted with @natlibfi/melinda-backend-commons AES-256-CTR; pass {legacyCtrFallback: true} or re-encrypt)', {cause: error});
+  }
+}
+
+export type encryptedValueFormatResult = 'invalid-base64' | 'too-short' | 'legacy-ctr' | 'gcm-or-legacy-ambiguous';
+
+/**
+ * Length-based classifier for stored encrypted values (dry-run inventory helper).
+ * Deliberately never claims 'gcm' — values ≥ 33 bytes could still be legacy CTR;
+ * only the GCM auth tag can confirm.
+ */
+export function encryptedValueFormat(value: string): encryptedValueFormatResult {
+  const input = decodeBase64Strict(value);
+  if (input === false) {
+    return 'invalid-base64';
+  }
+
+  if (input.length < MIN_LEGACY_CTR_VALUE_LENGTH) {
+    return 'too-short';
+  }
+
+  if (input.length < MIN_ENCRYPTED_VALUE_LENGTH) {
+    return 'legacy-ctr';
+  }
+
+  return 'gcm-or-legacy-ambiguous';
 }
 
 export function logWait(logger, waitTime) {
@@ -184,7 +298,7 @@ interface sendNotificationOpts {
 }
 
 interface createWebhookOperatorResponse {
-  sendNotification: (bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts) => Promise<boolean> | boolean
+  sendNotification: (bodyData: basicNotificationContext | blobNotificationContext, options?: sendNotificationOpts) => Promise<boolean> | boolean
 }
 
 export function createWebhookOperator(WEBHOOK_URL: webhookUrl = false): createWebhookOperatorResponse {
