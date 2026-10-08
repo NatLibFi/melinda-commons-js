@@ -1,0 +1,5 @@
+{
+  "description": "Join {value: true, notCopy: true} obj to {} obj, filter [value] => Inserts value",
+  "arrayOfKeysWanted": ["value"],
+  "testType": "joinObjects"
+}

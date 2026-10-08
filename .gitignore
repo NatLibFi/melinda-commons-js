@@ -3,5 +3,15 @@ node_modules
 coverage
 dist
 .nyc_output
+*.tsbuildinfo
 configCrowd.js
 .DS_Store
+.env
+.env*
+
+# AI agent files
+.pi/
+AGENTS.md
+CONTEXT.md
+workspace/
+.issues/

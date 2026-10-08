@@ -1,0 +1,7 @@
+{
+  "description": "Join {value: undefined} obj to {} obj, filter [value] => Does not Insert value",
+  "arrayOfKeysWanted": [
+    "value"
+  ],
+  "testType": "joinObjects"
+}

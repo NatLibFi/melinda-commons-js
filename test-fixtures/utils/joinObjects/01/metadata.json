@@ -1,0 +1,4 @@
+{
+  "description": "Join {} obj to {} obj => does not fail on empty join",
+  "testType": "joinObjects"
+}
