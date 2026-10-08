@@ -9,6 +9,7 @@ workspace/
 .pi/
 AGENTS.md
 CONTEXT.md
+.issues/
 
 # Repo tooling & CI (not needed by consumers)
 .github/
