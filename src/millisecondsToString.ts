@@ -5,14 +5,14 @@ const MS_IN_SECOND = 1000;
 const SECONDS_IN_MINUTE = 60;
 const MINUTES_IN_HOUR = 60;
 
-const getParts = (t, divisor) => {
-  const [big, _small] = t.toFixed(2).split('.');
+const getParts = (t: number, divisor: number): [string, number] => {
+  const [big = '', _small = ''] = t.toFixed(2).split('.');
   const small = Math.round((Number(_small) / 100) * divisor);
 
   return [big, small];
 };
 
-export function millisecondsToString(t) {
+export function millisecondsToString(t: number) {
   if (t < MS_IN_SECOND) {
     return `${t}ms`;
   }
@@ -32,7 +32,8 @@ export function millisecondsToString(t) {
   {
     const [m, s] = getParts(t, SECONDS_IN_MINUTE);
 
-    if (m < MINUTES_IN_HOUR) {
+    // m is an integral string from getParts; explicit Number() matches the coercion the string < number comparison already did
+    if (Number(m) < MINUTES_IN_HOUR) {
       return `${m}m ${s}s`;
     }
   }

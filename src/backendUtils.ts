@@ -54,7 +54,7 @@ function createLoggerOptions() {
     ]
   };
 
-  function formatMessage({timestamp, level, message}): string {
+  function formatMessage({timestamp, level, message}: {timestamp: unknown; level: string; message: string}): string {
     return `${timestamp} - ${level}: ${message}`;
   }
 }
@@ -69,7 +69,7 @@ export function createExpressLogger(options = {}) {
   });
 }
 
-export function handleInterrupt(arg) {
+export function handleInterrupt(arg: unknown) {
   if (arg instanceof Error) {
     console.error(`Uncaught Exception: ${arg.stack}`); // eslint-disable-line no-console
     process.exit(1);
@@ -144,7 +144,7 @@ export function decryptString({key, value}: {key: string; value: string}) {
   }
 }
 
-export function logWait(logger, waitTime) {
+export function logWait(logger: winston.Logger, waitTime: number) {
   //const debug = createDebugLogger('@natlibfi/melinda-commons:backendUtils:logWait');
   //const debugData = debug.extend('data');
 
@@ -159,7 +159,7 @@ export function logWait(logger, waitTime) {
   return logger.silly(`Total wait: ${millisecondsToString(waitTime)}`);
 }
 
-export function joinObjects(obj, objectToBeJoined, arrayOfKeysWanted: string[] = []) {
+export function joinObjects(obj: Record<string, unknown>, objectToBeJoined: Record<string, unknown>, arrayOfKeysWanted: string[] = []) {
   // Add the new items to the object if they are not undefined
   if (arrayOfKeysWanted.length > 0) {
     arrayOfKeysWanted.forEach(wantedKey => {
@@ -262,14 +262,16 @@ export function createWebhookOperator(WEBHOOK_URL: webhookUrl = false): createWe
     return true;
   }
 
-  function prepareBodyData(bodyData, options) {
+  function prepareBodyData(bodyData: basicNotificationContext | blobNotificationContext, options: sendNotificationOpts): string {
     if (options.template === 'basic') {
-      const objectAsBody = generateBasicNotification(bodyData);
+      // options.template is the discriminator for the bodyData shape (see sendNotification's contract);
+      // TypeScript cannot narrow bodyData through a sibling parameter, so the cast only documents that invariant.
+      const objectAsBody = generateBasicNotification(bodyData as string | {text: string});
       return JSON.stringify(objectAsBody);
     }
 
     if (options.template === 'blob') {
-      const objectAsBody = generateBlobNotification(bodyData, options);
+      const objectAsBody = generateBlobNotification(bodyData as blobNotificationContext, options);
       return JSON.stringify(objectAsBody);
     }
 

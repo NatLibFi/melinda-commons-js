@@ -15,7 +15,7 @@ export function isDeletedRecord(record: MarcRecord) {
   function checkDel() {
     return (record.get(/^DEL$/u) as MarcField[]).some(check);
 
-    function check({subfields}) {
+    function check({subfields}: MarcField) {
       return subfields.some(({code, value}) => code === 'a' && value === 'Y');
     }
   }
@@ -23,9 +23,9 @@ export function isDeletedRecord(record: MarcRecord) {
   function checkSta() {
     return (record.get(/^STA$/u) as MarcField[]).some(check);
 
-    function check({subfields}) {
+    function check({subfields}: MarcField) {
       const values = ['DELETED', 'DELETED-SPLIT', 'DELETED-DEPRECATED'];
-      return subfields.some(({code, value}) => code === 'a' && values.includes(value));
+      return subfields.some(({code, value}) => code === 'a' && value !== undefined && values.includes(value));
     }
   }
 }
@@ -37,13 +37,13 @@ export function isTestRecord(record: MarcRecord, checkNotesInf500 = true) {
   function checkSta() {
     return (record.get(/^STA$/u) as MarcField[]).some(check);
 
-    function check({subfields}) {
+    function check({subfields}: MarcField) {
       const values = ['TEST'];
-      return subfields.some(({code, value}) => code === 'a' && values.includes(value));
+      return subfields.some(({code, value}) => code === 'a' && value !== undefined && values.includes(value));
     }
   }
 
-  function checkf500(checkNotesInf500) {
+  function checkf500(checkNotesInf500: boolean) {
     if (!checkNotesInf500) {
       return false;
     }
@@ -52,9 +52,9 @@ export function isTestRecord(record: MarcRecord, checkNotesInf500 = true) {
 
     // Recognize record as test record if it has f500 $a that has contents matching "test record" or "testitietue"
     // Note: we might have false positives here, this test can be ignored by giving second param as 'false'
-    function check({subfields}) {
+    function check({subfields}: MarcField) {
       const testRecordRegexp = /testitietue|test record/iu;
-      return subfields.some(({code, value}) => code === 'a' && testRecordRegexp.test(value));
+      return subfields.some(({code, value}) => code === 'a' && value !== undefined && testRecordRegexp.test(value));
     }
   }
 

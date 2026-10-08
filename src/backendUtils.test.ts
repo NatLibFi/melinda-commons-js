@@ -4,6 +4,7 @@ import {describe, it, afterEach, mock} from 'node:test';
 import assert from 'node:assert';
 import {READERS} from '@natlibfi/fixura';
 import generateTests from '@natlibfi/fixugen';
+import type {FixugenTestConfig} from '@natlibfi/fixugen';
 //import createDebugLogger from 'debug';
 import {
   readEnvironmentVariable,
@@ -192,7 +193,7 @@ describe('utils', () => {
       const notificationText = 'Foo';
 
       // mock interceptor to mock HTTP request response
-      mock.method(global, 'fetch', (url, {body}) => {
+      mock.method(global, 'fetch', (url: string, {body}: {body: string}) => {
         assert.equal(url, webhookUrl);
         assert.deepEqual(JSON.parse(body), {text: notificationText});
         return {ok: true};
@@ -208,7 +209,7 @@ describe('utils', () => {
       const notificationText = 'Foo';
 
       // mock interceptor to mock HTTP request response
-      mock.method(global, 'fetch', (url, {body}) => {
+      mock.method(global, 'fetch', (url: string, {body}: {body: string}) => {
         assert.equal(url, webhookUrl);
         assert.deepEqual(JSON.parse(body), {text: notificationText});
         return {ok: true};
@@ -222,7 +223,7 @@ describe('utils', () => {
 
     it('Should send request to webhook URL with Content-Type application/json header', async () => {
       // mock interceptor to mock HTTP request response
-      mock.method(global, 'fetch', (url, {headers}) => {
+      mock.method(global, 'fetch', (url: string, {headers}: {headers: Record<string, string>}) => {
         assert.equal(url, webhookUrl);
         assert.equal(headers['Content-Type'], 'application/json');
         return {ok: true};
@@ -238,7 +239,7 @@ describe('utils', () => {
       const expectedBody = fs.readFileSync(path.join(FIXTURES_PATH, 'sendNotification/templateBlobDefault.json'), 'utf8');
 
       // mock interceptor to mock HTTP request response
-      mock.method(global, 'fetch', (url, {body}) => {
+      mock.method(global, 'fetch', (url: string, {body}: {body: string}) => {
         assert.equal(url, webhookUrl);
         assert.deepEqual(JSON.parse(body), JSON.parse(expectedBody));
         return {ok: true};
@@ -272,7 +273,7 @@ describe('utils', () => {
       const expectedBody = fs.readFileSync(path.join(FIXTURES_PATH, 'sendNotification/templateBlobCustom.json'), 'utf8');
 
       // mock interceptor to mock HTTP request response
-      mock.method(global, 'fetch', (url, {body}) => {
+      mock.method(global, 'fetch', (url: string, {body}: {body: string}) => {
         assert.equal(url, webhookUrl);
         assert.deepEqual(JSON.parse(body), JSON.parse(expectedBody));
         return {ok: true};
@@ -321,7 +322,7 @@ generateTests({
   }
 });
 
-function callback(testConf) {
+function callback(testConf: FixugenTestConfig) {
   const {testType} = testConf;
   if (testType === 'joinObjects') {
     return testJoinObjects(testConf);
@@ -330,7 +331,7 @@ function callback(testConf) {
   throw new Error('Test type not set!');
 }
 
-function testJoinObjects({getFixture, arrayOfKeysWanted = []}) {
+function testJoinObjects({getFixture, arrayOfKeysWanted = []}: FixugenTestConfig) {
   const originalObj = getFixture('originalObj.json');
   const objectToBeJoined = undefineValues(getFixture('ojectToBeJoined.json'));
   const resultObject = getFixture('resultObject.json');
@@ -338,7 +339,7 @@ function testJoinObjects({getFixture, arrayOfKeysWanted = []}) {
   joinObjects(originalObj, objectToBeJoined, arrayOfKeysWanted);
   assert.deepEqual(originalObj, resultObject);
 
-  function undefineValues(obj) {
+  function undefineValues(obj: Record<string, unknown>): Record<string, unknown> {
     Object.keys(obj).forEach(key => {
       if (obj[key] === 'undefined') {
         obj[key] = undefined;
