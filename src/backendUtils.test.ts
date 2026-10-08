@@ -7,12 +7,11 @@ import generateTests from '@natlibfi/fixugen';
 //import createDebugLogger from 'debug';
 import {
   readEnvironmentVariable,
-  generateEncryptionKey, encryptString, decryptString, decryptLegacyCtrString, encryptedValueFormat,
+  generateEncryptionKey, encryptString, decryptString,
   joinObjects, createWebhookOperator,
   logWait,
   createLogger,
-  createExpressLogger,
-  __resetLegacyCtrFallbackWarnFlagForTests
+  createExpressLogger
 } from './backendUtils.ts';
 
 const FIXTURES_PATH = path.join(import.meta.dirname, '../test-fixtures/utils');
@@ -105,12 +104,8 @@ describe('utils', () => {
     });
   });
 
-  // eslint-disable-next-line max-lines-per-function
   describe('decryptString', () => {
-    // The one-time console.warn flag is per process; reset it per test so
-    // warn assertions don't leak across tests.
     afterEach(() => {
-      __resetLegacyCtrFallbackWarnFlagForTests();
       mock.reset();
     });
 
@@ -123,7 +118,7 @@ describe('utils', () => {
       assert.equal(decryptString({key, value}), expectedValue);
     });
 
-    it('Should throw when the ciphertext has been tampered with (fallback disabled)', () => {
+    it('Should throw when the ciphertext has been tampered with', () => {
       const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
       const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
 
@@ -132,13 +127,13 @@ describe('utils', () => {
       buffer[20]! ^= 0xff;
       const tamperedValue = buffer.toString('base64');
 
-      assert.throws(() => decryptString({key, value: tamperedValue}, {legacyCtrFallback: false}), /decryption failed/u);
+      assert.throws(() => decryptString({key, value: tamperedValue}), /decryption failed/u);
     });
 
-    it('Should throw when the wrong key is used (fallback disabled)', () => {
+    it('Should throw when the wrong key is used', () => {
       const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
 
-      assert.throws(() => decryptString({key: generateEncryptionKey(), value}, {legacyCtrFallback: false}), /decryption failed/u);
+      assert.throws(() => decryptString({key: generateEncryptionKey(), value}), /decryption failed/u);
     });
 
     it('Should throw when the key is not 64 hex characters', () => {
@@ -154,120 +149,32 @@ describe('utils', () => {
       assert.throws(() => decryptString({key, value: ''}), /too short \(0 bytes/u);
     });
 
-    it('Should decrypt a legacy AES-256-CTR value (17-32 decoded bytes, provably legacy)', () => {
-      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
-      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyString1.txt'), 'utf8');
-      const expectedValue = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyExpectedValue1.txt'), 'utf8');
-
-      assert.equal(decryptString({key, value}), expectedValue);
-      assert.equal(decryptString({key, value}, {legacyCtrFallback: true}), expectedValue);
-    });
-
-    it('Should throw on a legacy AES-256-CTR value when the fallback is disabled', () => {
-      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
-      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyString1.txt'), 'utf8');
-
-      assert.throws(() => decryptString({key, value}, {legacyCtrFallback: false}), /legacy AES-256-CTR value; enable \{legacyCtrFallback: true\}/u);
-    });
-
-    it('Should decrypt a long legacy AES-256-CTR value (>=33 bytes) via GCM-failure fallback + one-time console.warn', () => {
-      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
-      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyString2.txt'), 'utf8');
-      const expectedValue = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyExpectedValue2.txt'), 'utf8');
-
-      const warn = mock.method(console, 'warn', () => undefined);
-
-      assert.equal(decryptString({key, value}), expectedValue);
-      // warn fired exactly once, with the stable grep-able prefix
-      assert.equal(warn.mock.callCount(), 1);
-      assert.match(warn.mock.calls[0]!.arguments[0] as string, /^decryptString: legacy AES-256-CTR/u);
-
-      // second call in the same process: no second warn (one-time per process)
-      assert.equal(decryptString({key, value}, {legacyCtrFallback: true}), expectedValue);
-      assert.equal(warn.mock.callCount(), 1);
-    });
-
-    it('Should throw the plain decryption error on a tampered GCM value when the fallback is disabled (regression guard for 99a7388)', () => {
-      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
-      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
-
-      const buffer = Buffer.from(value.trim(), 'base64');
-      buffer[20]! ^= 0xff;
-      const tamperedValue = buffer.toString('base64');
-
-      const warn = mock.method(console, 'warn', () => undefined);
-
-      assert.throws(
-        () => decryptString({key, value: tamperedValue}, {legacyCtrFallback: false}),
-        /decryption failed: key does not match value, or value is corrupted \(or the value was encrypted with @natlibfi\/melinda-backend-commons AES-256-CTR; pass \{legacyCtrFallback: true\} or re-encrypt\)/u
-      );
-      assert.equal(warn.mock.callCount(), 0);
-    });
-
-    it('Should NOT throw on a tampered GCM value when the fallback is enabled (returns CTR garbage, documented trade-off) + warn', () => {
-      const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
-      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
-
-      const buffer = Buffer.from(value.trim(), 'base64');
-      buffer[20]! ^= 0xff;
-      const tamperedValue = buffer.toString('base64');
-
-      const warn = mock.method(console, 'warn', () => undefined);
-
-      const result = decryptString({key, value: tamperedValue}); // default fallback = true
-      assert.equal(typeof result, 'string');
-      assert.notEqual(result, 'foobar'); // GCM plaintext must not survive a CTR garbage decode
-      assert.equal(warn.mock.callCount(), 1);
-      assert.match(warn.mock.calls[0]!.arguments[0] as string, /^decryptString: legacy AES-256-CTR/u);
-    });
-  });
-
-  describe('decryptLegacyCtrString', () => {
-    it('Should decrypt the legacy fixtures (short + long) with the verbatim old algorithm', () => {
+    it('Should throw when the value decodes to fewer than 33 bytes (17-32 decoded bytes, below the GCM minimum)', () => {
       const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
 
-      for (const n of [1, 2]) {
-        const value = fs.readFileSync(path.join(FIXTURES_PATH, `decryptString/legacyString${n}.txt`), 'utf8');
-        const expectedValue = fs.readFileSync(path.join(FIXTURES_PATH, `decryptString/legacyExpectedValue${n}.txt`), 'utf8');
-
-        assert.equal(decryptLegacyCtrString({key, value}), expectedValue);
+      for (const length of [17, 26, 32]) {
+        assert.throws(
+          () => decryptString({key, value: Buffer.alloc(length).toString('base64')}),
+          err => err instanceof Error
+            && err.message === `decryptString: value is too short (${length} bytes; minimum 33 for AES-256-GCM: 16-byte IV + ciphertext + 16-byte auth tag)`
+        );
       }
     });
 
-    it('Should throw on a value shorter than 17 decoded bytes', () => {
+    it('Should throw the plain decryption error on a tampered GCM value (regression guard for 99a7388)', () => {
       const key = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/key1.txt'), 'utf8');
+      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
 
-      assert.throws(() => decryptLegacyCtrString({key, value: Buffer.alloc(10).toString('base64')}), /too short \(10 bytes/u);
-      assert.throws(() => decryptLegacyCtrString({key, value: ''}), /too short \(0 bytes/u);
-    });
+      const buffer = Buffer.from(value.trim(), 'base64');
+      buffer[20]! ^= 0xff;
+      const tamperedValue = buffer.toString('base64');
 
-    it('Should throw when the key is not 64 hex characters', () => {
-      const value = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyString1.txt'), 'utf8');
-
-      assert.throws(() => decryptLegacyCtrString({key: 'not-hex', value}), /64-character hex/u);
-    });
-  });
-
-  describe('encryptedValueFormat', () => {
-    it('Should classify values by decoded length', () => {
-      const gcmValue = fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/string1.txt'), 'utf8');
-
-      assert.equal(encryptedValueFormat(Buffer.alloc(10).toString('base64')), 'too-short');
-      assert.equal(encryptedValueFormat(''), 'too-short');
-      assert.equal(encryptedValueFormat(Buffer.alloc(16).toString('base64')), 'too-short');
-      assert.equal(encryptedValueFormat(Buffer.alloc(17).toString('base64')), 'legacy-ctr');
-      assert.equal(encryptedValueFormat(Buffer.alloc(26).toString('base64')), 'legacy-ctr');
-      assert.equal(encryptedValueFormat(Buffer.alloc(32).toString('base64')), 'legacy-ctr');
-      assert.equal(encryptedValueFormat(Buffer.alloc(33).toString('base64')), 'gcm-or-legacy-ambiguous');
-      assert.equal(encryptedValueFormat(Buffer.alloc(47).toString('base64')), 'gcm-or-legacy-ambiguous');
-      // well-formed GCM value is never claimed as GCM (ambiguity is unresolvable by length)
-      assert.equal(encryptedValueFormat(gcmValue), 'gcm-or-legacy-ambiguous');
-      assert.equal(encryptedValueFormat(fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyString1.txt'), 'utf8')), 'legacy-ctr');
-      assert.equal(encryptedValueFormat(fs.readFileSync(path.join(FIXTURES_PATH, 'decryptString/legacyString2.txt'), 'utf8')), 'gcm-or-legacy-ambiguous');
-    });
-
-    it('Should report invalid base64', () => {
-      assert.equal(encryptedValueFormat('!!!not-base64!!!'), 'invalid-base64');
+      assert.throws(
+        () => decryptString({key, value: tamperedValue}),
+        err => err instanceof Error
+          && err.message === 'decryptString: decryption failed: key does not match value, or value is corrupted'
+          && err.cause instanceof Error
+      );
     });
   });
 

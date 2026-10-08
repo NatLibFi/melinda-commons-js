@@ -50,30 +50,7 @@ See [`example.env`](example.env) for the environment variables used by this pack
 | `handleInterrupt(arg)` | Log uncaught exceptions / shutdown signals and exit |
 | `generateEncryptionKey(mockBytes?)` | 32 random bytes as hex (or hex of given bytes) |
 | `encryptString({key, value}, mockIv?)` | AES-256-GCM, base64 output (iv + ciphertext + auth tag) |
-| `decryptString({key, value}, {legacyCtrFallback}?)` | Reverse of `encryptString`; also reads legacy AES-256-CTR values (see below) |
-| `decryptLegacyCtrString({key, value})` | Standalone legacy AES-256-CTR decoder (old `@natlibfi/melinda-backend-commons` layout: base64 of iv + ciphertext) |
-| `encryptedValueFormat(value)` | Length-based classifier of a stored value: `'invalid-base64'` / `'too-short'` / `'legacy-ctr'` / `'gcm-or-legacy-ambiguous'` (inventory helper; never claims GCM) |
-
-### Legacy AES-256-CTR fallback (temporary)
-
-Since v16, `encryptString`/`decryptString` use **AES-256-GCM** (base64 layout `iv(16) ‖ ciphertext ‖ authTag(16)`). Values persisted by `@natlibfi/melinda-backend-commons` ≤ 3.0.6 were **AES-256-CTR** (base64 layout `iv(16) ‖ ciphertext`). To let consumers bump the dependency before migrating stored values, `decryptString` reads legacy CTR values automatically:
-
-- Values with **17–32** decoded bytes are provably legacy CTR (GCM needs ≥ 33) → decoded as CTR.
-- Values with **≥ 33** decoded bytes are ambiguous → GCM is tried first; only if the auth tag fails is CTR tried. This fallback path emits a **one-time `console.warn`** per process with the stable prefix `decryptString: legacy AES-256-CTR` (usable for log alerting / cleanup tracking).
-- The fallback is **enabled by default** and can be disabled with `{legacyCtrFallback: false}` (legacy CTR values then throw, with a hint).
-
-> **Warning:** this fallback is **temporary** — it will be removed in **17.0.0** after stored values have been re-encrypted. While enabled, it also means a genuinely corrupted/tampered GCM value on the ambiguous path is returned as CTR garbage instead of throwing.
-
-**Migration (re-encrypt stored values):**
-
-```js
-import {decryptLegacyCtrString, encryptString, encryptedValueFormat} from '@natlibfi/melinda-commons';
-// dry run:  values.forEach(v => console.log(encryptedValueFormat(v), v.slice(0, 8) + '…'));
-// migrate:  const old = decryptLegacyCtrString({key, value: stored});
-//           writeBack(encryptString({key, value: old}));   // idempotent: run after a full pass
-```
-
-No need to pin the old package anywhere. The one-time warn in prod logs doubles as the "any legacy values left?" indicator.
+| `decryptString({key, value})` | Reverse of `encryptString` (AES-256-GCM) |
 
 ## Webhook notifications
 
@@ -136,7 +113,7 @@ Notes:
 
 - Importing the package sets `MarcRecord.setValidationOptions({subfieldValues: false})` globally on `@natlibfi/marc-record` (Aleph creates partial subfields).
 - Mail functionality is **not** included in this package. It lives in [`@natlibfi/melinda-commons-mailer`](https://github.com/NatLibFi/melinda-mailer-js).
-- Consumers migrating from `@natlibfi/melinda-backend-commons`: change only the package specifier to `@natlibfi/melinda-commons` and bump. Function names and signatures are unchanged, **except the encryption algorithm moved from AES-256-CTR to AES-256-GCM** — new writes are GCM, and `decryptString` transparently reads legacy CTR values (see [Legacy AES-256-CTR fallback](#legacy-aes-256-ctr-fallback-temporary)). Re-encrypt stored values with the script above; the CTR fallback is removed in 17.0.0.
+- Consumers migrating from `@natlibfi/melinda-backend-commons`: change only the package specifier to `@natlibfi/melinda-commons` and bump. Function names and signatures are unchanged, **except the encryption algorithm moved from AES-256-CTR to AES-256-GCM**. Values written by `@natlibfi/melinda-backend-commons` ≤ 3.0.6 (AES-256-CTR) cannot be read by this package and must be re-encrypted before upgrading.
 
 ## Development
 
