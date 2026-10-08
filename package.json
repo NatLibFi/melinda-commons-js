@@ -39,8 +39,6 @@
 	},
 	"dependencies": {
 		"@natlibfi/marc-record": "^11.0.3",
-		"@natlibfi/marc-record-serializers": "^11.0.5",
-		"@natlibfi/sru-client": "^7.0.6",
 		"base64-url": "^2.3.3",
 		"debug": "^4.4.3",
 		"express-winston": "^4.2.0",

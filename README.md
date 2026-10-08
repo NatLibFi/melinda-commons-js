@@ -3,7 +3,7 @@
 
 Shared modules for Melinda's software. Written in TypeScript, built with `tsc` (declarations and source maps are published), and tested with `node:test` on Node.js >= 24.
 
-Since v16 this package is the canonical home for the shared modules formerly split between `@natlibfi/melinda-commons` (MARC helpers, SRU subrecord picker) and `@natlibfi/melinda-backend-commons` (env, logging, crypto, webhook). The latter is deprecated: all of its exports moved here with identical signatures.
+Since v16 this package is the canonical home for the shared modules formerly split between `@natlibfi/melinda-commons` (MARC helpers) and `@natlibfi/melinda-backend-commons` (env, logging, crypto, webhook). The latter is deprecated: all of its exports moved here with identical signatures.
 
 ## Install
 
@@ -72,42 +72,6 @@ Both are available via `npx` after installing the package.
 ## Error
 
 `Error` (default export of `src/error.ts`, re-exported as `Error`) carries `status` (number), `payload` (arbitrary value, typed `unknown` — it is data, not necessarily a message), and `params` (`unknown[]` of any extra constructor arguments). `message` is intentionally empty; read `status`/`payload` for details.
-
-## SRU subrecord picker
-
-In Melinda, a record can have **linked component records** — for example, the songs on a CD (monograph host → components) or the articles in a journal (non-monograph host → components) — stored as separate records and connected via host/part index fields. This picker fetches those components over SRU, so you never have to parse the host/part link fields (e.g. `773`) and issue follow-up lookups yourself.
-
-```js
-import {createSubrecordPicker} from '@natlibfi/melinda-commons';
-
-const picker = createSubrecordPicker('https://sru.example.com/sru');
-
-// How many components does this record have?
-const {amount} = await picker.readSubrecordAmount('000012345');
-
-// All of them, as MARC records
-const {records, amount} = await picker.readAllSubrecords('000012345');
-
-// A page of them (for UI paging / lazy loading)
-const {records, amount, nextRecordOffset} = await picker.readSomeSubrecords('000012345', 11);
-// nextRecordOffset is the startRecord for the next page (absent when done)
-```
-
-| Method | Returns | When to use it |
-|--------|---------|----------------|
-| `readSubrecordAmount(recordId)` | `{amount}` | Just showing a count ("12 songs") without fetching records |
-| `readAllSubrecords(recordId)` | `{records, amount}` | You need every component at once (background jobs, exports) |
-| `readSomeSubrecords(recordId, offset = 1)` | `{records, amount, nextRecordOffset}` | Paging: fetch a slice and use `nextRecordOffset` as the next `offset` |
-
-> **Warning:** non-monograph hosts (e.g. a journal) can have a **very large number of component records** — a journal may have hundreds or thousands of article records accumulated over its publication history. Avoid `readAllSubrecords` for such hosts in request-handling code; check `amount` first (via `readSubrecordAmount`) and prefer `readSomeSubrecords` paging for anything user-facing.
-
-Notes:
-
-- `recordId` is the **host record's** Melinda id; components are resolved through the SRU index field `melinda.partsofhost` (or `melinda.partsofmonohost` when `monoHostComponentsOnly` is `true`).
-- `records` are ready-to-use `MarcRecord` objects from `@natlibfi/marc-record` (parsed from MARCXML).
-- Constructor options: `sruUrl` (required at runtime — omitting it throws an `Error` with `status: 400`), `retrieveAll` (default `false`), `monoHostComponentsOnly` (default `false`).
-- With `retrieveAll: true`, `readSomeSubrecords` throws (it needs a single-page response to compute `nextRecordOffset`) — use `readAllSubrecords` for fetching everything, or create the picker without `retrieveAll` for paging.
-- Under the hood it uses `@natlibfi/sru-client`; `amount` always reflects the server-reported total, so `records.length < amount` is expected for `readSomeSubrecords`.
 
 ## Notes
 
