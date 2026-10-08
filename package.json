@@ -46,7 +46,7 @@
 		"winston": "^3.19.0"
 	},
 	"devDependencies": {
-		"@natlibfi/fixugen-http-client": "^4.0.3",
+		"@natlibfi/fixugen": "^3.0.1",
 		"@natlibfi/fixura": "^5.0.0",
 		"@types/base64-url": "^2.2.2",
 		"@types/debug": "^4.1.13",
