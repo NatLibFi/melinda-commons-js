@@ -5,7 +5,7 @@ coverage
 configCrowd.js
 
 # AI agent / workspace docs
-zoo/
+workspace/
 .pi/
 AGENTS.md
 CONTEXT.md
