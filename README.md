@@ -73,6 +73,10 @@ Both are available via `npx` after installing the package.
 
 `Error` (default export of `src/error.ts`, re-exported as `Error`) carries `status` (number), `payload` (arbitrary value, typed `unknown` — it is data, not necessarily a message), and `params` (`unknown[]` of any extra constructor arguments). `message` is intentionally empty; read `status`/`payload` for details.
 
+## SRU subrecord picker
+
+The SRU subrecord picker (formerly exported as `subRecordPicker`) has moved to its own repository: [melinda-subrecord-tools](https://github.com/NatLibFi/melinda-subrecord-tools).
+
 ## Notes
 
 - Importing the package sets `MarcRecord.setValidationOptions({subfieldValues: false})` globally on `@natlibfi/marc-record` (Aleph creates partial subfields).
